@@ -233,7 +233,7 @@ test('fullscreen and responsive embedded frame leave the table and main page usa
     }
     if (info.project.name === 'desktop' && [390, 1440].includes(width))
       await page.screenshot({
-        path: `artifacts/embedded-lab/controlled-frame-${width}.png`,
+        path: `${process.env.VOLTQUEST_ARTIFACT_ROOT ?? 'artifacts/embedded-lab'}/controlled-frame-${width}.png`,
         fullPage: true,
       })
   }

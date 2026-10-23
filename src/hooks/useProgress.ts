@@ -65,10 +65,10 @@ export function useProgress() {
     }
   }, [state])
   const profile = state.active ? state.profiles[state.active] : null
-  function login(name: string) {
+  function login(name: string, accountId?: string) {
     const clean = name.trim().replace(/\s+/g, ' ')
     if (!clean) return
-    const key = `student:${clean.toLocaleLowerCase('id-ID')}`
+    const key = accountId ?? `student:${clean.toLocaleLowerCase('id-ID')}`
     setState((s) => ({
       active: key,
       profiles: {

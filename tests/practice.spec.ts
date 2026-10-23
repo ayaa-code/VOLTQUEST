@@ -6,7 +6,9 @@ import { getPracticePlan } from '../src/data/practiceSelection'
 const key = 'voltquest.practice.v1'
 async function login(page: Page, name = 'Nara') {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Masuk atau Daftar' }).click()
+  await page
+    .getByRole('button', { name: 'Buka profil lama tanpa email' })
+    .click()
   await page.getByLabel('Siapa nama panggilanmu?').fill(name)
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
 }

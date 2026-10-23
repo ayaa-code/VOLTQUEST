@@ -1,5 +1,7 @@
 # Onboarding tengah dengan animasi rangkaian
 
+> Arsip desain sebelumnya. Halaman aktif sekarang mengikuti [login 3D listrik dinamis](login-3d.md) dari lampiran terbaru. Bukti di bawah merekam revisi terdahulu.
+
 Revisi 23 Oktober 2026 mengikuti susunan pengguna: **logo VoltQuest → Mulai petualanganmu✦ → animasi → login**. Kartu kembali di tengah pada desktop maupun ponsel. Keterangan singkat produk tetap berada di bawah judul. Kontrol jeda ada tepat di bawah ilustrasi, sebelum tombol masuk. Animasi tidak menghalangi form dan tidak perlu ditunggu.
 
 Gerak dibuat lebih terlihat daripada versi latar sebelumnya. Siklus 10 detik mencakup:

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
+import { OrthographicCamera, Vector3 } from 'three'
 
 test.beforeEach(async ({ page }) => {
   // Keep external font availability out of lifecycle assertions.
@@ -114,182 +115,210 @@ async function expectStopped(page: Page) {
   expect(await page.evaluate(() => window.energyProbe.callbacks)).toBe(count)
 }
 
-test('keyboard pause, uninterrupted form, StrictMode and unmount cleanup', async ({
+test('3D switch, keyboard pause, visibility and unmount release animation resources', async ({
   page,
 }) => {
   await instrument(page)
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
-  page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text())
-  })
   await page.goto('/')
-  const toggle = page.getByRole('button', { name: 'Jeda animasi' })
+  await expect(page.locator('.login-circuit')).toHaveAttribute(
+    'data-renderer',
+    '3d',
+  )
   await expect
     .poll(() => page.evaluate(() => window.energyProbe.callbacks))
     .toBeGreaterThan(2)
-  await toggle.focus()
-  expect(
-    await toggle.evaluate((element) => getComputedStyle(element).outlineStyle),
-  ).toBe('solid')
-  await page.keyboard.press('Enter')
-  await expect(
-    page.getByRole('button', { name: 'Putar animasi' }),
-  ).toBeFocused()
-  await expectStopped(page)
-  const frozen = await page.locator('.energy-art').innerHTML()
-  await page.waitForTimeout(200)
-  expect(await page.locator('.energy-art').innerHTML()).toBe(frozen)
+  const control = page.getByRole('switch', { name: 'Saklar rangkaian' })
+  await control.focus()
   await page.keyboard.press('Space')
-  await expect
-    .poll(() => page.evaluate(() => window.energyProbe.pending))
-    .toBe(1)
-  await page.getByRole('button', { name: 'Masuk atau Daftar' }).click()
-  await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
-  await expect(page.getByLabel('Siapa nama panggilanmu?')).toHaveValue('Nara')
-  await page.getByRole('button', { name: 'Masuk', exact: true }).click()
-  await expect(page.locator('.dashboard')).toBeVisible()
-  await expect(page.locator('.energy-art')).toHaveCount(0)
-  await expectStopped(page)
-  expect(
-    await page.evaluate(() => ({
-      max: window.energyProbe.maxPending,
-      observers: window.energyProbe.observers,
-      listeners: window.energyProbe.listeners,
-    })),
-  ).toEqual({ max: 1, observers: 0, listeners: 0 })
-  expect(errors).toEqual([])
-})
-
-test('initial and live reduced motion stay static with no frame loop', async ({
-  page,
-}) => {
-  await instrument(page)
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/')
-  await expect(page.locator('.energy-art')).toHaveAttribute(
-    'data-phase',
-    'static',
-  )
+  await expect(control).toHaveAttribute('aria-checked', 'false')
   await expect(
-    page.getByText('Ilustrasi statis · gerak dikurangi'),
+    page.getByRole('img', { name: /Saklar terbuka, lampu mati/ }),
   ).toBeVisible()
-  await expect(page.getByRole('button', { name: /animasi/ })).toHaveCount(0)
+  await page.keyboard.press('Enter')
+  await expect(control).toHaveAttribute('aria-checked', 'true')
+  await page.getByRole('button', { name: 'Jeda animasi' }).click()
   await expectStopped(page)
-  expect(await page.evaluate(() => window.energyProbe.callbacks)).toBe(0)
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await expect
-    .poll(() => page.evaluate(() => window.energyProbe.callbacks))
-    .toBeGreaterThan(0)
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  await expect(page.locator('.energy-art')).toHaveAttribute(
-    'data-phase',
-    'static',
-  )
-  await expectStopped(page)
-  const staticImage = await page.locator('.energy-art').innerHTML()
-  await page.waitForTimeout(200)
-  expect(await page.locator('.energy-art').innerHTML()).toBe(staticImage)
-})
-
-test('visibility event and real offscreen scrolling suspend work', async ({
-  page,
-}) => {
-  await instrument(page)
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/')
+  await page.getByRole('button', { name: 'Putar animasi' }).click()
   await expect
     .poll(() => page.evaluate(() => window.energyProbe.pending))
     .toBe(1)
   await page.evaluate(() => window.energyProbe.setHidden(true))
   await expectStopped(page)
-  const before = await page.locator('.energy-art').innerHTML()
-  await page.waitForTimeout(200)
-  expect(await page.locator('.energy-art').innerHTML()).toBe(before)
   await page.evaluate(() => window.energyProbe.setHidden(false))
   await expect
     .poll(() => page.evaluate(() => window.energyProbe.pending))
     .toBe(1)
-  // Resume schedules work again. The frozen SVG was not rewritten while hidden.
-  expect(before).toBeTruthy()
-  await page.setViewportSize({ width: 390, height: 150 })
-  await page.locator('.onboarding-bottom').scrollIntoViewIfNeeded()
-  await expect
-    .poll(() =>
-      page
-        .locator('.energy-art')
-        .evaluate((element) => element.getBoundingClientRect().bottom),
-    )
-    .toBeLessThanOrEqual(0)
+  await page
+    .getByRole('button', { name: 'Buka profil lama tanpa email' })
+    .click()
+  await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
+  await page.getByRole('button', { name: 'Masuk', exact: true }).click()
+  await expect(page.locator('.dashboard')).toBeVisible()
   await expectStopped(page)
-  await page.locator('.energy-art').scrollIntoViewIfNeeded()
+  expect(
+    await page.evaluate(() => ({
+      observers: window.energyProbe.observers,
+      listeners: window.energyProbe.listeners,
+    })),
+  ).toEqual({ observers: 0, listeners: 0 })
+})
+
+test('reduced motion and offscreen pause keep switch interactive', async ({
+  page,
+}) => {
+  await instrument(page)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await expect(page.locator('.login-circuit')).toHaveAttribute(
+    'data-renderer',
+    '3d',
+  )
+  await expectStopped(page)
+  await page.getByRole('switch').click()
+  await expect(page.getByRole('switch')).toHaveAttribute(
+    'aria-checked',
+    'false',
+  )
+  await expectStopped(page)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await expect
+    .poll(() => page.evaluate(() => window.energyProbe.pending))
+    .toBe(1)
+  await page.setViewportSize({ width: 390, height: 250 })
+  await page.locator('.electric-level').scrollIntoViewIfNeeded()
+  await expectStopped(page)
+  await page.locator('.circuit-stage').scrollIntoViewIfNeeded()
   await expect
     .poll(() => page.evaluate(() => window.energyProbe.pending))
     .toBe(1)
 })
 
-test('onboarding and name form fit five widths without decorative overlap', async ({
+test('WebGL unavailable still gives an interactive SVG and working login', async ({
   page,
 }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = function (
+      ...args: Parameters<typeof original>
+    ) {
+      if (String(args[0]).startsWith('webgl')) return null
+      return original.apply(this, args)
+    } as typeof original
+  })
   await page.goto('/')
-  for (const width of [320, 390, 768, 1024, 1440]) {
-    await page.setViewportSize({ width, height: 1000 })
+  await expect(page.locator('.login-circuit-svg')).toBeVisible()
+  await page.getByRole('switch').click()
+  await expect(page.locator('.fallback-current')).toHaveCount(0)
+  await page.getByRole('switch').click()
+  await expect(page.locator('.fallback-current')).toBeVisible()
+  await page.getByRole('button', { name: 'Coba dengan akun demo' }).click()
+  await page.getByRole('button', { name: 'Masuk', exact: true }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Halo, Penjelajah!' }),
+  ).toBeVisible()
+})
+
+test('responsive 320 to 1920 layout preserves form and touch targets', async ({
+  page,
+}) => {
+  await page.goto('/')
+  for (const [width, height] of [
+    [320, 740],
+    [390, 844],
+    [768, 1024],
+    [1024, 768],
+    [1440, 1000],
+    [1920, 1080],
+    [844, 390],
+  ]) {
+    await page.setViewportSize({ width, height })
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true)
-    await expect(page.locator('.welcome-card .energy-art')).toHaveCount(1)
-    const brand = await page.locator('.welcome-card > .brand').boundingBox()
-    const heading = await page.locator('.welcome-copy').boundingBox()
-    const animation = await page.locator('.energy-animation').boundingBox()
-    const login = await page
-      .getByRole('button', { name: 'Masuk atau Daftar' })
-      .boundingBox()
-    expect(brand!.y + brand!.height).toBeLessThanOrEqual(heading!.y)
-    expect(heading!.y + heading!.height).toBeLessThanOrEqual(animation!.y)
-    expect(animation!.y + animation!.height).toBeLessThanOrEqual(login!.y)
-    expect(
-      await page.locator('.welcome-copy h1').evaluate((element) => {
-        const box = element.getBoundingClientRect()
-        return element.contains(
-          document.elementFromPoint(
-            box.x + box.width / 2,
-            box.y + box.height / 2,
-          ),
-        )
-      }),
-    ).toBe(true)
-    await expect(page.locator('.energy-art')).toHaveAttribute(
-      'aria-hidden',
-      'true',
+    const visual = await page.locator('.electric-visual').boundingBox()
+    const card = await page.locator('.auth-card').boundingBox()
+    if (width <= 850)
+      expect(visual!.y + visual!.height).toBeLessThanOrEqual(card!.y)
+    else expect(visual!.x + visual!.width).toBeLessThanOrEqual(card!.x)
+    for (const selector of [
+      '.auth-submit',
+      '.auth-eye',
+      '.circuit-toggle',
+      '.circuit-pause:not(.circuit-lightweight)',
+    ]) {
+      const box = await page.locator(selector).boundingBox()
+      expect(box!.width).toBeGreaterThanOrEqual(44)
+      expect(box!.height).toBeGreaterThanOrEqual(44)
+    }
+  }
+})
+
+test('clicking the 3D switch and GPU context loss both retain usable controls', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await expect(page.locator('.login-circuit')).toHaveAttribute(
+    'data-renderer',
+    '3d',
+  )
+  const canvas = page.locator('.circuit-webgl canvas')
+  const bounds = await canvas.boundingBox()
+  const aspect = bounds!.width / bounds!.height
+  const half = Math.max(3.5, 2.05 * aspect)
+  const camera = new OrthographicCamera(
+    -half,
+    half,
+    half / aspect,
+    -half / aspect,
+    0.1,
+    30,
+  )
+  camera.position.set(3.3, 6, 7.5)
+  camera.lookAt(0, 0.1, 0)
+  camera.updateMatrixWorld()
+  const position = new Vector3(-0.85, 0.4, -1.2).project(camera)
+  await canvas.click({
+    position: {
+      x: ((position.x + 1) / 2) * bounds!.width,
+      y: ((-position.y + 1) / 2) * bounds!.height,
+    },
+  })
+  await expect(page.getByRole('switch')).toHaveAttribute(
+    'aria-checked',
+    'false',
+  )
+  await canvas.evaluate((element) =>
+    element.dispatchEvent(new Event('webglcontextlost', { cancelable: true })),
+  )
+  await expect(page.locator('.login-circuit')).toHaveAttribute(
+    'data-renderer',
+    'svg',
+  )
+  await expect(canvas).toHaveCount(0)
+  await page.locator('.login-circuit-svg rect[fill="transparent"]').click()
+  await expect(page.getByRole('switch')).toHaveAttribute('aria-checked', 'true')
+})
+
+test('low resource devices skip the 3D module download', async ({ page }) => {
+  const requests: string[] = []
+  page.on('request', (request) => {
+    if (
+      request.url().includes('/circuitScene') ||
+      request.url().includes('/three.js')
     )
-    expect(
-      await page
-        .locator('.energy-art')
-        .evaluate((el) => getComputedStyle(el).pointerEvents),
-    ).toBe('none')
-  }
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
-  const control = page.getByRole('button', { name: 'Jeda animasi' })
-  const box = await control.boundingBox()
-  expect(box!.width).toBeGreaterThanOrEqual(44)
-  expect(box!.height).toBeGreaterThanOrEqual(44)
-  await page.getByRole('button', { name: 'Masuk atau Daftar' }).click()
-  await page
-    .getByLabel('Siapa nama panggilanmu?')
-    .fill('Nama Panjang Untuk Pemeriksaan Tampilan')
-  for (const width of [320, 390, 768, 1024, 1440]) {
-    await page.setViewportSize({ width, height: 1000 })
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
-    ).toBe(true)
-    await expect(
-      page.getByRole('button', { name: 'Masuk', exact: true }),
-    ).toBeEnabled()
-  }
+      requests.push(request.url())
+  })
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, 'hardwareConcurrency', {
+      value: 2,
+      configurable: true,
+    }),
+  )
+  await page.goto('/')
+  await expect(page.locator('.login-circuit-svg')).toBeVisible()
+  await page.getByRole('switch').click()
+  await expect(page.locator('.fallback-current')).toHaveCount(0)
+  expect(requests).toEqual([])
 })

@@ -5,7 +5,9 @@ import type { Page } from '@playwright/test'
 const key = 'voltquest.experiments.v1'
 async function enter(page: Page, id = 3) {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Masuk atau Daftar' }).click()
+  await page
+    .getByRole('button', { name: 'Buka profil lama tanpa email' })
+    .click()
   await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await page

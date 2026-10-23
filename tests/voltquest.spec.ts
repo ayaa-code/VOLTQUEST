@@ -4,7 +4,9 @@ import type { Page } from '@playwright/test'
 
 async function login(page: Page, name = 'Nara') {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Masuk atau Daftar' }).click()
+  await page
+    .getByRole('button', { name: 'Buka profil lama tanpa email' })
+    .click()
   await page.getByLabel('Siapa nama panggilanmu?').fill(name)
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(
@@ -140,7 +142,7 @@ test('responsive layout, empty search, and accessible dialogs', async ({
   await page.getByRole('button', { name: /Sudah punya kelas/ }).click()
   await page.getByLabel('Kode dari guru').fill('FISIKA-01')
   await page.getByRole('button', { name: 'Periksa kode' }).click()
-  await expect(page.getByRole('status')).toContainText(
+  await expect(page.getByRole('dialog').getByRole('status')).toContainText(
     'belum dapat diverifikasi',
   )
   await page.getByRole('button', { name: 'Lanjutkan ke demo' }).click()
@@ -203,6 +205,6 @@ test('invalid saved state recovers gracefully', async ({ page }) => {
   )
   await page.goto('/')
   await expect(
-    page.getByRole('button', { name: 'Masuk atau Daftar' }),
+    page.getByRole('button', { name: 'Buka profil lama tanpa email' }),
   ).toBeVisible()
 })

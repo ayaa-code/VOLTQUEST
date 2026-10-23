@@ -42,7 +42,7 @@ Lihat [audit, aturan pemilihan, bank soal, penyimpanan, pengujian, dan screensho
 
 ## Menjalankan aplikasi
 
-Onboarding disusun di tengah: logo VoltQuest, judul, animasi rangkaian, lalu login. Animasi 10 detik menampilkan kabel yang terbentuk, komponen masuk ke posisi, gerak mengambang lembut, aliran cahaya, sakelar, serta pendar lampu. Tanpa fase sinusoidal atau titik menyebar. Tersedia jeda/putar, reduced motion, dan penghentian saat ilustrasi tidak terlihat. Lihat [implementasi dan bukti terbaru](docs/energy-centered.md).
+Login memakai rangkaian 3D interaktif di sisi kiri dan kartu email/kata sandi di kanan. Pada ponsel, ilustrasi berada di atas form. Saklar mengatur arus dan lampu; tersedia pause, reduced motion, serta fallback SVG. Akun demo, pendaftaran lokal, pemulihan dengan kode, dan profil nama lama dapat digunakan. Lihat [implementasi dan bukti terbaru](docs/login-3d.md).
 
 ```sh
 npm install
@@ -65,7 +65,7 @@ Dengan dev server aktif di `http://127.0.0.1:5173/`, jalankan `node scripts/audi
 
 ## Alur demo
 
-1. Klik **Masuk atau Daftar**, isi nama, lalu masuk.
+1. Klik **Coba dengan akun demo**, lalu **Masuk**. Untuk melanjutkan profil sebelumnya, pilih **Buka profil lama tanpa email** dan isi nama yang sama.
 2. Cari atau pilih salah satu dari lima kartu misi.
 3. Baca briefing dan target. Pilih prediksi, termasuk “Belum yakin”; alasan opsional.
 4. Ikuti panduan di langkah Eksperimen dan klik **Mulai simulasi di sini**. PhET tampil di halaman misi. Lanjutkan ke Pengamatan untuk mengisi tabel sambil mempertahankan simulasi yang sedang berjalan. Lengkapi seluruh hasil lalu klik **Simpan pengamatan dan lanjut** untuk membuka Refleksi. Hasil tidak dinilai terhadap nilai ideal; alasan tertulis tetap opsional.
@@ -80,7 +80,7 @@ Profil, misi selesai, dan riwayat membuka tautan lab disimpan di `localStorage` 
 
 Draf memakai kunci terpisah `voltquest.experiments.v1`, versi 1, per identitas profil yang sama dan ID misi. Isian disimpan langsung saat berubah. Prediksi awal dicatat ketika pertama melanjutkan; perubahan tidak menimpanya. Draf menyimpan langkah, prediksi/alasan, catatan, status pencatatan, pilihan refleksi, dan alasannya. Hash `#misi-1` hingga `#misi-5` menjaga misi saat refresh. Versi draf tidak dikenal tidak ditimpa; kegagalan tulis diberi pemberitahuan tanpa klaim tersimpan. Tidak ada reset progres. Lihat [dokumentasi tahap 4](docs/guided-experiment-flow.md).
 
-Ini bukan autentikasi. Progres tidak tersinkron ke perangkat, browser, atau origin lain. Menghapus data situs akan menghapus progres. Jika browser menolak penyimpanan, aplikasi menampilkan pemberitahuan dan tetap bisa dipakai dalam sesi itu. Kode kelas guru hanya menampilkan penjelasan mode demo dan tidak menghubungkan siswa ke kelas nyata.
+Login email adalah prototipe lokal, bukan autentikasi server. Akun email memakai identitas terpisah dari profil nama lama. Kata sandi lokal disimpan sebagai hash; kode pemulihan diberikan saat pendaftaran. Checkbox Ingat saya hanya menyimpan email. Lihat [batas penyimpanan dan sesi](docs/login-3d.md). Progres tidak tersinkron ke perangkat, browser, atau origin lain. Menghapus data situs akan menghapus progres. Jika browser menolak penyimpanan, aplikasi menampilkan pemberitahuan dan tetap bisa dipakai dalam sesi itu. Kode kelas guru hanya menampilkan penjelasan mode demo dan tidak menghubungkan siswa ke kelas nyata.
 
 ## Laboratorium pendukung
 

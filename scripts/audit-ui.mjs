@@ -245,7 +245,7 @@ try {
     }
     page.setDefaultTimeout(10000)
     await page.goto('http://127.0.0.1:5173/', { waitUntil: 'domcontentloaded' })
-    await page.getByRole('button', { name: 'Masuk atau Daftar' }).waitFor()
+    await page.getByRole('button', { name: 'Buka profil lama tanpa email' }).waitFor()
     await page.evaluate(() =>
       Promise.race([
         document.fonts.ready,
@@ -263,7 +263,7 @@ try {
         })
     }
     await snapshot('onboarding')
-    await page.getByRole('button', { name: 'Masuk atau Daftar' }).hover()
+    await page.getByRole('button', { name: 'Buka profil lama tanpa email' }).hover()
     await snapshot('onboarding-hover')
     await page.keyboard.press('Tab')
     await snapshot('onboarding-focus')
@@ -272,7 +272,7 @@ try {
     await page.getByRole('button', { name: 'Periksa kode' }).click()
     await snapshot('class-dialog')
     await page.getByRole('button', { name: 'Tutup', exact: true }).click()
-    await page.getByRole('button', { name: 'Masuk atau Daftar' }).click()
+    await page.getByRole('button', { name: 'Buka profil lama tanpa email' }).click()
     await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
     await snapshot('login')
     await page.getByRole('button', { name: 'Masuk', exact: true }).click()

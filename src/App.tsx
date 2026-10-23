@@ -19,14 +19,13 @@ import {
   X,
   Zap,
 } from 'lucide-react'
-import type { FormEvent } from 'react'
 import { missions } from './data/missions'
 import { MissionView } from './components/MissionView'
 import { PracticeHub } from './components/PracticeHub'
 import type { RecommendationRef } from './data/feedbackRules'
 import { Brand, ProgressBar, MissionCard } from './components/LearningUI'
 import { CircuitArt } from './components/CircuitArt'
-import { EnergyCircuitAnimation } from './components/EnergyCircuitAnimation'
+import { LoginPage } from './components/LoginPage'
 import { Dialog } from './components/Dialog'
 import { useProgress } from './hooks/useProgress'
 import './App.css'
@@ -59,10 +58,6 @@ function App() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [selected, practiceOpen, profile?.name])
-  function signIn(e: FormEvent) {
-    e.preventDefault()
-    if (name.trim()) login(name)
-  }
   useEffect(() => {
     window.history.replaceState(
       null,
@@ -95,75 +90,16 @@ function App() {
         </div>
       )}
       {!profile ? (
-        <main className="onboarding">
-          <section className="welcome-card page-enter">
-            <Brand />
-            <div className="welcome-copy">
-              <h1>
-                Mulai
-                <br />
-                petualanganmu<span className="title-spark">✦</span>
-              </h1>
-              <p>
-                Jelajahi listrik dinamis lewat eksperimen
-                <br className="desktop-break" /> PhET dan refleksi singkat.
-              </p>
-            </div>
-            <EnergyCircuitAnimation />
-            {loginForm ? (
-              <form className="login-form" onSubmit={signIn}>
-                <label htmlFor="student-name">Siapa nama panggilanmu?</label>
-                <div className="name-input">
-                  <UserRound size={18} />
-                  <input
-                    id="student-name"
-                    autoFocus
-                    maxLength={40}
-                    placeholder="Tulis namamu di sini"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    autoComplete="given-name"
-                  />
-                </div>
-                <button className="primary-button" disabled={!name.trim()}>
-                  Masuk <ArrowRight size={18} />
-                </button>
-                <p className="local-note">
-                  Mode demo · Progres disimpan di browser ini.
-                </p>
-              </form>
-            ) : (
-              <button
-                className="primary-button welcome-cta"
-                onClick={() => setLoginForm(true)}
-              >
-                Masuk atau Daftar <ArrowRight size={19} />
-              </button>
-            )}
-            <button
-              className="class-link"
-              onClick={() => {
-                setClassNotice(false)
-                setModal('class')
-              }}
-            >
-              Sudah punya kelas? <span>Masukkan kode dari guru.</span>
-            </button>
-            <div className="welcome-footer">
-              <span>
-                <GraduationCap size={15} /> Fisika Fase F
-              </span>
-              <span className="tiny-dot" />
-              <span>SMA / MA</span>
-              <span className="tiny-dot" />
-              <span>Belajar sambil menjelajah</span>
-            </div>
-          </section>
-          <p className="onboarding-bottom">
-            Setiap penjelajah hebat dimulai dari rasa ingin tahu.
-          </p>
-        </main>
+        <LoginPage
+          onLogin={login}
+          legacy={loginForm}
+          initialName={name}
+          onLegacy={setLoginForm}
+          onClass={() => {
+            setClassNotice(false)
+            setModal('class')
+          }}
+        />
       ) : (
         <div className="app-shell">
           <header className="app-header">
@@ -630,8 +566,8 @@ function App() {
             </span>
           </div>
           <p className="profile-note">
-            Ini profil demo lokal. Gunakan nama yang sama di browser ini untuk
-            melanjutkan progresmu. Nama lain memiliki progres tersendiri.
+            Ini profil demo lokal. Masuk dengan akun atau nama profil yang sama
+            di browser ini untuk melanjutkan progresmu.
           </p>
           <button
             className="secondary-button"
@@ -642,7 +578,7 @@ function App() {
               setSelected(null)
               setModal(null)
               setName(profile.name)
-              setLoginForm(true)
+              setLoginForm(profileId?.startsWith('student:') ?? false)
               setQuery('')
               setFilter('all')
             }}
