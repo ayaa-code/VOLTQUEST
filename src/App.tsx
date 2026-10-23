@@ -25,12 +25,16 @@ import { PracticeHub } from './components/PracticeHub'
 import type { RecommendationRef } from './data/feedbackRules'
 import { Brand, ProgressBar, MissionCard } from './components/LearningUI'
 import { CircuitAnimation } from './components/CircuitAnimation'
+import { DynamicLearning } from './components/DynamicLearning'
 import { LoginPage } from './components/LoginPage'
 import { Dialog } from './components/Dialog'
 import { useProgress } from './hooks/useProgress'
 import './App.css'
 
 type Modal = 'badges' | 'profile' | 'progress' | 'help' | 'class' | null
+// The former mission dashboard remains in the source while legacy mission URLs
+// are supported, but the Listrik Dinamis journey is the active dashboard.
+const legacyDashboardVisible = false
 function App() {
   const { profile, profileId, storageError, login, logout, complete, visit } =
     useProgress()
@@ -204,218 +208,225 @@ function App() {
               }
             />
           ) : (
-            <main className="dashboard page-enter">
-              <section className="greeting">
-                <div>
-                  <span className="eyebrow greeting-kicker">
-                    SELAMAT DATANG, PENJELAJAH
-                  </span>
-                  <h1>
-                    Halo, {profile.name}! <span className="wave">✦</span>
-                  </h1>
-                  <p>Mau belajar apa hari ini?</p>
-                </div>
-                <span className="phase-chip">
-                  <GraduationCap size={17} /> Fisika Fase F
-                </span>
-              </section>
-              <section className="dashboard-hero">
-                <div className="hero-copy">
-                  <span className="hero-tag">
-                    <span /> SEKOLAH TANGGUH ENERGI
-                  </span>
-                  <h2>
-                    Amati rangkaian,
-                    <br />
-                    jelaskan temuanmu.
-                  </h2>
-                  <p>
-                    Coba di PhET. Amati perubahan.
-                    <br />
-                    Hubungkan temuanmu dengan konsep.
-                  </p>
-                  <button
-                    className="primary-button"
-                    onClick={() => openMission(nextMission?.id ?? 1)}
-                  >
-                    {count === 5
-                      ? 'Jelajahi misi lagi'
-                      : count
-                        ? 'Lanjutkan petualangan'
-                        : 'Mulai misi pertama'}
-                    <ArrowRight size={17} />
-                  </button>
-                  <span className="hero-footnote">
-                    <FlaskConical size={14} /> Panduan eksperimen dan refleksi
-                  </span>
-                </div>
-                <div className="hero-art hero-interactive">
-                  <CircuitAnimation variant="dashboard" />
-                </div>
-              </section>
-              <section
-                className="content-card practice-invite"
-                aria-labelledby="practice-invite-title"
-              >
-                <div>
-                  <span className="section-kicker">
-                    <BookOpen size={16} /> LATIHAN PILIHANMU
-                  </span>
-                  <h2 id="practice-invite-title">
-                    Ingin mencoba situasi lain?
-                  </h2>
-                  <p>
-                    Pilih satu dari lima fokus konsep. Latihan opsional tanpa
-                    tambahan XP.
-                  </p>
-                </div>
-                <button
-                  className="secondary-button"
-                  onClick={() => setPracticeOpen(true)}
-                >
-                  Buka latihan mandiri <ArrowRight size={17} />
-                </button>
-              </section>
-              <section
-                className="missions-section"
-                aria-labelledby="mission-list-title"
-              >
-                <div className="section-heading">
-                  <div>
-                    <span className="eyebrow">
-                      LANGKAH KECIL, PENEMUAN BESAR
+            <>
+              <DynamicLearning profileId={profileId!} name={profile!.name} />
+              {legacyDashboardVisible && (
+                <main className="dashboard page-enter">
+                  <section className="greeting">
+                    <div>
+                      <span className="eyebrow greeting-kicker">
+                        SELAMAT DATANG, PENJELAJAH
+                      </span>
+                      <h1>
+                        Halo, {profile!.name}! <span className="wave">✦</span>
+                      </h1>
+                      <p>Mau belajar apa hari ini?</p>
+                    </div>
+                    <span className="phase-chip">
+                      <GraduationCap size={17} /> Fisika Fase F
                     </span>
-                    <h2 id="mission-list-title">
-                      Pilih misi<span className="mission-count">05</span>
-                    </h2>
-                  </div>
-                  <button
-                    className="text-button"
-                    onClick={() => {
-                      setQuery('')
-                      setFilter('all')
-                    }}
+                  </section>
+                  <section className="dashboard-hero">
+                    <div className="hero-copy">
+                      <span className="hero-tag">
+                        <span /> SEKOLAH TANGGUH ENERGI
+                      </span>
+                      <h2>
+                        Amati rangkaian,
+                        <br />
+                        jelaskan temuanmu.
+                      </h2>
+                      <p>
+                        Coba di PhET. Amati perubahan.
+                        <br />
+                        Hubungkan temuanmu dengan konsep.
+                      </p>
+                      <button
+                        className="primary-button"
+                        onClick={() => openMission(nextMission?.id ?? 1)}
+                      >
+                        {count === 5
+                          ? 'Jelajahi misi lagi'
+                          : count
+                            ? 'Lanjutkan petualangan'
+                            : 'Mulai misi pertama'}
+                        <ArrowRight size={17} />
+                      </button>
+                      <span className="hero-footnote">
+                        <FlaskConical size={14} /> Panduan eksperimen dan
+                        refleksi
+                      </span>
+                    </div>
+                    <div className="hero-art hero-interactive">
+                      <CircuitAnimation variant="dashboard" />
+                    </div>
+                  </section>
+                  <section
+                    className="content-card practice-invite"
+                    aria-labelledby="practice-invite-title"
                   >
-                    Lihat semua <ArrowRight size={15} />
-                  </button>
-                </div>
-                <div className="mission-controls">
-                  <div className="filter-tabs" aria-label="Filter misi">
-                    {(
-                      [
-                        { id: 'all', label: 'Semua misi' },
-                        { id: 'available', label: 'Belum selesai' },
-                        { id: 'completed', label: 'Selesai' },
-                      ] as const
-                    ).map((item) => (
-                      <button
-                        key={item.id}
-                        aria-pressed={filter === item.id}
-                        className={filter === item.id ? 'active' : ''}
-                        onClick={() => setFilter(item.id)}
-                      >
-                        {item.label}
-                        {item.id === 'completed' && count > 0 && (
-                          <span>{count}</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                  <label className="search-field">
-                    <Search size={17} />
-                    <input
-                      aria-label="Cari misi"
-                      placeholder="Cari misi"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                    />
-                    {query && (
-                      <button
-                        aria-label="Hapus pencarian"
-                        onClick={() => setQuery('')}
-                      >
-                        <X size={15} />
-                      </button>
-                    )}
-                  </label>
-                </div>
-                <div className="mission-grid">
-                  {visibleMissions.map((mission) => (
-                    <MissionCard
-                      key={mission.id}
-                      mission={mission}
-                      completed={profile.completed.includes(mission.id)}
-                      onSelect={() => openMission(mission.id)}
-                    />
-                  ))}
-                </div>
-                {visibleMissions.length === 0 && (
-                  <div className="empty-state">
-                    <Search size={26} />
-                    <h3>
-                      {filter === 'completed' && !query
-                        ? 'Badge pertamamu menunggu!'
-                        : 'Belum ada misi yang cocok'}
-                    </h3>
-                    <p>
-                      {filter === 'completed' && !query
-                        ? 'Selesaikan satu misi dan rayakan langkah pertamamu.'
-                        : 'Coba kata kunci lain atau tampilkan semua misi.'}
-                    </p>
+                    <div>
+                      <span className="section-kicker">
+                        <BookOpen size={16} /> LATIHAN PILIHANMU
+                      </span>
+                      <h2 id="practice-invite-title">
+                        Ingin mencoba situasi lain?
+                      </h2>
+                      <p>
+                        Pilih satu dari lima fokus konsep. Latihan opsional
+                        tanpa tambahan XP.
+                      </p>
+                    </div>
                     <button
-                      className="text-button"
-                      onClick={() => {
-                        setQuery('')
-                        setFilter('all')
-                      }}
+                      className="secondary-button"
+                      onClick={() => setPracticeOpen(true)}
                     >
-                      Tampilkan semua misi <ArrowRight size={15} />
+                      Buka latihan mandiri <ArrowRight size={17} />
                     </button>
+                  </section>
+                  <section
+                    className="missions-section"
+                    aria-labelledby="mission-list-title"
+                  >
+                    <div className="section-heading">
+                      <div>
+                        <span className="eyebrow">
+                          LANGKAH KECIL, PENEMUAN BESAR
+                        </span>
+                        <h2 id="mission-list-title">
+                          Pilih misi<span className="mission-count">05</span>
+                        </h2>
+                      </div>
+                      <button
+                        className="text-button"
+                        onClick={() => {
+                          setQuery('')
+                          setFilter('all')
+                        }}
+                      >
+                        Lihat semua <ArrowRight size={15} />
+                      </button>
+                    </div>
+                    <div className="mission-controls">
+                      <div className="filter-tabs" aria-label="Filter misi">
+                        {(
+                          [
+                            { id: 'all', label: 'Semua misi' },
+                            { id: 'available', label: 'Belum selesai' },
+                            { id: 'completed', label: 'Selesai' },
+                          ] as const
+                        ).map((item) => (
+                          <button
+                            key={item.id}
+                            aria-pressed={filter === item.id}
+                            className={filter === item.id ? 'active' : ''}
+                            onClick={() => setFilter(item.id)}
+                          >
+                            {item.label}
+                            {item.id === 'completed' && count > 0 && (
+                              <span>{count}</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                      <label className="search-field">
+                        <Search size={17} />
+                        <input
+                          aria-label="Cari misi"
+                          placeholder="Cari misi"
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                        />
+                        {query && (
+                          <button
+                            aria-label="Hapus pencarian"
+                            onClick={() => setQuery('')}
+                          >
+                            <X size={15} />
+                          </button>
+                        )}
+                      </label>
+                    </div>
+                    <div className="mission-grid">
+                      {visibleMissions.map((mission) => (
+                        <MissionCard
+                          key={mission.id}
+                          mission={mission}
+                          completed={profile!.completed.includes(mission.id)}
+                          onSelect={() => openMission(mission.id)}
+                        />
+                      ))}
+                    </div>
+                    {visibleMissions.length === 0 && (
+                      <div className="empty-state">
+                        <Search size={26} />
+                        <h3>
+                          {filter === 'completed' && !query
+                            ? 'Badge pertamamu menunggu!'
+                            : 'Belum ada misi yang cocok'}
+                        </h3>
+                        <p>
+                          {filter === 'completed' && !query
+                            ? 'Selesaikan satu misi dan rayakan langkah pertamamu.'
+                            : 'Coba kata kunci lain atau tampilkan semua misi.'}
+                        </p>
+                        <button
+                          className="text-button"
+                          onClick={() => {
+                            setQuery('')
+                            setFilter('all')
+                          }}
+                        >
+                          Tampilkan semua misi <ArrowRight size={15} />
+                        </button>
+                      </div>
+                    )}
+                  </section>
+                  <section className="progress-card">
+                    <div className="progress-trophy">
+                      <Trophy size={29} strokeWidth={1.5} />
+                    </div>
+                    <div className="progress-main">
+                      <div className="progress-heading">
+                        <h2>Progres belajarmu</h2>
+                        <span>{count}/5 misi</span>
+                      </div>
+                      <ProgressBar count={count} />
+                      <p>
+                        {count === 5
+                          ? 'Luar biasa! Kamu menuntaskan seluruh petualangan.'
+                          : count
+                            ? 'Terus berlatih. Coba jelaskan alasan jawabanmu!'
+                            : 'Petualangan hebat dimulai dari satu misi.'}
+                      </p>
+                    </div>
+                    <div className="progress-xp">
+                      <Zap size={19} fill="currentColor" />
+                      <strong>{count * 100}</strong>
+                      <span>Total XP</span>
+                    </div>
+                    <button
+                      className="progress-arrow icon-button"
+                      aria-label="Lihat detail progres"
+                      onClick={() => setModal('progress')}
+                    >
+                      <ChevronRight size={21} />
+                    </button>
+                  </section>
+                  <div className="learning-tip">
+                    <span className="tip-icon">
+                      <Leaf size={19} />
+                    </span>
+                    <p>
+                      <strong>Tahukah kamu?</strong> Mematikan lampu di ruang
+                      kosong adalah langkah kecil untuk sekolah yang lebih hemat
+                      energi.
+                    </p>
+                    <span className="tip-spark">✦</span>
                   </div>
-                )}
-              </section>
-              <section className="progress-card">
-                <div className="progress-trophy">
-                  <Trophy size={29} strokeWidth={1.5} />
-                </div>
-                <div className="progress-main">
-                  <div className="progress-heading">
-                    <h2>Progres belajarmu</h2>
-                    <span>{count}/5 misi</span>
-                  </div>
-                  <ProgressBar count={count} />
-                  <p>
-                    {count === 5
-                      ? 'Luar biasa! Kamu menuntaskan seluruh petualangan.'
-                      : count
-                        ? 'Terus berlatih. Coba jelaskan alasan jawabanmu!'
-                        : 'Petualangan hebat dimulai dari satu misi.'}
-                  </p>
-                </div>
-                <div className="progress-xp">
-                  <Zap size={19} fill="currentColor" />
-                  <strong>{count * 100}</strong>
-                  <span>Total XP</span>
-                </div>
-                <button
-                  className="progress-arrow icon-button"
-                  aria-label="Lihat detail progres"
-                  onClick={() => setModal('progress')}
-                >
-                  <ChevronRight size={21} />
-                </button>
-              </section>
-              <div className="learning-tip">
-                <span className="tip-icon">
-                  <Leaf size={19} />
-                </span>
-                <p>
-                  <strong>Tahukah kamu?</strong> Mematikan lampu di ruang kosong
-                  adalah langkah kecil untuk sekolah yang lebih hemat energi.
-                </p>
-                <span className="tip-spark">✦</span>
-              </div>
-            </main>
+                </main>
+              )}
+            </>
           )}
           <footer className="app-footer">
             <span>

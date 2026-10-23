@@ -78,7 +78,7 @@ test('short screens, larger text and validation keep all login controls reachabl
   ).toBe(true)
 })
 
-test('dashboard primary action fits laptop and all mission content stays accessible', async ({
+test('dashboard learning action fits laptop and the first material stays accessible', async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -108,11 +108,9 @@ test('dashboard primary action fits laptop and all mission content stays accessi
       ),
     ).toBe(true)
     await expect(
-      page.getByRole('button', { name: 'Mulai misi pertama' }),
+      page.getByRole('button', { name: 'Lanjutkan belajar' }),
     ).toBeInViewport()
   }
-  await page.getByRole('button', { name: 'Mulai misi pertama' }).click()
-  await expect(
-    page.getByRole('radio', { name: 'Belum yakin', exact: true }),
-  ).toBeVisible()
+  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await expect(page.getByRole('heading', { name: 'Arus Listrik' })).toBeVisible()
 })

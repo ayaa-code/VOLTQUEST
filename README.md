@@ -2,7 +2,13 @@
 
 [Buka VoltQuest](https://voltquest.vercel.app) · [Repository GitHub](https://github.com/ayaa-code/VOLTQUEST) · [Panduan deployment](docs/deployment.md)
 
-Demo pendamping eksperimen listrik dinamis untuk Fisika Fase F SMA / MA, bertema **Sekolah Tangguh Energi**. Versi saat ini menyediakan alur prediksi → eksperimen PhET → pengamatan manual → refleksi untuk lima misi, dengan draf lokal dan petunjuk tetap per misi. Dibangun dengan React, TypeScript, Vite, CSS, dan ikon Lucide. Tanpa backend atau database.
+Demo pendamping pembelajaran listrik dinamis untuk Fisika Fase F SMA / MA, bertema **Sekolah Tangguh Energi**. Dashboard utama menyediakan urutan enam submateri: materi → challenge analisis PhET → kuis formatif, kemudian asesmen sumatif. Rangkaian 3D interaktif tetap hadir pada banner pembelajaran. Dibangun dengan React, TypeScript, Vite, CSS, dan ikon Lucide. Tanpa backend atau database.
+
+## Jalur belajar Listrik Dinamis
+
+Materi dibuka bertahap agar siswa memiliki prasyarat sebelum mengerjakan kuis berikutnya. Challenge meminta siswa membuka simulasi PhET dan menulis pengamatan serta refleksi mereka sendiri; VoltQuest tidak mengklaim membaca aktivitas di PhET. Jawaban angka formatif memberi kesempatan revisi dan pengingat konsep ketika belum tepat. Sumatif terdiri dari pilihan ganda yang dapat diperiksa serta uraian yang disimpan untuk ditinjau dengan rubrik, tanpa nilai uraian otomatis.
+
+Progres jalur baru tersimpan per profil dalam penyimpanan lokal yang terpisah dari XP, akun, misi, dan data yang sudah ada. Lihat [panduan jalur belajar](docs/dynamic-learning.md).
 
 ## Laboratorium dan tabel pengamatan
 
