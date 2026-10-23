@@ -2,6 +2,12 @@
 
 Repository: [ayaa-code/VOLTQUEST](https://github.com/ayaa-code/VOLTQUEST).
 
+## Deployment production
+
+Deployment melalui CLI Vercel selesai pada 23 Oktober 2026 dengan status **READY**. URL production: **https://voltquest.vercel.app**. Project berada pada `aliyaas-projects-6360b9bd/voltquest`; [dashboard deployment](https://vercel.com/aliyaas-projects-6360b9bd/voltquest/5M486YqBXtxFtmw6iN7pVQ6EageM).
+
+Build cloud menjalankan `npm ci`, TypeScript, dan Vite dengan sukses. Verifikasi HTTP dari jaringan agen mengalami timeout sehingga pengujian interaksi langsung pada domain production belum terkonfirmasi. Deployment dilakukan dari source lokal melalui CLI. Status deployment ini tidak membuktikan bahwa push GitHub atau sambungan deploy otomatis telah selesai; keduanya diperiksa terpisah.
+
 VoltQuest adalah aplikasi React/Vite statis. Konfigurasi `vercel.json` menetapkan framework Vite, instalasi `npm ci`, build `npm run build`, output `dist`, dan fallback SPA ke `index.html`. Node.js 24 ditetapkan melalui `.nvmrc` serta `package.json`. Tidak memerlukan environment variable, database, atau server backend.
 
 Untuk menghubungkan repository pada akun Vercel:
