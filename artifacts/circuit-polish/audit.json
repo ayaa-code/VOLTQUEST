@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-23T14:26:28.027Z",
+  "errors": [],
+  "layouts": [
+    {
+      "variant": "login",
+      "renderer": "3d",
+      "width": 1440,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "login",
+      "renderer": "3d",
+      "width": 768,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "login",
+      "renderer": "3d",
+      "width": 390,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "login",
+      "renderer": "3d",
+      "width": 320,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "login",
+      "renderer": "svg",
+      "width": 1440,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "login",
+      "renderer": "svg",
+      "width": 768,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "login",
+      "renderer": "svg",
+      "width": 390,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "login",
+      "renderer": "svg",
+      "width": 320,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "dashboard",
+      "renderer": "3d",
+      "width": 1440,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "dashboard",
+      "renderer": "3d",
+      "width": 768,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "dashboard",
+      "renderer": "3d",
+      "width": 390,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "dashboard",
+      "renderer": "3d",
+      "width": 320,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "dashboard",
+      "renderer": "svg",
+      "width": 1440,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "dashboard",
+      "renderer": "svg",
+      "width": 768,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "dashboard",
+      "renderer": "svg",
+      "width": 390,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    },
+    {
+      "variant": "dashboard",
+      "renderer": "svg",
+      "width": 320,
+      "overlap": false,
+      "overflow": false,
+      "legendText": "BateraiSaklarResistorLampu"
+    }
+  ]
+}

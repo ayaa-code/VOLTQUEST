@@ -1,5 +1,7 @@
 # Rangkaian 3D pada dashboard
 
+> Pembaruan berikutnya merapikan SVG ringan serta memindahkan label ke area keterangan di bawah gambar. Lihat [hasil terbaru](circuit-polish.md); screenshot pada dokumen ini merekam integrasi awal dashboard.
+
 Revisi 23 Oktober 2026 menempatkan rangkaian interaktif dari login di sisi kanan banner “Amati rangkaian, jelaskan temuanmu.” Pada ponsel, teks dan tombol misi tetap lebih dahulu, lalu rangkaian dan kontrol ringkas di bawahnya. Ilustrasi statis dan stiker sebelumnya digantikan oleh komponen interaktif tanpa menambahkan panel gelap di dalam banner pastel.
 
 ## Implementasi

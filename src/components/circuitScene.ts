@@ -320,21 +320,6 @@ export function createCircuitScene(
     camera.bottom = -halfWidth / aspect
     camera.updateProjectionMatrix()
     renderer.setSize(w, h)
-    // HTML annotations follow the camera projection at every viewport size.
-    for (const [selector, point] of [
-      ['.battery-label', v(-2.7, 0.1, 0.4)],
-      ['.resistor-label', v(0.7, -1.2, 0.9)],
-      ['.lamp-label', v(2.8, 0, 0.9)],
-    ] as const) {
-      const label = host.parentElement?.querySelector<HTMLElement>(selector)
-      const projected = point.project(camera)
-      if (label) {
-        label.style.left = `${((projected.x + 1) / 2) * w}px`
-        label.style.top = `${((-projected.y + 1) / 2) * h}px`
-        label.style.right = 'auto'
-        label.style.transform = 'translate(-50%, -50%)'
-      }
-    }
     refresh()
   })
   resize.observe(host)
@@ -389,9 +374,6 @@ export function createCircuitScene(
       renderer.dispose()
       renderer.forceContextLoss()
       renderer.domElement.remove()
-      host.parentElement
-        ?.querySelectorAll<HTMLElement>('.circuit-label')
-        .forEach((label) => label.removeAttribute('style'))
     },
   }
 }

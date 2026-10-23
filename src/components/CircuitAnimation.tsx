@@ -119,9 +119,12 @@ export function CircuitAnimation({
             }}
           />
         )}
-        <span className="circuit-label battery-label">Baterai</span>
-        <span className="circuit-label resistor-label">Resistor</span>
-        <span className="circuit-label lamp-label">Lampu</span>
+        <div className="circuit-legend" aria-hidden="true">
+          <span>Baterai</span>
+          <span>Saklar</span>
+          <span>Resistor</span>
+          <span>Lampu</span>
+        </div>
       </div>
       <figcaption>
         <div className="circuit-controls">
