@@ -1,0 +1,45 @@
+.energy-animation {
+  /* Pastels shared with the existing CircuitArt illustration. */
+  --energy-lilac: #e8e3fc;
+  --energy-mint: #78b9ac;
+  --energy-yellow: #ffe48b;
+  --energy-gold: #a17a30;
+  --energy-coral: #f6b89e;
+  --energy-paper: #faf8ff;
+  position: relative;
+  width: 100%;
+  margin: 14px auto 0;
+}
+.energy-art {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  margin-inline: auto;
+  aspect-ratio: 400 / 270;
+  overflow: hidden;
+  pointer-events: none;
+}
+.energy-controls {
+  display: flex;
+  justify-content: center;
+  min-height: var(--touch-target);
+}
+.energy-toggle,
+.energy-static-note {
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: var(--font-caption);
+  line-height: var(--leading-compact);
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border: 1px solid #e4dced;
+  background: #fbfafc;
+  border-radius: 24px;
+}
+.energy-toggle:hover {
+  color: var(--purple);
+  background: #eee8f9;
+}

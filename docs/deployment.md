@@ -1,0 +1,27 @@
+# Deployment GitHub dan Vercel
+
+Repository: [aliyadewirahmawati-ui/VOLTQUEST](https://github.com/aliyadewirahmawati-ui/VOLTQUEST).
+
+VoltQuest adalah aplikasi React/Vite statis. Konfigurasi `vercel.json` menetapkan framework Vite, instalasi `npm ci`, build `npm run build`, output `dist`, dan fallback SPA ke `index.html`. Node.js 24 ditetapkan melalui `.nvmrc` serta `package.json`. Tidak memerlukan environment variable, database, atau server backend.
+
+Untuk menghubungkan repository pada akun Vercel:
+
+1. Buka [Import VoltQuest ke Vercel](https://vercel.com/new/import?s=https%3A%2F%2Fgithub.com%2Faliyadewirahmawati-ui%2FVOLTQUEST).
+2. Pilih akun/team tujuan dan repository tersebut. Root Directory tetap `./`.
+3. Gunakan framework **Vite**, Build Command **npm run build**, Output Directory **dist**. Konfigurasi proyek sudah menyediakannya.
+4. Deploy, lalu gunakan URL yang dikembalikan Vercel. Sambungan Git Vercel dapat membuat deployment baru setiap push ke `main`.
+
+Alternatif setelah login Vercel CLI:
+
+```powershell
+npx.cmd vercel login
+npx.cmd vercel --prod
+```
+
+Jangan menaruh token di repository. `.gitignore` mengecualikan `.env*`, `.vercel`, `tmp`, hasil build, dan cache. `.vercelignore` juga mengecualikan bukti pengujian/video dari unggahan deployment. Bukti tersebut tetap dapat disimpan di GitHub bersama dokumentasi.
+
+Progres dan draf berada di localStorage browser masing-masing. Data pada `localhost` tidak otomatis berpindah ke domain Vercel, dan nama yang sama pada perangkat lain tidak menyinkronkan progres. Laboratorium PhET tetap membuka layanan eksternal. Kode kelas masih merupakan fitur demo.
+
+GitHub Actions menjalankan instalasi bersih, lint, dan build setiap push ke `main` atau pull request. Pengujian browser lokal dapat dijalankan dengan instruksi README.
+
+Dokumentasi konfigurasi: [Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite).

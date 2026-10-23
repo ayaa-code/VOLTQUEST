@@ -1,0 +1,141 @@
+{
+  "browser": "155.0.8059.85",
+  "date": "2026-10-23T05:17:32.532Z",
+  "fonts": "existing system fallback; external Google Fonts stubbed",
+  "measurements": [
+    {
+      "width": 320,
+      "phase": "open",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 320,
+      "phase": "closed",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 320,
+      "phase": "opening",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 390,
+      "phase": "open",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 390,
+      "phase": "closed",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 390,
+      "phase": "opening",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 768,
+      "phase": "open",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 768,
+      "phase": "closed",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 768,
+      "phase": "opening",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1024,
+      "phase": "open",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1024,
+      "phase": "closed",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1024,
+      "phase": "opening",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1440,
+      "phase": "open",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1440,
+      "phase": "closed",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1440,
+      "phase": "opening",
+      "overflow": false,
+      "copyBlocked": false,
+      "controlWidth": 117.71875,
+      "controlHeight": 44
+    }
+  ],
+  "timeline": {
+    "durationMs": 14000.9,
+    "sampledFrames": 839,
+    "phases": [
+      "open",
+      "closing",
+      "closed",
+      "opening"
+    ],
+    "prematureLightFrames": 0,
+    "medianFrameIntervalMs": 16.69999999999891,
+    "p95FrameIntervalMs": 16.90000000000009
+  },
+  "errors": []
+}

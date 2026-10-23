@@ -1,0 +1,142 @@
+{
+  "browser": "155.0.8059.85",
+  "date": "2026-10-23T04:58:13.048Z",
+  "fonts": "existing system fallback; external Google Fonts stubbed",
+  "measurements": [
+    {
+      "width": 320,
+      "phase": "scattered",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 320,
+      "phase": "curved",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 320,
+      "phase": "closed",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 390,
+      "phase": "scattered",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 390,
+      "phase": "curved",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 390,
+      "phase": "closed",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 768,
+      "phase": "scattered",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 768,
+      "phase": "curved",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 768,
+      "phase": "closed",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1024,
+      "phase": "scattered",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1024,
+      "phase": "curved",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1024,
+      "phase": "closed",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1440,
+      "phase": "scattered",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1440,
+      "phase": "curved",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    },
+    {
+      "width": 1440,
+      "phase": "closed",
+      "overflow": false,
+      "overlapsCopy": false,
+      "controlWidth": 115.71875,
+      "controlHeight": 44
+    }
+  ],
+  "timeline": {
+    "durationMs": 14011.300000000745,
+    "sampledFrames": 841,
+    "phases": [
+      "scattered",
+      "curved",
+      "forming",
+      "closed",
+      "dispersing"
+    ],
+    "prematureLightFrames": 0,
+    "medianFrameIntervalMs": 16.699999999999818,
+    "p95FrameIntervalMs": 17
+  },
+  "errors": []
+}
