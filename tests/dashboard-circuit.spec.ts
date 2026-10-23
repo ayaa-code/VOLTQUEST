@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('dashboard switch, object click, pause and fallback do not modify learning data', async ({
+test('dashboard switch, object click and pause do not modify learning data', async ({
   page,
 }) => {
   await page.goto('/')
@@ -68,11 +68,6 @@ test('dashboard switch, object click, pause and fallback do not modify learning 
   ).toBeDisabled()
   await control.click()
   await expect(control).toHaveAttribute('aria-checked', 'true')
-  await circuit.getByRole('button', { name: 'Gunakan tampilan ringan' }).click()
-  await expect(circuit).toHaveAttribute('data-renderer', 'svg')
-  await expect(canvas).toHaveCount(0)
-  await circuit.locator('.login-circuit-svg rect[fill="transparent"]').click()
-  await expect(control).toHaveAttribute('aria-checked', 'false')
   expect(await page.evaluate(() => localStorage.getItem('voltquest.v1'))).toBe(
     original,
   )
@@ -126,7 +121,7 @@ test('pastel scene stays below copy on mobile, beside copy on desktop and within
   }
 })
 
-test('dashboard fallback works when WebGL is unavailable and next mission still opens', async ({
+test('dashboard keeps learning controls available when 3D visualisation is unavailable', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -139,18 +134,19 @@ test('dashboard fallback works when WebGL is unavailable and next mission still 
         },
       }),
     )
-    Object.defineProperty(navigator, 'hardwareConcurrency', {
-      value: 2,
-      configurable: true,
-    })
+    const original = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = function (
+      ...args: Parameters<typeof original>
+    ) {
+      if (String(args[0]).startsWith('webgl')) return null
+      return original.apply(this, args)
+    } as typeof original
   })
   await page.goto('/')
   const circuit = page.locator('.dashboard-circuit')
-  await expect(circuit.locator('.login-circuit-svg')).toBeVisible()
-  await circuit.getByRole('switch').click()
-  await expect(circuit.locator('.fallback-current')).toHaveCount(0)
-  await circuit.getByRole('switch').click()
-  await expect(circuit.locator('.fallback-current')).toBeVisible()
+  await expect(
+    circuit.getByRole('status').filter({ hasText: /belum didukung/i }),
+  ).toBeVisible()
   await expect(page.locator('.header-xp')).toContainText('100')
   await page.getByRole('button', { name: 'Lanjutkan petualangan' }).click()
   await expect(page).toHaveURL(/#misi-2$/)

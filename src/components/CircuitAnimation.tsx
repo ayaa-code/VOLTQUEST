@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Layers2, Pause, Play, Power } from 'lucide-react'
-import { CircuitFallback } from './CircuitFallback'
+import { Pause, Play, Power } from 'lucide-react'
 import './CircuitAnimation.css'
-import type { CircuitState, createCircuitScene } from './circuitScene'
+import type {
+  CircuitLabelPositions,
+  CircuitState,
+  createCircuitScene,
+} from './circuitScene'
 
 export function CircuitAnimation({
   variant = 'login',
@@ -18,8 +21,10 @@ export function CircuitAnimation({
   const [reduced, setReduced] = useState(
     () => matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
-  const [mode, setMode] = useState<'svg' | '3d'>('svg')
-  const [lightweight, setLightweight] = useState(false)
+  const [mode, setMode] = useState<'initializing' | '3d' | 'unavailable'>(
+    'initializing',
+  )
+  const [labels, setLabels] = useState<CircuitLabelPositions | null>(null)
   const [inactive, setInactive] = useState(false)
   const live = useRef<CircuitState>({ on, paused, reduced, phase })
   const powered = phase === 'success' || on
@@ -48,22 +53,13 @@ export function CircuitAnimation({
     }
   }, [])
   useEffect(() => {
-    if (lightweight) return
-    const nav = navigator as Navigator & {
-      deviceMemory?: number
-      connection?: { saveData?: boolean }
-    }
-    if (
-      nav.connection?.saveData ||
-      (nav.deviceMemory && nav.deviceMemory <= 2) ||
-      navigator.hardwareConcurrency <= 2
-    )
-      return
     let disposed = false
     const fail = () => {
       if (!disposed) {
-        setLightweight(true)
-        setMode('svg')
+        scene.current?.dispose()
+        scene.current = null
+        setLabels(null)
+        setMode('unavailable')
       }
     }
     import('./circuitScene')
@@ -78,8 +74,9 @@ export function CircuitAnimation({
             },
             fail,
             variant,
+            setLabels,
           )
-          setMode('3d')
+          if (!disposed) setMode('3d')
         } catch {
           fail()
         }
@@ -90,7 +87,7 @@ export function CircuitAnimation({
       scene.current?.dispose()
       scene.current = null
     }
-  }, [lightweight, variant])
+  }, [variant])
   return (
     <figure
       className={`circuit-animation ${variant}-circuit ${paused || reduced || inactive ? 'is-paused' : ''}`}
@@ -110,21 +107,31 @@ export function CircuitAnimation({
         aria-label={`Rangkaian seri: baterai, saklar, resistor, dan lampu. Saklar ${powered ? 'tertutup, lampu menyala' : 'terbuka, lampu mati'}.`}
       >
         <div ref={host} className="circuit-webgl" />
-        {mode === 'svg' && (
-          <CircuitFallback
-            variant={variant}
-            on={powered}
-            toggle={() => {
-              if (phase === 'idle') setOn(!on)
-            }}
-          />
+        {labels && (
+          <div className="circuit-labels" aria-hidden="true">
+            {(
+              [
+                ['battery', 'Baterai'],
+                ['switch', 'Saklar'],
+                ['resistor', 'Resistor'],
+                ['lamp', 'Lampu'],
+              ] as const
+            ).map(([id, text]) => (
+              <span
+                className={`circuit-label circuit-label-${id}`}
+                key={id}
+                style={{ left: labels[id].x, top: labels[id].y }}
+              >
+                {text}
+              </span>
+            ))}
+          </div>
         )}
-        <div className="circuit-legend" aria-hidden="true">
-          <span>Baterai</span>
-          <span>Saklar</span>
-          <span>Resistor</span>
-          <span>Lampu</span>
-        </div>
+        {mode === 'unavailable' && (
+          <p className="circuit-unavailable" role="status">
+            Visualisasi rangkaian 3D belum didukung oleh perangkat ini.
+          </p>
+        )}
       </div>
       <figcaption>
         <div className="circuit-controls">
@@ -154,20 +161,6 @@ export function CircuitAnimation({
           >
             {paused ? <Play size={16} /> : <Pause size={16} />}
           </button>
-          {mode === '3d' && (
-            <button
-              className="circuit-pause circuit-lightweight"
-              type="button"
-              aria-label="Gunakan tampilan ringan"
-              title="Gunakan tampilan ringan"
-              onClick={() => {
-                setLightweight(true)
-                setMode('svg')
-              }}
-            >
-              <Layers2 size={16} />
-            </button>
-          )}
         </div>
         <p>
           {powered

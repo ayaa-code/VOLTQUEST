@@ -17,7 +17,7 @@ Revisi ini menggantikan onboarding tengah sesuai lampiran terbaru. Desktop memak
 
 Terdapat 20 partikel dan 20 titik jejak, geometri sederhana, pixel ratio dibatasi 1,5, serta satu RAF saat animasi aktif. Pause, halaman tersembunyi, dan keluar viewport menghentikan loop. Reduced motion merender keadaan statis, dengan saklar tetap berfungsi. Semua geometri/material/renderer, observer, dan listener dibersihkan saat unmount, termasuk StrictMode. Pengelolaan resource mengikuti [dokumentasi Three.js](https://threejs.org/manual/pages/how-to-dispose-of-objects.html).
 
-SVG tersedia sejak render pertama dan tetap dapat diklik. Versi ringan dipakai ketika WebGL gagal, context hilang, modul gagal dimuat, Save-Data aktif, memori terlapor ≤2GB atau CPU logis ≤2. Jika frame buruk >70ms bertahan sekitar 55 hitungan, scene juga turun ke SVG. Ini heuristik, bukan jaminan performa semua ponsel. Tombol berikon lapisan di samping Jeda menyediakan **Gunakan tampilan ringan** pada desktop maupun ponsel. Animasi CSS fallback berhenti saat pause, reduced motion, di luar viewport, atau tab tersembunyi.
+Rangkaian selalu menggunakan Three.js. Bila WebGL gagal dimulai atau context hilang, canvas dibersihkan dan aplikasi menampilkan pesan ringkas bahwa visualisasi 3D belum didukung oleh perangkat. Tidak ada mode SVG atau tombol tampilan ringan. Pesan ini tidak menghalangi proses masuk, tetapi ilustrasi interaktif tidak tersedia sampai perangkat mendukung WebGL.
 
 Loading mempercepat arus jika saklar menyala. Keberhasilan menghubungkan rangkaian dan memperkuat cahaya sebelum membuka dashboard. Tombol submit terkunci selama transisi dan menolak pengiriman ganda. Timer dibersihkan saat unmount.
 
@@ -38,14 +38,13 @@ Seperti versi sebelumnya, profil aktif dan progres tetap pulih saat refresh/reop
 
 Build dan lint lulus. Run regresi awal menghasilkan 68/70 lulus; dua kegagalan berasal dari selector status dialog yang kini ambigu dengan live region login. Selector diperbaiki agar mengacu ke dialog yang diperiksa. Run lanjutan login/animasi/perjalanan lengkap menghasilkan 24/24 lulus, termasuk empat kasus baru untuk klik objek 3D, context loss, dan perangkat terbatas. Run terakhir login/lab menghasilkan 16/16 lulus, termasuk dua kasus tambahan penyimpanan akun rusak. Total 76 kasus dalam suite akhir telah tercakup, melalui run lengkap awal dan run ulang terarah; tidak ada kegagalan yang masih terbuka.
 
-Pengujian Playwright menjalankan Chromium desktop dan emulasi iPhone 13: validasi, fokus error, tampil/sembunyi sandi, kredensial salah, transisi, email yang diingat, pendaftaran, duplikat, pemulihan salah/benar, kegagalan storage, profil lama, saklar keyboard, pause, reduced motion, visibility, offscreen, cleanup, dan fallback tanpa WebGL. Suite pembelajaran juga dijalankan agar pengamatan wajib, refleksi, latihan, dan XP tetap benar.
+Pengujian Playwright menjalankan Chromium desktop dan emulasi iPhone 13: validasi, fokus error, tampil/sembunyi sandi, kredensial salah, transisi, email yang diingat, pendaftaran, duplikat, pemulihan salah/benar, kegagalan storage, profil lama, saklar keyboard, pause, reduced motion, visibility, offscreen, cleanup, serta pesan ketika WebGL tidak tersedia. Suite pembelajaran juga dijalankan agar pengamatan wajib, refleksi, latihan, dan XP tetap benar.
 
 Audit visual menggunakan Chrome terpasang dengan WebGL nyata dan font sistem (Google Fonts dinonaktifkan untuk menghilangkan ketergantungan jaringan). Lebar 320, 390, 768, 1024, 1440, 1920 serta landscape 844×390 tidak melampaui lebar halaman. Halaman dapat digulir vertikal untuk keyboard virtual dan viewport pendek. Pemeriksaan ini belum mencakup perangkat Android/iOS fisik, Safari, Firefox, atau pembaca layar nyata.
 
 - [Desktop](../artifacts/login-3d/login-1440.png)
 - [Ponsel](../artifacts/login-3d/login-390.png)
 - [Saklar OFF](../artifacts/login-3d/switch-off.png)
-- [Fallback SVG](../artifacts/login-3d/fallback-svg.png)
 - [Data audit](../artifacts/login-3d/audit.json)
 
 ```powershell

@@ -221,7 +221,7 @@ test('reduced motion and offscreen pause keep switch interactive', async ({
     .toBe(1)
 })
 
-test('WebGL unavailable still gives an interactive SVG and working login', async ({
+test('WebGL unavailability explains the missing visual while login remains available', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -234,11 +234,9 @@ test('WebGL unavailable still gives an interactive SVG and working login', async
     } as typeof original
   })
   await page.goto('/')
-  await expect(page.locator('.login-circuit-svg')).toBeVisible()
-  await page.getByRole('switch').click()
-  await expect(page.locator('.fallback-current')).toHaveCount(0)
-  await page.getByRole('switch').click()
-  await expect(page.locator('.fallback-current')).toBeVisible()
+  await expect(
+    page.getByRole('status').filter({ hasText: /belum didukung/i }),
+  ).toBeVisible()
   await page.getByRole('button', { name: 'Coba dengan akun demo' }).click()
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(
@@ -274,7 +272,7 @@ test('responsive 320 to 1920 layout preserves form and touch targets', async ({
       '.auth-submit',
       '.auth-eye',
       '.circuit-toggle',
-      '.circuit-pause:not(.circuit-lightweight)',
+      '.circuit-pause',
     ]) {
       const box = await page.locator(selector).boundingBox()
       expect(box!.width).toBeGreaterThanOrEqual(44)
@@ -322,22 +320,14 @@ test('clicking the 3D switch and GPU context loss both retain usable controls', 
   )
   await expect(page.locator('.login-circuit')).toHaveAttribute(
     'data-renderer',
-    'svg',
+    'unavailable',
   )
   await expect(canvas).toHaveCount(0)
-  await page.locator('.login-circuit-svg rect[fill="transparent"]').click()
+  await page.getByRole('switch').click()
   await expect(page.getByRole('switch')).toHaveAttribute('aria-checked', 'true')
 })
 
-test('low resource devices skip the 3D module download', async ({ page }) => {
-  const requests: string[] = []
-  page.on('request', (request) => {
-    if (
-      request.url().includes('/circuitScene') ||
-      request.url().includes('/three.js')
-    )
-      requests.push(request.url())
-  })
+test('low resource reports still retain the 3D circuit', async ({ page }) => {
   await page.addInitScript(() =>
     Object.defineProperty(navigator, 'hardwareConcurrency', {
       value: 2,
@@ -345,8 +335,13 @@ test('low resource devices skip the 3D module download', async ({ page }) => {
     }),
   )
   await page.goto('/')
-  await expect(page.locator('.login-circuit-svg')).toBeVisible()
+  await expect(page.locator('.login-circuit')).toHaveAttribute(
+    'data-renderer',
+    '3d',
+  )
   await page.getByRole('switch').click()
-  await expect(page.locator('.fallback-current')).toHaveCount(0)
-  expect(requests).toEqual([])
+  await expect(page.getByRole('switch')).toHaveAttribute(
+    'aria-checked',
+    'false',
+  )
 })

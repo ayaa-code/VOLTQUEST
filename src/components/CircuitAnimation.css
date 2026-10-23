@@ -7,12 +7,11 @@
   width: 100%;
   height: clamp(180px, min(25vw, 30dvh), 340px);
 }
-.circuit-webgl,
-.login-circuit-svg {
+.circuit-webgl {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: calc(100% - 26px);
+  height: 100%;
 }
 .circuit-webgl canvas {
   display: block;
@@ -22,27 +21,47 @@
   max-height: 100%;
   touch-action: pan-y;
 }
-/* A reserved legend band never overlaps the canvas or SVG. */
-.circuit-legend {
+.circuit-labels {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(8px, 1.3vw, 16px);
-  color: #bed6df;
-  font-size: 0.6875rem;
-  line-height: 1.4;
-  white-space: nowrap;
+  inset: 0;
   pointer-events: none;
 }
-.circuit-legend span + span::before {
-  content: '·';
-  padding-right: clamp(8px, 1.3vw, 16px);
-  opacity: 0.55;
+.circuit-label {
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgb(151 198 215 / 45%);
+  border-radius: 8px;
+  background: rgb(10 40 59 / 82%);
+  box-shadow: 0 4px 12px rgb(2 18 30 / 18%);
+  color: #d9eef5;
+  font-size: clamp(0.625rem, 1.15vw, 0.75rem);
+  line-height: 1;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+.circuit-label-battery {
+  transform: translate(-115%, -55%);
+}
+.circuit-label-switch {
+  transform: translate(-110%, -170%);
+}
+.circuit-label-resistor {
+  transform: translate(-50%, -170%);
+}
+.circuit-label-lamp {
+  transform: translate(12%, -60%);
+}
+.circuit-unavailable {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 24px;
+  color: #d4e6ed;
+  font-size: 0.8125rem;
+  text-align: center;
 }
 .circuit-animation figcaption {
   text-align: center;
@@ -115,28 +134,6 @@
   font-size: 0.6875rem;
   margin-top: 3px;
 }
-.fallback-current {
-  animation: flow-current 1.4s linear infinite;
-}
-[data-phase='loading'] .fallback-current {
-  animation-duration: 0.8s;
-}
-[data-phase='success'] .fallback-current {
-  animation-duration: 0.5s;
-  stroke-width: 5;
-}
-.fallback-glow {
-  transition: opacity 0.35s;
-}
-.is-paused .fallback-current {
-  animation-play-state: paused;
-}
-@keyframes flow-current {
-  to {
-    stroke-dashoffset: -48;
-  }
-}
-
 /* Dashboard variant shares the renderer and behavior with the login scene. */
 .dashboard .hero-art.hero-interactive {
   height: auto;
@@ -153,8 +150,11 @@
 .dashboard-circuit .circuit-stage {
   height: clamp(180px, 20vw, 250px);
 }
-.dashboard-circuit .circuit-legend {
-  color: #665277;
+.dashboard-circuit .circuit-label {
+  border-color: rgb(122 85 168 / 42%);
+  background: rgb(255 255 255 / 90%);
+  box-shadow: 0 4px 12px rgb(75 49 103 / 13%);
+  color: #584172;
 }
 .dashboard-circuit .circuit-controls {
   gap: 8px;
@@ -198,6 +198,22 @@
   .dashboard-circuit figcaption small {
     max-width: 260px;
     margin: auto;
+  }
+  .circuit-label {
+    border-radius: 7px;
+    padding: 5px 7px;
+  }
+  .circuit-label-battery {
+    transform: translate(-102%, -50%);
+  }
+  .circuit-label-switch {
+    transform: translate(-105%, 40%);
+  }
+  .circuit-label-resistor {
+    transform: translate(-50%, -170%);
+  }
+  .circuit-label-lamp {
+    transform: translate(30%, -120%);
   }
 }
 @media (min-width: 701px) and (max-height: 800px) {

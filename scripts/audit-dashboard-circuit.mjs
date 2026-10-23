@@ -72,11 +72,6 @@ await page.waitForTimeout(200)
 await page
   .locator('.dashboard-hero')
   .screenshot({ path: `${output}/switch-off.png` })
-await page.getByRole('switch').click()
-await page.getByRole('button', { name: 'Gunakan tampilan ringan' }).click()
-await page
-  .locator('.dashboard-hero')
-  .screenshot({ path: `${output}/fallback.png` })
 await fs.writeFile(`${output}/audit.json`, JSON.stringify(report, null, 2))
 console.log(JSON.stringify(report, null, 2))
 await browser.close()

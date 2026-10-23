@@ -7,6 +7,11 @@ export type CircuitState = {
   phase: 'idle' | 'loading' | 'success'
 }
 
+export type CircuitLabelPositions = Record<
+  'battery' | 'switch' | 'resistor' | 'lamp',
+  { x: number; y: number }
+>
+
 // Procedural geometry only: no models, textures, controls or post-processing downloads.
 export function createCircuitScene(
   host: HTMLDivElement,
@@ -14,6 +19,7 @@ export function createCircuitScene(
   toggle: () => void,
   fail: () => void,
   variant: 'login' | 'dashboard' = 'login',
+  onLabels?: (positions: CircuitLabelPositions) => void,
 ) {
   const pastel = variant === 'dashboard'
   const renderer = new THREE.WebGLRenderer({
@@ -307,6 +313,27 @@ export function createCircuitScene(
     if (inView && !document.hidden && !s.paused && !s.reduced)
       frame = requestAnimationFrame(tick)
   }
+  const labelAnchors = {
+    battery: new THREE.Vector3(-2.05, 0.85, 0),
+    switch: new THREE.Vector3(-0.88, 0.62, -1.2),
+    resistor: new THREE.Vector3(0.7, 0.58, -1.2),
+    lamp: new THREE.Vector3(2.05, 1.42, 0),
+  }
+  function updateLabels(w: number, h: number) {
+    if (!onLabels) return
+    camera.updateMatrixWorld()
+    const positions = Object.fromEntries(
+      Object.entries(labelAnchors).map(([id, anchor]) => {
+        const point = anchor.clone().project(camera)
+        return [id, { x: ((point.x + 1) / 2) * w, y: ((-point.y + 1) / 2) * h }]
+      }),
+    ) as CircuitLabelPositions
+    // The switch and resistor are projected near the top edge on compact,
+    // wide stages. Keep their readable labels inside the illustration.
+    positions.switch.y = Math.max(positions.switch.y, 48)
+    positions.resistor.y = Math.max(positions.resistor.y, 48)
+    onLabels(positions)
+  }
   const resize = new ResizeObserver(() => {
     if (disposed) return
     const w = host.clientWidth,
@@ -320,6 +347,7 @@ export function createCircuitScene(
     camera.bottom = -halfWidth / aspect
     camera.updateProjectionMatrix()
     renderer.setSize(w, h)
+    updateLabels(w, h)
     refresh()
   })
   resize.observe(host)
