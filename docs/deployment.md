@@ -8,6 +8,8 @@ Deployment melalui CLI Vercel selesai pada 23 Oktober 2026 dengan status **READY
 
 Build cloud menjalankan `npm ci`, TypeScript, dan Vite dengan sukses. Verifikasi HTTP dari jaringan agen mengalami timeout sehingga pengujian interaksi langsung pada domain production belum terkonfirmasi. Deployment dilakukan dari source lokal melalui CLI. Status deployment ini tidak membuktikan bahwa push GitHub atau sambungan deploy otomatis telah selesai; keduanya diperiksa terpisah.
 
+Sambungan Git otomatis dicoba melalui `vercel git connect https://github.com/ayaa-code/VOLTQUEST.git --yes`, tetapi Vercel menolak akses integrasinya ke repository. Karena itu deployment berikutnya dapat dilakukan lewat `npx.cmd vercel --prod` dari folder yang sudah ditautkan. Untuk mengaktifkan deploy otomatis, buka Settings → Git pada project Vercel, lalu hubungkan akun/integrasi GitHub yang memiliki akses ke `ayaa-code/VOLTQUEST`.
+
 VoltQuest adalah aplikasi React/Vite statis. Konfigurasi `vercel.json` menetapkan framework Vite, instalasi `npm ci`, build `npm run build`, output `dist`, dan fallback SPA ke `index.html`. Node.js 24 ditetapkan melalui `.nvmrc` serta `package.json`. Tidak memerlukan environment variable, database, atau server backend.
 
 Untuk menghubungkan repository pada akun Vercel:
