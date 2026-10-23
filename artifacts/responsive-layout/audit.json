@@ -1,0 +1,388 @@
+{
+  "date": "2026-10-23T13:50:34.692Z",
+  "errors": [],
+  "login": [
+    {
+      "width": 1920,
+      "height": 900,
+      "pageHeight": 900,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 1092.125,
+        "y": 124.25,
+        "width": 497.875,
+        "height": 585.359375,
+        "bottom": 709.609375
+      },
+      "submit": {
+        "x": 1116.515625,
+        "y": 467.03125,
+        "width": 449.09375,
+        "height": 46,
+        "bottom": 513.03125
+      },
+      "scene": {
+        "x": 310,
+        "y": 418.203125,
+        "width": 712.125,
+        "height": 270,
+        "bottom": 688.203125
+      }
+    },
+    {
+      "width": 1536,
+      "height": 730,
+      "pageHeight": 730,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 900.125,
+        "y": 45.53125,
+        "width": 497.875,
+        "height": 572.78125,
+        "bottom": 618.3125
+      },
+      "submit": {
+        "x": 920.09375,
+        "y": 380.15625,
+        "width": 457.9375,
+        "height": 46,
+        "bottom": 426.15625
+      },
+      "scene": {
+        "x": 118,
+        "y": 343.765625,
+        "width": 712.125,
+        "height": 219,
+        "bottom": 562.765625
+      }
+    },
+    {
+      "width": 1440,
+      "height": 800,
+      "pageHeight": 800,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 838.328125,
+        "y": 77.09375,
+        "width": 511.671875,
+        "height": 579.65625,
+        "bottom": 656.75
+      },
+      "submit": {
+        "x": 860.125,
+        "y": 416.765625,
+        "width": 468.078125,
+        "height": 46,
+        "bottom": 462.765625
+      },
+      "scene": {
+        "x": 70,
+        "y": 374.421875,
+        "width": 730.734375,
+        "height": 240,
+        "bottom": 614.421875
+      }
+    },
+    {
+      "width": 1366,
+      "height": 650,
+      "pageHeight": 650,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 799.828125,
+        "y": 43.234375,
+        "width": 511.546875,
+        "height": 519.53125,
+        "bottom": 562.765625
+      },
+      "submit": {
+        "x": 816.828125,
+        "y": 345.171875,
+        "width": 477.546875,
+        "height": 46,
+        "bottom": 391.171875
+      },
+      "scene": {
+        "x": 34.625,
+        "y": 324.46875,
+        "width": 730.578125,
+        "height": 195,
+        "bottom": 519.46875
+      }
+    },
+    {
+      "width": 1280,
+      "height": 620,
+      "pageHeight": 620,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 749.46875,
+        "y": 19.453125,
+        "width": 479.34375,
+        "height": 537.078125,
+        "bottom": 556.53125
+      },
+      "submit": {
+        "x": 766.46875,
+        "y": 321.34375,
+        "width": 445.34375,
+        "height": 46,
+        "bottom": 367.34375
+      },
+      "scene": {
+        "x": 31.1875,
+        "y": 311.328125,
+        "width": 687.09375,
+        "height": 186,
+        "bottom": 497.328125
+      }
+    },
+    {
+      "width": 1024,
+      "height": 600,
+      "pageHeight": 600,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 599.578125,
+        "y": 9.453125,
+        "width": 383.46875,
+        "height": 537.078125,
+        "bottom": 546.53125
+      },
+      "submit": {
+        "x": 616.578125,
+        "y": 311.34375,
+        "width": 349.46875,
+        "height": 46,
+        "bottom": 357.34375
+      },
+      "scene": {
+        "x": 20.953125,
+        "y": 303.703125,
+        "width": 557.671875,
+        "height": 180,
+        "bottom": 483.703125
+      }
+    },
+    {
+      "width": 900,
+      "height": 720,
+      "pageHeight": 720,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 526.96875,
+        "y": 41,
+        "width": 337.03125,
+        "height": 571.8125,
+        "bottom": 612.8125
+      },
+      "submit": {
+        "x": 546.6875,
+        "y": 374.90625,
+        "width": 297.59375,
+        "height": 46,
+        "bottom": 420.90625
+      },
+      "scene": {
+        "x": 16,
+        "y": 332.328125,
+        "width": 494.96875,
+        "height": 216,
+        "bottom": 548.328125
+      }
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "pageHeight": 1024,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 104,
+        "y": 300.828125,
+        "width": 560,
+        "height": 547.484375,
+        "bottom": 848.3125
+      },
+      "submit": {
+        "x": 125,
+        "y": 628.71875,
+        "width": 518,
+        "height": 46,
+        "bottom": 674.71875
+      },
+      "scene": {
+        "x": 96,
+        "y": 98.828125,
+        "width": 576,
+        "height": 150,
+        "bottom": 248.828125
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "pageHeight": 926,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 15.59375,
+        "y": 276.90625,
+        "width": 358.8125,
+        "height": 565.078125,
+        "bottom": 841.984375
+      },
+      "submit": {
+        "x": 36.59375,
+        "y": 604.796875,
+        "width": 316.8125,
+        "height": 46,
+        "bottom": 650.796875
+      },
+      "scene": {
+        "x": 7.59375,
+        "y": 89.875,
+        "width": 374.8125,
+        "height": 135.03125,
+        "bottom": 224.90625
+      }
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "pageHeight": 919,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 14.390625,
+        "y": 269.875,
+        "width": 331.21875,
+        "height": 565.078125,
+        "bottom": 834.953125
+      },
+      "submit": {
+        "x": 35.390625,
+        "y": 597.765625,
+        "width": 289.21875,
+        "height": 46,
+        "bottom": 643.765625
+      },
+      "scene": {
+        "x": 6.390625,
+        "y": 89.875,
+        "width": 347.21875,
+        "height": 128,
+        "bottom": 217.875
+      }
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "pageHeight": 849,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 12.796875,
+        "y": 216.09375,
+        "width": 294.40625,
+        "height": 549.078125,
+        "bottom": 765.171875
+      },
+      "submit": {
+        "x": 31.796875,
+        "y": 529.984375,
+        "width": 256.40625,
+        "height": 46,
+        "bottom": 575.984375
+      },
+      "scene": {
+        "x": 4.796875,
+        "y": 84.09375,
+        "width": 310.40625,
+        "height": 80,
+        "bottom": 164.09375
+      }
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "pageHeight": 832,
+      "horizontalOverflow": false,
+      "form": {
+        "x": 142,
+        "y": 216.09375,
+        "width": 560,
+        "height": 531.484375,
+        "bottom": 747.578125
+      },
+      "submit": {
+        "x": 161,
+        "y": 529.984375,
+        "width": 522,
+        "height": 46,
+        "bottom": 575.984375
+      },
+      "scene": {
+        "x": 134,
+        "y": 84.09375,
+        "width": 576,
+        "height": 80,
+        "bottom": 164.09375
+      }
+    }
+  ],
+  "dashboard": [
+    {
+      "width": 1920,
+      "height": 900,
+      "horizontalOverflow": false,
+      "heroBottom": 612.546875,
+      "buttonBottom": 549.546875
+    },
+    {
+      "width": 1536,
+      "height": 730,
+      "horizontalOverflow": false,
+      "heroBottom": 524.125,
+      "buttonBottom": 469.125
+    },
+    {
+      "width": 1366,
+      "height": 650,
+      "horizontalOverflow": false,
+      "heroBottom": 524.125,
+      "buttonBottom": 469.125
+    },
+    {
+      "width": 1024,
+      "height": 600,
+      "horizontalOverflow": false,
+      "heroBottom": 513.34375,
+      "buttonBottom": 458.34375
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "horizontalOverflow": false,
+      "heroBottom": 580.4375,
+      "buttonBottom": 526.40625
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "horizontalOverflow": false,
+      "heroBottom": 646.875,
+      "buttonBottom": 485.875
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "horizontalOverflow": false,
+      "heroBottom": 701.40625,
+      "buttonBottom": 540.40625
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "horizontalOverflow": false,
+      "heroBottom": 513.34375,
+      "buttonBottom": 458.34375
+    }
+  ]
+}

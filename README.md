@@ -42,6 +42,8 @@ Lihat [audit, aturan pemilihan, bank soal, penyimpanan, pengujian, dan screensho
 
 ## Menjalankan aplikasi
 
+Login dan dashboard menyesuaikan lebar serta tinggi viewport. Login awal telah diukur muat tanpa scroll pada beberapa ukuran laptop, termasuk 1366×650 dan 1280×620. Pada layar kecil, teks besar, dan keyboard terbuka, konten tetap dapat digulir. [Bukti dan batas pengujian responsivitas](docs/responsive-layout.md).
+
 Login memakai rangkaian 3D interaktif di sisi kiri dan kartu email/kata sandi di kanan. Pada ponsel, ilustrasi berada di atas form. Saklar mengatur arus dan lampu; tersedia pause, reduced motion, serta fallback SVG. Akun demo, pendaftaran lokal, pemulihan dengan kode, dan profil nama lama dapat digunakan. Lihat [implementasi dan bukti terbaru](docs/login-3d.md).
 
 ```sh

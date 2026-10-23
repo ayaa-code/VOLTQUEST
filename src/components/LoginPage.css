@@ -1,6 +1,7 @@
 .electric-login {
   --focus: #67e8e1;
-  min-height: 100svh;
+  --login-pad: clamp(16px, 3dvh, 40px);
+  min-height: 100dvh;
   color: #eff7fa;
   background-color: #102c46;
   background-image:
@@ -11,7 +12,7 @@
     auto,
     48px 48px,
     48px 48px;
-  padding: clamp(24px, 4vw, 64px);
+  padding: var(--login-pad) clamp(20px, 4vw, 64px);
 }
 .electric-shell {
   width: min(1260px, 100%);
@@ -20,7 +21,7 @@
   grid-template-columns: 1.35fr 1fr;
   gap: clamp(24px, 4vw, 64px);
   align-items: center;
-  min-height: calc(100svh - 100px);
+  min-height: calc(100dvh - 2 * var(--login-pad));
 }
 .electric-visual {
   min-width: 0;
@@ -30,7 +31,7 @@
   justify-content: center;
 }
 .electric-visual > .brand {
-  margin-bottom: clamp(28px, 4vw, 64px);
+  margin-bottom: clamp(16px, 3dvh, 40px);
   color: #f1fafc;
 }
 .electric-login .brand-quest {
@@ -63,7 +64,7 @@
   box-shadow: 0 0 15px #40dfc050;
 }
 .electric-copy h1 {
-  font-size: clamp(2.5rem, 4.5vw, 4.25rem);
+  font-size: clamp(2.5rem, min(4.5vw, 6.5dvh), 4.25rem);
   line-height: 1.12;
   letter-spacing: -0.055em;
   font-weight: 750;
@@ -96,7 +97,7 @@
 .circuit-stage {
   position: relative;
   width: 100%;
-  height: clamp(240px, 25vw, 340px);
+  height: clamp(180px, min(25vw, 30dvh), 340px);
 }
 .circuit-webgl,
 .login-circuit-svg {
@@ -227,7 +228,7 @@
 }
 .auth-column {
   min-width: 0;
-  padding: 32px 0 0;
+  padding: 0;
 }
 .auth-card {
   --focus: #087c6b;
@@ -235,7 +236,7 @@
   color: #163449;
   border: 1px solid #ffffff;
   border-radius: 26px;
-  padding: clamp(24px, 3vw, 40px);
+  padding: clamp(20px, 3dvh, 32px);
   box-shadow: 0 22px 70px #041c2b35;
 }
 .auth-symbol {
@@ -629,4 +630,195 @@
   outline: 3px solid var(--focus);
   outline-offset: 4px;
   border-radius: 4px;
+}
+
+/* Adapt spacing to available browser height, including laptop displays and zoom.
+   Content always retains natural height: validation, larger text and keyboards
+   can extend the page instead of clipping a fixed viewport-sized container. */
+@media (min-width: 851px) and (max-height: 900px) {
+  .electric-login {
+    --login-pad: clamp(12px, 2dvh, 20px);
+  }
+  .auth-symbol {
+    display: none;
+  }
+  .auth-card {
+    padding: clamp(18px, 2.6dvh, 26px);
+    border-radius: 22px;
+  }
+  .auth-card h2 {
+    font-size: clamp(1.5rem, 3.7dvh, 1.875rem);
+  }
+  .auth-subtitle {
+    margin: 6px 0 16px;
+  }
+  .auth-field {
+    margin-bottom: 12px;
+  }
+  .auth-field label {
+    margin-bottom: 4px;
+  }
+  .auth-field > input,
+  .auth-input-wrap,
+  .auth-recovery input {
+    min-height: 46px;
+  }
+  .auth-input-wrap input {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .auth-options {
+    margin-top: -6px;
+  }
+  .auth-remember-hint {
+    margin: -2px 0 10px;
+  }
+  .auth-submit {
+    min-height: 46px;
+    padding: 10px 14px;
+  }
+  .auth-signup {
+    margin: 0;
+  }
+  .auth-demo {
+    padding-top: 2px;
+  }
+  .auth-local-note {
+    margin-top: 2px;
+  }
+  .electric-class {
+    margin-top: 4px;
+    padding: 6px 0;
+  }
+  .electric-footnote {
+    margin-top: 10px;
+  }
+  .electric-copy > p:last-child {
+    margin-top: 14px;
+  }
+}
+@media (max-width: 850px) and (max-height: 1200px) {
+  .electric-login {
+    padding: 12px clamp(12px, 4vw, 32px) 20px;
+  }
+  .electric-shell {
+    gap: 12px;
+  }
+  .electric-visual > .brand {
+    margin-bottom: 10px;
+    font-size: 1.25rem;
+  }
+  .electric-login .brand-symbol {
+    width: 36px;
+    height: 38px;
+    border-radius: 11px;
+  }
+  .electric-login .brand small {
+    font-size: 0.625rem;
+    margin-top: 2px;
+  }
+  .electric-eyebrow,
+  .electric-copy > p:last-child {
+    display: none;
+  }
+  .electric-copy h1 {
+    font-size: clamp(1.5rem, 5.5vw, 2rem);
+  }
+  .circuit-stage {
+    height: clamp(100px, 16dvh, 150px);
+  }
+  .circuit-controls {
+    margin: -4px 0 0;
+  }
+  .login-circuit figcaption p {
+    display: none;
+  }
+  .auth-card {
+    padding: 18px 20px;
+  }
+  .auth-card h2 {
+    font-size: 1.5rem;
+  }
+  .auth-subtitle {
+    margin: 6px 0 16px;
+  }
+  .auth-field {
+    margin-bottom: 12px;
+  }
+  .auth-field label {
+    margin-bottom: 4px;
+  }
+  .auth-input-wrap,
+  .auth-field > input {
+    min-height: 46px;
+  }
+  .auth-input-wrap input {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .auth-remember-hint {
+    margin-bottom: 10px;
+  }
+  .auth-submit {
+    min-height: 46px;
+    padding: 10px 14px;
+  }
+  .auth-signup {
+    margin: 0;
+  }
+  .auth-demo {
+    padding-top: 2px;
+  }
+  .auth-local-note {
+    margin-top: 2px;
+  }
+  .electric-class {
+    margin-top: 2px;
+  }
+}
+@media (min-width: 851px) and (max-height: 700px) {
+  .electric-login {
+    --login-pad: 8px;
+  }
+  .auth-card {
+    padding: 16px;
+  }
+  .auth-subtitle {
+    margin-bottom: 8px;
+  }
+  .auth-field {
+    margin-bottom: 6px;
+  }
+  .auth-remember-hint {
+    margin-bottom: 4px;
+  }
+  .electric-class {
+    margin-top: 0;
+  }
+  .electric-level {
+    display: none;
+  }
+  .electric-footnote {
+    display: none;
+  }
+}
+@media (max-width: 850px) and (max-height: 700px) {
+  .electric-visual > .brand {
+    margin-bottom: 6px;
+  }
+  .electric-copy h1 {
+    font-size: 1.4rem;
+  }
+  .circuit-stage {
+    height: 80px;
+  }
+  .auth-card {
+    padding: 16px 18px;
+  }
+  .auth-subtitle {
+    margin-bottom: 12px;
+  }
+  .auth-field {
+    margin-bottom: 8px;
+  }
 }
