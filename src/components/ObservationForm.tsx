@@ -1,6 +1,11 @@
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { experiments, parseMeasurement } from '../data/experiments'
+import {
+  experiments,
+  parseMeasurement,
+  observationErrors,
+  observationTables,
+} from '../data/experiments'
 import type { Draft } from '../hooks/useExperimentDraft'
 
 export function ObservationForm({
@@ -14,39 +19,94 @@ export function ObservationForm({
   draft: Draft
   update: (patch: Partial<Draft>) => void
   onBack: () => void
-  onContinue: (skipped: boolean) => void
+  onContinue: () => void
 }) {
   const config = experiments[missionId]
   const [errors, setErrors] = useState<Record<string, string>>({})
   const form = useRef<HTMLFormElement>(null)
   function submit(event: FormEvent) {
     event.preventDefault()
-    const next: Record<string, string> = {}
-    for (const field of config.groups.flatMap((group) => group.fields)) {
-      const raw = draft.observations[field.id] ?? ''
-      const number = parseMeasurement(raw)
-      if (
-        field.choices
-          ? !field.choices.includes(raw)
-          : number === null || (field.positive && number <= 0)
-      ) {
-        next[field.id] = field.choices
-          ? 'Pilih hasil yang kamu amati, termasuk bila belum dapat menentukan.'
-          : `Isi angka ${field.positive ? 'lebih dari nol' : 'nol atau positif'} dalam satuan pada label. Desimal boleh memakai koma atau titik.`
-      }
-    }
+    const next = observationErrors(missionId, draft.observations)
     setErrors(next)
     if (Object.keys(next).length) {
       form.current
         ?.querySelector<HTMLElement>(`#observation-${Object.keys(next)[0]}`)
         ?.focus()
-    } else onContinue(false)
+    } else onContinue()
   }
   const number = (key: string) =>
     parseMeasurement(draft.observations[key] ?? '')
   const duration = number('duration')
+  const layout = observationTables[missionId]
+  const fields = config.groups.flatMap((group) => group.fields)
+  const control = (id: string, showLabel = false) => {
+    const field = fields.find((field) => field.id === id)!
+    return (
+      <div className="guided-field" key={field.id}>
+        <label
+          className={showLabel ? undefined : 'visually-hidden'}
+          htmlFor={`observation-${field.id}`}
+        >
+          {field.label}
+        </label>
+        {field.choices ? (
+          <select
+            id={`observation-${field.id}`}
+            required
+            value={draft.observations[field.id] ?? ''}
+            aria-invalid={!!errors[field.id]}
+            aria-describedby={
+              errors[field.id] ? `error-${field.id}` : undefined
+            }
+            onChange={(event) =>
+              update({
+                observations: {
+                  ...draft.observations,
+                  [field.id]: event.target.value,
+                },
+                observationStatus: 'draft',
+              })
+            }
+          >
+            <option value="">Pilih hasil pengamatan</option>
+            {field.choices.map((choice) => (
+              <option key={choice}>{choice}</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            id={`observation-${field.id}`}
+            inputMode="decimal"
+            type="text"
+            required
+            maxLength={30}
+            placeholder="Belum diisi"
+            value={draft.observations[field.id] ?? ''}
+            aria-invalid={!!errors[field.id]}
+            aria-describedby={
+              errors[field.id] ? `error-${field.id}` : 'measurement-help'
+            }
+            onChange={(event) =>
+              update({
+                observations: {
+                  ...draft.observations,
+                  [field.id]: event.target.value,
+                },
+                observationStatus: 'draft',
+              })
+            }
+          />
+        )}
+        {errors[field.id] && (
+          <p className="field-error" id={`error-${field.id}`}>
+            {errors[field.id]}
+          </p>
+        )}
+      </div>
+    )
+  }
   return (
-    <form ref={form} onSubmit={submit} noValidate>
+    <form className="observation-form" ref={form} onSubmit={submit} noValidate>
       <h2 tabIndex={-1} id="step-heading">
         Catat yang kamu amati
       </h2>
@@ -54,71 +114,49 @@ export function ObservationForm({
         Isi dari pengamatanmu sendiri. Hasil yang berbeda dari perkiraan tetap
         boleh dicatat. Kolom kosong bukan angka nol.
       </p>
-      {config.groups.map((group) => (
-        <fieldset className="observation-group" key={group.title}>
-          <legend>{group.title}</legend>
-          <div className="observation-fields">
-            {group.fields.map((field) => (
-              <div className="guided-field" key={field.id}>
-                <label htmlFor={`observation-${field.id}`}>{field.label}</label>
-                {field.choices ? (
-                  <select
-                    id={`observation-${field.id}`}
-                    value={draft.observations[field.id] ?? ''}
-                    aria-invalid={!!errors[field.id]}
-                    aria-describedby={
-                      errors[field.id] ? `error-${field.id}` : undefined
-                    }
-                    onChange={(event) =>
-                      update({
-                        observations: {
-                          ...draft.observations,
-                          [field.id]: event.target.value,
-                        },
-                        observationStatus: 'draft',
-                      })
-                    }
-                  >
-                    <option value="">Pilih hasil pengamatan</option>
-                    {field.choices.map((choice) => (
-                      <option key={choice}>{choice}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    id={`observation-${field.id}`}
-                    inputMode="decimal"
-                    type="text"
-                    maxLength={30}
-                    placeholder="Belum diisi"
-                    value={draft.observations[field.id] ?? ''}
-                    aria-invalid={!!errors[field.id]}
-                    aria-describedby={
-                      errors[field.id]
-                        ? `error-${field.id}`
-                        : 'measurement-help'
-                    }
-                    onChange={(event) =>
-                      update({
-                        observations: {
-                          ...draft.observations,
-                          [field.id]: event.target.value,
-                        },
-                        observationStatus: 'draft',
-                      })
-                    }
-                  />
-                )}
-                {errors[field.id] && (
-                  <p className="field-error" id={`error-${field.id}`}>
-                    {errors[field.id]}
-                  </p>
-                )}
-              </div>
+      <p className="guided-help">
+        Semua hasil pengamatan wajib diisi sebelum refleksi. Isian disimpan
+        sebagai draf saat kamu mengubahnya.
+      </p>
+      {layout.shared.map((id) => control(id, true))}
+      {missionId === 4 && (
+        <p className="guided-help">
+          Durasi adalah asumsi penggunaan yang kamu pilih, bukan pembacaan waktu
+          dari PhET.
+        </p>
+      )}
+      <p className="table-scroll-help">
+        Pada layar kecil, geser tabel ke samping untuk melihat semua kolom.
+      </p>
+      <div
+        className="observation-table-scroll"
+        role="region"
+        aria-label="Tabel pengamatan, dapat digeser"
+        tabIndex={0}
+      >
+        <table className="observation-table">
+          <caption>{layout.caption}</caption>
+          <thead>
+            <tr>
+              {layout.columns.map((column) => (
+                <th scope="col" key={column}>
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {layout.rows.map((row) => (
+              <tr key={row.label}>
+                <th scope="row">{row.label}</th>
+                {row.fields.map((id) => (
+                  <td key={id}>{control(id)}</td>
+                ))}
+              </tr>
             ))}
-          </div>
-        </fieldset>
-      ))}
+          </tbody>
+        </table>
+      </div>
       {(missionId === 3 || missionId === 4) && (
         <p className="guided-help" id="measurement-help">
           Gunakan besar nilai tanpa tanda minus: volt (V), ampere (A), ohm (Ω),
@@ -180,17 +218,6 @@ export function ObservationForm({
           Simpan pengamatan dan lanjut
         </button>
       </div>
-      <button
-        className="skip-observation secondary-button"
-        type="button"
-        onClick={() => onContinue(true)}
-      >
-        Lanjut tanpa pengamatan
-      </button>
-      <p className="guided-help">
-        Pilihan ini menampilkan status “Belum mencatat pengamatan” dan
-        mempertahankan isian sementara.
-      </p>
     </form>
   )
 }

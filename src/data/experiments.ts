@@ -195,3 +195,84 @@ export function parseMeasurement(raw: string): number | null {
   const value = Number(raw.trim().replace(',', '.'))
   return Number.isFinite(value) ? value : null
 }
+
+export function observationErrors(
+  missionId: number,
+  values: Record<string, string>,
+) {
+  const errors: Record<string, string> = {}
+  for (const field of experiments[missionId].groups.flatMap(
+    (group) => group.fields,
+  )) {
+    const raw = values[field.id] ?? ''
+    const number = parseMeasurement(raw)
+    if (
+      field.choices
+        ? !field.choices.includes(raw)
+        : number === null || (field.positive && number <= 0)
+    ) {
+      errors[field.id] = field.choices
+        ? 'Pilih hasil yang kamu amati, termasuk bila belum dapat menentukan.'
+        : `Isi angka ${field.positive ? 'lebih dari nol' : 'nol atau positif'} dalam satuan pada label. Desimal boleh memakai koma atau titik.`
+    }
+  }
+  return errors
+}
+
+// Existing field IDs stay stable so older drafts populate the same table cells.
+export const observationTables: Record<
+  number,
+  {
+    caption: string
+    columns: string[]
+    shared: string[]
+    rows: { label: string; fields: string[] }[]
+  }
+> = {
+  1: {
+    caption: 'Keadaan lampu pada dua posisi sakelar',
+    columns: ['Posisi sakelar', 'Keadaan lampu'],
+    shared: [],
+    rows: [
+      { label: 'Terbuka', fields: ['open'] },
+      { label: 'Tertutup', fields: ['closed'] },
+    ],
+  },
+  2: {
+    caption: 'Lampu lain ketika satu lampu dilepas',
+    columns: ['Susunan', 'Sebelum dilepas', 'Setelah dilepas'],
+    shared: [],
+    rows: [
+      { label: 'Seri', fields: ['before0', 'after0'] },
+      { label: 'Paralel', fields: ['before1', 'after1'] },
+    ],
+  },
+  3: {
+    caption: 'Pengukuran V dan I pada resistor yang sama',
+    columns: ['Kondisi', 'Tegangan (V)', 'Arus (A)'],
+    shared: ['r'],
+    rows: [
+      { label: 'A', fields: ['vA', 'iA'] },
+      { label: 'B', fields: ['vB', 'iB'] },
+    ],
+  },
+  4: {
+    caption: 'Pengukuran dua beban pada sumber yang sama',
+    columns: ['Beban', 'Tegangan (V)', 'Arus (A)'],
+    shared: ['duration'],
+    rows: [
+      { label: 'A', fields: ['vA', 'iA'] },
+      { label: 'B', fields: ['vB', 'iB'] },
+    ],
+  },
+  5: {
+    caption: 'Kendali lampu pada tiga ruang',
+    columns: ['Sakelar dibuka', 'Ruang yang berubah'],
+    shared: [],
+    rows: [
+      { label: 'Ruang 1', fields: ['room1'] },
+      { label: 'Ruang 2', fields: ['room2'] },
+      { label: 'Ruang 3', fields: ['room3'] },
+    ],
+  },
+}

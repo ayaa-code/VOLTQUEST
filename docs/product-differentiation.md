@@ -1,5 +1,7 @@
 # Pembeda produk VoltQuest
 
+**Pembaruan 23 Oktober 2026:** PhET kini dapat dijalankan di halaman misi dan lima tabel pengamatan wajib dilengkapi sebelum refleksi. Pengamatan tetap dicatat manual; susunan PhET tidak ikut tersimpan dalam draf. [Rincian dan bukti terbaru](embedded-lab.md).
+
 Tanggal audit: 20 Oktober 2026. Cakupan: tahap **Perjelas Pembeda VoltQuest**. Dokumen ini mencatat kondisi kode setelah penyelarasan pesan aplikasi, keputusan desain, dan rancangan pengembangan berikutnya. Pembuatan dokumen ini tidak mengimplementasikan fitur adaptif atau melaksanakan penelitian pengguna.
 
 **Pembaruan tahap 4 — 20 Oktober 2026:** alur empat langkah, prediksi, pengamatan manual, alasan refleksi, dan draf per profil/misi sudah diimplementasikan. Matriks aktual diselaraskan; konfirmasi kesulitan dan latihan adaptif tetap belum diimplementasikan. Bukti teknis ada pada [dokumentasi alur eksperimen](guided-experiment-flow.md).
@@ -38,7 +40,7 @@ Belum tersedia wawancara, observasi siswa/guru, kajian pesaing sistematis, valid
 
 **Segmen pengguna utama — keputusan lingkup:** siswa SMA/MA Fase F yang sedang mempelajari listrik dinamis dan menggunakan browser, terutama melalui HP, untuk mengikuti eksperimen virtual mandiri atau tugas sekolah. Guru berperan sebagai narasumber dan penelaah materi; dashboard guru tidak masuk lingkup produk saat ini.
 
-Situasi penggunaan yang diprioritaskan: siswa mengikuti satu misi melalui HP dan berpindah antara panduan VoltQuest dan simulasi PhET. Pengetahuan awal yang diasumsikan adalah mengenali besaran tegangan, arus, dan hambatan; asumsi ini perlu diperiksa dalam riset, bukan dijadikan syarat terkunci pada aplikasi. Produk tidak diarahkan menjadi LMS umum atau pengganti seluruh kegiatan pembelajaran guru.
+Situasi penggunaan yang diprioritaskan: siswa mengikuti satu misi melalui HP, menjalankan PhET dan mengisi tabel pada halaman VoltQuest yang sama. Pengetahuan awal yang diasumsikan adalah mengenali besaran tegangan, arus, dan hambatan; asumsi ini perlu diperiksa dalam riset, bukan dijadikan syarat terkunci pada aplikasi. Produk tidak diarahkan menjadi LMS umum atau pengganti seluruh kegiatan pembelajaran guru.
 
 **Masalah utama — hipotesis yang perlu diuji:** saat berpindah dari soal kelas ke simulasi terbuka, sebagian siswa mungkin belum mengetahui apa yang harus diubah, diamati, dan dijelaskan. Mereka dapat memilih jawaban atau memakai rumus tanpa menghubungkan perubahan rangkaian, hasil pengukuran, dan alasan konsepnya.
 
@@ -56,7 +58,7 @@ Rumusan ini belum menyatakan seberapa sering masalah terjadi atau bahwa semua si
 | H2  | Prediksi sebelum eksperimen dan pengamatan sesudahnya membantu siswa menjelaskan hubungan V, I, dan R.       | Perbandingan prediksi, catatan hasil, serta alasan siswa pada soal transfer.                                      |
 | H3  | Petunjuk berdasarkan pilihan dan pertanyaan konfirmasi lebih relevan daripada petunjuk umum satu misi.       | Respons siswa terhadap kedua bentuk petunjuk, kebutuhan bantuan, dan perubahan penjelasan setelah latihan.        |
 | H4  | Masalah penerangan sekolah membantu siswa menghubungkan konsep rangkaian dengan keputusan penggunaan energi. | Alasan pemilihan rancangan dan kemampuan menjelaskan konsekuensi sakelar atau cabang yang terputus.               |
-| H5  | Siswa dapat kembali dari tab PhET ke langkah VoltQuest yang tepat melalui HP.                                | Keberhasilan berpindah tab, titik kehilangan konteks, serta kebutuhan mengulang membaca panduan.                  |
+| H5  | Siswa dapat berganti antara simulasi dan tabel pada VoltQuest melalui HP.                                | Keberhasilan berpindah tab, titik kehilangan konteks, serta kebutuhan mengulang membaca panduan.                  |
 
 ## 3. Positioning dan value proposition
 
@@ -94,7 +96,7 @@ Tabel ini menghubungkan arah produk dengan bukti yang perlu dicari. Tidak ada ha
 
 ## 5. Pembagian peran siswa, VoltQuest, dan PhET
 
-PhET Interactive Simulations, University of Colorado Boulder, adalah pembuat laboratorium eksternal. VoltQuest menautkan [Circuit Construction Kit: DC](https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_all.html) di tab baru. Tidak ada integrasi API, pembacaan rangkaian, atau pengiriman hasil eksperimen otomatis antara kedua aplikasi dalam kode saat ini.
+PhET Interactive Simulations, University of Colorado Boulder, adalah pembuat laboratorium eksternal. VoltQuest menyematkan [Circuit Construction Kit: DC](https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_all.html) di halaman misi, dengan alternatif tab baru. Tabel wajib diisi sebelum refleksi; rincian perubahan dan kompatibilitas tersedia pada [dokumentasi laboratorium](embedded-lab.md). Tidak ada integrasi API, pembacaan rangkaian, atau pengiriman hasil eksperimen otomatis antara kedua aplikasi dalam kode saat ini.
 
 | Aktivitas                     | Yang dilakukan siswa                                                   | Yang disediakan VoltQuest                                                                   | Yang disediakan PhET                                                               |
 | ----------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |

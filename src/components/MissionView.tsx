@@ -6,17 +6,15 @@ import {
   Award,
   BookOpen,
   Check,
-  CheckCircle2,
-  ExternalLink,
   FlaskConical,
   Leaf,
   Sparkles,
   Target,
   Zap,
 } from 'lucide-react'
-import { PHET_URL } from '../data/missions'
 import type { Mission } from '../data/missions'
-import { experiments } from '../data/experiments'
+import { PhetLab } from './PhetLab'
+import { experiments, observationErrors } from '../data/experiments'
 import { useExperimentDraft } from '../hooks/useExperimentDraft'
 import { ObservationForm } from './ObservationForm'
 import { ConceptConfirmation } from './ConceptConfirmation'
@@ -52,8 +50,14 @@ export function MissionView({
   const answer = draft.answer
   const conceptFeedback = useConceptFeedback(profileId, mission, answer)
   const config = experiments[mission.id]
+  const observationReady =
+    draft.observationStatus === 'recorded' &&
+    Object.keys(observationErrors(mission.id, draft.observations)).length === 0
+  // Old skipped/incomplete drafts are retained, but the UI now returns to the table.
+  const step = draft.step === 3 && !observationReady ? 2 : draft.step
   const panel = useRef<HTMLDivElement>(null)
   function go(step: number) {
+    if (step === 3 && !observationReady) return
     update({
       step,
       ...(step > 0 && !draft.initialPrediction && draft.prediction
@@ -80,7 +84,7 @@ export function MissionView({
   const success = feedback === 'correct'
   function submit(e: FormEvent) {
     e.preventDefault()
-    if (answer === null) return
+    if (answer === null || !observationReady) return
     update({ answer })
     conceptFeedback.begin(answer)
     if (answer === mission.correct) {
@@ -130,9 +134,12 @@ export function MissionView({
         {steps.map((label, index) => (
           <button
             key={label}
-            className={draft.step === index ? 'active' : ''}
-            aria-current={draft.step === index ? 'step' : undefined}
-            disabled={index > 0 && !draft.prediction}
+            className={step === index ? 'active' : ''}
+            aria-current={step === index ? 'step' : undefined}
+            disabled={
+              (index > 0 && !draft.prediction) ||
+              (index === 3 && !observationReady)
+            }
             onClick={() => go(index)}
           >
             <span>{index + 1}</span>
@@ -141,7 +148,7 @@ export function MissionView({
         ))}
       </nav>
       <p className="draft-status">
-        Langkah {draft.step + 1} dari 4 ·{' '}
+        Langkah {step + 1} dari 4 ·{' '}
         {saved
           ? 'Draf tersimpan di browser ini.'
           : 'Draf disimpan saat kamu mengubah isian atau langkah.'}
@@ -156,8 +163,11 @@ export function MissionView({
           {error}
         </p>
       )}
-      <div ref={panel} className="guided-panel">
-        {draft.step === 0 && (
+      <div
+        ref={panel}
+        className={`guided-panel ${step === 1 || step === 2 ? 'has-workbench' : ''}`}
+      >
+        {step === 0 && (
           <section className="content-card">
             <h2 id="step-heading" tabIndex={-1}>
               Buat prediksimu
@@ -226,90 +236,76 @@ export function MissionView({
             </div>
           </section>
         )}
-        {draft.step === 1 && (
-          <section className="content-card lab-card">
-            <span className="section-kicker">
-              <FlaskConical size={16} /> LABORATORIUM EKSTERNAL
-            </span>
-            <h2 id="step-heading" tabIndex={-1}>
-              Uji prediksimu di PhET
-            </h2>
-            <p>
-              <strong>Pertanyaan uji:</strong> {config.prediction}
-            </p>
-            <dl className="experiment-guide">
-              <div>
-                <dt>Komponen</dt>
-                <dd>{config.components}</dd>
-              </div>
-              <div>
-                <dt>Yang diubah</dt>
-                <dd>{config.changed}</dd>
-              </div>
-              <div>
-                <dt>Yang dipertahankan</dt>
-                <dd>{config.controlled}</dd>
-              </div>
-            </dl>
-            <ol className="lab-steps">
-              {config.actions.map((action) => (
-                <li key={action}>{action}</li>
-              ))}
-            </ol>
-            <p>
-              <strong>Catat nanti:</strong> {config.observe}
-            </p>
-            <a
-              className="primary-button"
-              href={PHET_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                update({ step: 1 })
-                onVisit()
-              }}
-            >
-              Buka Laboratorium PhET <ExternalLink size={17} />
-            </a>
-            <p className="phet-credit">
-              Simulasi oleh PhET Interactive Simulations, University of Colorado
-              Boulder. Terbuka di tab baru.
-            </p>
-            {visited && (
-              <p className="lab-visited">
-                <CheckCircle2 size={14} /> Tautan laboratorium sudah dibuka.
-              </p>
+        {(step === 1 || step === 2) && (
+          <div className="experiment-workbench">
+            <PhetLab onVisit={onVisit} visited={visited} />
+            {step === 1 ? (
+              <section className="content-card lab-card">
+                <span className="section-kicker">
+                  <FlaskConical size={16} /> PANDUAN PERCOBAAN
+                </span>
+                <h2 id="step-heading" tabIndex={-1}>
+                  Uji prediksimu di PhET
+                </h2>
+                <p>
+                  <strong>Pertanyaan uji:</strong> {config.prediction}
+                </p>
+                <dl className="experiment-guide">
+                  <div>
+                    <dt>Komponen</dt>
+                    <dd>{config.components}</dd>
+                  </div>
+                  <div>
+                    <dt>Yang diubah</dt>
+                    <dd>{config.changed}</dd>
+                  </div>
+                  <div>
+                    <dt>Yang dipertahankan</dt>
+                    <dd>{config.controlled}</dd>
+                  </div>
+                </dl>
+                <ol className="lab-steps">
+                  {config.actions.map((action) => (
+                    <li key={action}>{action}</li>
+                  ))}
+                </ol>
+                <p>
+                  <strong>Catat nanti:</strong> {config.observe}
+                </p>
+                <p>
+                  Gunakan simulasi di sebelah panduan ini. Klik lanjut untuk
+                  membuka tabel tanpa memuat ulang simulasi.
+                </p>
+                <div className="step-actions">
+                  <button className="secondary-button" onClick={() => go(0)}>
+                    Kembali ke prediksi
+                  </button>
+                  <button className="primary-button" onClick={() => go(2)}>
+                    Lanjut ke pengamatan
+                  </button>
+                </div>
+              </section>
+            ) : (
+              <section className="content-card">
+                <ObservationForm
+                  missionId={mission.id}
+                  draft={draft}
+                  update={update}
+                  onBack={() => go(1)}
+                  onContinue={() => {
+                    update({ observationStatus: 'recorded', step: 3 })
+                    requestAnimationFrame(() =>
+                      panel.current
+                        ?.querySelector<HTMLElement>('#step-heading')
+                        ?.focus(),
+                    )
+                  }}
+                />
+              </section>
             )}
-            <p>
-              Setelah mencoba, kembali ke tab VoltQuest untuk mencatat.
-              VoltQuest menyediakan panduan dan catatan; aktivitas serta hasil
-              PhET tidak dibaca otomatis.
-            </p>
-            <div className="step-actions">
-              <button className="secondary-button" onClick={() => go(0)}>
-                Kembali ke prediksi
-              </button>
-              <button className="primary-button" onClick={() => go(2)}>
-                Lanjut ke pengamatan
-              </button>
-            </div>
-          </section>
+          </div>
         )}
-        {draft.step === 2 && (
-          <section className="content-card">
-            <ObservationForm
-              missionId={mission.id}
-              draft={draft}
-              update={update}
-              onBack={() => go(1)}
-              onContinue={(skipped) => {
-                update({ observationStatus: skipped ? 'skipped' : 'recorded' })
-                go(3)
-              }}
-            />
-          </section>
-        )}
-        {draft.step === 3 && (
+        {step === 3 && (
           <section className="content-card reflection">
             <button className="back-link" onClick={() => go(2)}>
               <ArrowLeft size={17} /> Kembali ke pengamatan

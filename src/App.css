@@ -2039,6 +2039,184 @@ fieldset:disabled .answer-option input {
   max-width: 860px;
   margin-inline: auto;
 }
+.guided-panel.has-workbench {
+  max-width: none;
+}
+.experiment-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.experiment-workbench > * {
+  min-width: 0;
+}
+.phet-lab > p {
+  margin-block: 12px;
+}
+.phet-stage {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f8f6fd;
+  margin-block: 20px;
+}
+.phet-stage iframe {
+  display: block;
+  width: 100%;
+  height: clamp(300px, 36vw, 420px);
+  border: 0;
+  background: #fff;
+}
+.phet-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px;
+}
+.phet-toolbar > span {
+  font-size: var(--font-secondary);
+  color: var(--text-secondary);
+}
+.phet-toolbar button {
+  font-size: var(--font-secondary);
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.phet-placeholder {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 28px 18px;
+  text-align: center;
+}
+.phet-placeholder > svg {
+  color: var(--purple);
+}
+.phet-placeholder strong {
+  font-family: var(--heading);
+  font-size: 1.125rem;
+}
+.phet-placeholder p {
+  color: var(--text-secondary);
+}
+.phet-stage:fullscreen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: white;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+}
+.phet-stage:fullscreen iframe {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+.phet-fallback {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.phet-credit a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.phet-notice {
+  padding: 12px;
+  background: #fff7e5;
+  border-radius: 10px;
+  color: var(--warning);
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.observation-form > p {
+  margin-bottom: 14px;
+}
+.observation-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  margin-block: 18px;
+}
+.observation-table-scroll:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+.observation-table {
+  width: 100%;
+  min-width: 380px;
+  border-collapse: collapse;
+  font-size: 1rem;
+  text-align: left;
+}
+.observation-table caption {
+  text-align: left;
+  font-weight: 700;
+  padding: 16px;
+  color: var(--purple);
+  background: #f8f5fc;
+}
+.observation-table th,
+.observation-table td {
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+}
+.observation-table thead {
+  background: #faf8fd;
+}
+.observation-table th {
+  font-weight: 650;
+}
+.observation-table th:first-child {
+  min-width: 80px;
+  white-space: nowrap;
+}
+.observation-table td {
+  min-width: 145px;
+}
+.observation-table select {
+  min-width: 160px;
+}
+.observation-table .guided-field {
+  margin: 0;
+}
+.observation-table .field-error {
+  font-size: 0.875rem;
+}
+.table-scroll-help {
+  color: var(--text-secondary);
+  font-size: 0.875rem !important;
+}
+@media (min-width: 1100px) {
+  .experiment-workbench {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+  .phet-lab {
+    position: sticky;
+    top: 20px;
+  }
+  .experiment-workbench > .content-card {
+    padding: 22px;
+  }
+}
 .guided-panel p,
 .guided-panel dd {
   font-size: 1rem;

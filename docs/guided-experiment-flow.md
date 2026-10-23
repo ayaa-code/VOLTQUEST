@@ -1,5 +1,8 @@
 # Tahap 4 — Alur eksperimen terpandu
 
+> Riwayat tahap 4. Alur berjalan kini menggunakan PhET dalam halaman dan tabel pengamatan wajib; jalur lewati sudah dihapus. Field/skema draf tetap kompatibel. Lihat [versi terbaru dan bukti](embedded-lab.md). Uraian skip/tab baru dan angka pengujian di bawah menjelaskan versi sebelumnya.
+
+
 Implementasi dan pemeriksaan teknis: 20 Oktober 2026. Ini catatan implementasi aplikasi, bukan hasil penelitian siswa atau bukti peningkatan hasil belajar.
 
 ## Sebelum dan sesudah

@@ -4,6 +4,10 @@
 
 Demo pendamping eksperimen listrik dinamis untuk Fisika Fase F SMA / MA, bertema **Sekolah Tangguh Energi**. Versi saat ini menyediakan alur prediksi → eksperimen PhET → pengamatan manual → refleksi untuk lima misi, dengan draf lokal dan petunjuk tetap per misi. Dibangun dengan React, TypeScript, Vite, CSS, dan ikon Lucide. Tanpa backend atau database.
 
+## Laboratorium dan tabel pengamatan
+
+PhET dapat dijalankan di dalam misi, dengan tombol layar penuh serta alternatif tab baru. Lima tabel menyesuaikan percobaan tiap misi. Refleksi baru terbuka setelah hasil diisi lengkap dan disimpan. Draf lama dipertahankan; data yang dahulu dilewati perlu dilengkapi sebelum mengulang refleksi. [Panduan dan bukti integrasi](docs/embedded-lab.md).
+
 ## Arah produk dan batas versi saat ini
 
 Pembeda yang dituju adalah pendampingan dari prediksi, pengamatan, dan penjelasan konsep hingga tindak lanjut sesuai indikasi kesulitan siswa. Rancangan dan alasannya tersedia dalam [dokumentasi pembeda produk](docs/product-differentiation.md).
@@ -64,7 +68,7 @@ Dengan dev server aktif di `http://127.0.0.1:5173/`, jalankan `node scripts/audi
 1. Klik **Masuk atau Daftar**, isi nama, lalu masuk.
 2. Cari atau pilih salah satu dari lima kartu misi.
 3. Baca briefing dan target. Pilih prediksi, termasuk “Belum yakin”; alasan opsional.
-4. Ikuti panduan di langkah Eksperimen, buka PhET di tab baru, lalu kembali untuk mengisi Pengamatan. Catatan tidak dinilai terhadap hasil ideal. Lanjut ke Refleksi dengan ringkasan dan alasan opsional. Jalur “Lanjut tanpa pengamatan” menampilkan status belum mencatat.
+4. Ikuti panduan di langkah Eksperimen dan klik **Mulai simulasi di sini**. PhET tampil di halaman misi. Lanjutkan ke Pengamatan untuk mengisi tabel sambil mempertahankan simulasi yang sedang berjalan. Lengkapi seluruh hasil lalu klik **Simpan pengamatan dan lanjut** untuk membuka Refleksi. Hasil tidak dinilai terhadap nilai ideal; alasan tertulis tetap opsional.
 5. Jawaban salah menampilkan petunjuk dan dapat dicoba lagi. Jawaban benar memberikan **100 XP sekali per misi** dan sebuah badge.
 6. Buka **Badge saya**, detail progres, atau lanjutkan ke misi berikutnya.
 
@@ -80,11 +84,11 @@ Ini bukan autentikasi. Progres tidak tersinkron ke perangkat, browser, atau orig
 
 ## Laboratorium pendukung
 
-Simulasi adalah karya **PhET Interactive Simulations, University of Colorado Boulder**, bukan fitur yang dikembangkan oleh VoltQuest. Tautan terbuka di tab baru:
+Simulasi adalah karya **PhET Interactive Simulations, University of Colorado Boulder**, bukan fitur yang dikembangkan oleh VoltQuest. Simulasi ditampilkan melalui iframe. Tautan berikut tetap tersedia sebagai alternatif tab baru:
 
 https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_all.html
 
-Simulasi eksternal membutuhkan koneksi internet. Font Google memiliki fallback font sistem bila koneksi tidak tersedia. VoltQuest tidak merekam aktivitas atau hasil eksperimen di PhET; indikator kunjungan hanya menandai bahwa tautan telah dibuka.
+Simulasi eksternal membutuhkan koneksi internet. Font Google memiliki fallback font sistem bila koneksi tidak tersedia. VoltQuest tidak merekam aktivitas atau hasil eksperimen di PhET; indikator kunjungan hanya menandai bahwa siswa meminta membuka laboratorium. Rangkaian PhET tidak disimpan bersama draf VoltQuest.
 
 ## Struktur
 
@@ -125,7 +129,7 @@ $env:PLAYWRIGHT_CHANNEL = 'chrome'
 npm.cmd run test:e2e
 ```
 
-Pengujian berjalan pada ukuran desktop dan iPhone dengan Chromium: alur lima misi, feedback salah/benar, pembukaan tab PhET, badge, XP tanpa duplikasi, pencarian/filter, refresh, profil terpisah, pemulihan data rusak, dan dialog melalui keyboard. Tata letak juga diperiksa pada lebar 320, 390, 768, 1024, dan 1440 piksel. Pengujian tab PhET memakai respons simulasi tiruan; isi laboratorium eksternal tidak diuji. Screenshot alur tahap 4 disimpan di `artifacts/guided-experiment/`; screenshot umum di `test-results/`. Pengujian tambahan mencakup pemulihan draf, isolasi profil, data lama/rusak, versi tidak dikenal, kegagalan tulis, koma desimal, nol/kosong, perhitungan energi, dan jalur tanpa pengamatan.
+Pengujian berjalan pada ukuran desktop dan iPhone dengan Chromium: alur lima misi, feedback salah/benar, pembukaan tab PhET, badge, XP tanpa duplikasi, pencarian/filter, refresh, profil terpisah, pemulihan data rusak, dan dialog melalui keyboard. Tata letak juga diperiksa pada lebar 320, 390, 768, 1024, dan 1440 piksel. Pengujian tab PhET memakai respons simulasi tiruan; pengujian otomatis tersebut tidak membuktikan akurasi fisika PhET. Screenshot alur tahap 4 disimpan di `artifacts/guided-experiment/`; screenshot umum di `test-results/`. Pengujian tambahan mencakup pemulihan draf, isolasi profil, data lama/rusak, versi tidak dikenal, kegagalan tulis, koma desimal, nol/kosong, perhitungan energi, dan kewajiban melengkapi tabel sebelum refleksi. Pengujian iframe menggunakan simulasi tiruan untuk menguji integrasi secara stabil; audit terpisah juga memuat PhET asli. Lihat [rincian, hasil terbaru, dan screenshot laboratorium dalam halaman](docs/embedded-lab.md).
 
 Verifikasi tahap 6: 32 pengujian E2E lolos, termasuk seluruh 10 latihan, pemulihan jawaban/feedback, percobaan pertama dan pengulangan, isolasi profil, penyimpanan rusak/tidak dikenal/gagal, serta perlindungan XP dan draf lama. Audit UI tahap 6 mencakup 145 keadaan/ukuran pada lima lebar layar; bukti dan batas pemeriksaan ada di docs/practice-recommendations.md.
 

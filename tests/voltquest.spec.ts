@@ -1,3 +1,4 @@
+import { fillObservations } from './helpers/observations'
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 
@@ -11,7 +12,7 @@ async function login(page: Page, name = 'Nara') {
   ).toBeVisible()
 }
 
-async function skipToReflection(page: Page) {
+async function completeToReflection(page: Page) {
   await page.getByRole('radio', { name: 'Belum yakin', exact: true }).check()
   await page
     .getByRole('button', { name: 'Lanjut ke eksperimen', exact: true })
@@ -19,9 +20,7 @@ async function skipToReflection(page: Page) {
   await page
     .getByRole('button', { name: 'Lanjut ke pengamatan', exact: true })
     .click()
-  await page
-    .getByRole('button', { name: 'Lanjut tanpa pengamatan', exact: true })
-    .click()
+  await fillObservations(page)
 }
 
 test('full journey, reflection, persistence, no duplicate XP, and profiles', async ({
@@ -58,16 +57,14 @@ test('full journey, reflection, persistence, no duplicate XP, and profiles', asy
   await expect(popup).toHaveURL(/phet.colorado.edu/)
   await popup.close()
   await expect(
-    page.getByText('Tautan laboratorium sudah dibuka.', { exact: false }),
+    page.getByText('Laboratorium pernah dibuka.', { exact: false }),
   ).toBeVisible()
   await page
     .getByRole('button', { name: 'Lanjut ke pengamatan', exact: true })
     .click()
-  await page
-    .getByRole('button', { name: 'Lanjut tanpa pengamatan', exact: true })
-    .click()
+  await fillObservations(page)
   await expect(
-    page.getByText('Belum mencatat pengamatan', { exact: true }),
+    page.getByText('Catatan pengamatan siswa', { exact: true }),
   ).toBeVisible()
   await expect(
     page.getByRole('button', { name: 'Kirim jawaban' }),
@@ -84,7 +81,7 @@ test('full journey, reflection, persistence, no duplicate XP, and profiles', asy
     'B Rangkaian paralel dengan sakelar tiap ruang',
   ]
   for (let i = 0; i < answers.length; i++) {
-    if (i > 0) await skipToReflection(page)
+    if (i > 0) await completeToReflection(page)
     await page.getByRole('radio', { name: answers[i], exact: true }).check()
     await page.getByRole('button', { name: 'Kirim jawaban' }).click()
     await expect(page.getByRole('status')).toContainText('+100 XP')

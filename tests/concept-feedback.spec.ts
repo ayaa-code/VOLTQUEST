@@ -1,3 +1,4 @@
+import { observationFixture, fillObservations } from './helpers/observations'
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import { missions } from '../src/data/missions'
@@ -13,7 +14,7 @@ import { findPractice } from '../src/data/practice'
 const key = 'voltquest.feedback.v1'
 async function enter(page: Page, missionId = 3, completed: number[] = []) {
   await page.addInitScript(
-    ({ completed }) => {
+    ({ completed, fixtures }) => {
       if (sessionStorage.getItem('confirmation-seeded')) return
       sessionStorage.setItem('confirmation-seeded', 'yes')
       localStorage.setItem(
@@ -31,8 +32,8 @@ async function enter(page: Page, missionId = 3, completed: number[] = []) {
           step: 3,
           prediction: 'Belum yakin',
           initialPrediction: { choice: 'Belum yakin', reason: '' },
-          observations: {},
-          observationStatus: 'skipped',
+          observations: fixtures[id as keyof typeof fixtures],
+          observationStatus: 'recorded',
           answer: null,
           reflectionReason: 'Tulisan bebas tidak dinilai.',
         }
@@ -41,7 +42,12 @@ async function enter(page: Page, missionId = 3, completed: number[] = []) {
         JSON.stringify({ version: 1, profiles: { 'student:nara': drafts } }),
       )
     },
-    { completed },
+    {
+      completed,
+      fixtures: Object.fromEntries(
+        [1, 2, 3, 4, 5].map((id) => [id, observationFixture(id)]),
+      ),
+    },
   )
   await page.goto(`/#misi-${missionId}`)
 }
@@ -370,7 +376,13 @@ test('profiles isolate confirmation and recommendations', async ({ page }) => {
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await page.locator('.mission-card').nth(2).click()
   await page.getByRole('radio', { name: 'Belum yakin', exact: true }).check()
-  await page.getByRole('button', { name: '4 Refleksi', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Lanjut ke eksperimen', exact: true })
+    .click()
+  await page
+    .getByRole('button', { name: 'Lanjut ke pengamatan', exact: true })
+    .click()
+  await fillObservations(page)
   await expect(page.locator('input[name="confirmation"]')).toHaveCount(0)
   await answer(page, 0)
   await confirm(page, 'unsure')

@@ -1,3 +1,4 @@
+import { fillObservations } from './helpers/observations'
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 
@@ -100,7 +101,7 @@ test('draft survives reload, dashboard, edits, keyboard navigation and separate 
   )
 })
 
-test('legacy progress and corrupt drafts recover; skip never fabricates observations', async ({
+test('legacy progress and corrupt drafts recover; incomplete data cannot unlock reflection', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -122,12 +123,13 @@ test('legacy progress and corrupt drafts recover; skip never fabricates observat
   await page
     .getByRole('button', { name: 'Lanjut ke pengamatan', exact: true })
     .click()
+  await expect(
+    page.getByRole('button', { name: '4 Refleksi', exact: true }),
+  ).toBeDisabled()
   await page
-    .getByRole('button', { name: 'Lanjut tanpa pengamatan', exact: true })
+    .getByRole('button', { name: 'Simpan pengamatan dan lanjut' })
     .click()
-  await expect(page.getByLabel('Ringkasan kegiatan')).toContainText(
-    'Belum mencatat pengamatan',
-  )
+  await expect(page.getByLabel('Hambatan resistor (Ω)')).toBeFocused()
   const stored = await page.evaluate(
     (storageKey) => JSON.parse(localStorage.getItem(storageKey)!),
     key,
@@ -137,7 +139,7 @@ test('legacy progress and corrupt drafts recover; skip never fabricates observat
       (value) => value === '',
     ),
   ).toBe(true)
-  expect(stored.profiles['student:nara']['3'].observationStatus).toBe('skipped')
+  expect(stored.profiles['student:nara']['3'].observationStatus).toBe('draft')
   const progress = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('voltquest.v1')!),
   )
@@ -242,10 +244,7 @@ test('all missions and steps fit five viewport widths', async ({
         await page
           .getByRole('button', { name: 'Lanjut ke pengamatan', exact: true })
           .click()
-      if (step === 3)
-        await page
-          .getByRole('button', { name: 'Lanjut tanpa pengamatan', exact: true })
-          .click()
+      if (step === 3) await fillObservations(page)
       for (const width of [320, 390, 768, 1024, 1440]) {
         await page.setViewportSize({ width, height: 900 })
         expect(

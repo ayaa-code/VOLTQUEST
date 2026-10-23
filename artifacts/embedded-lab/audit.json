@@ -1,0 +1,50 @@
+{
+  "errors": [],
+  "requestsFailed": [],
+  "layouts": [
+    {
+      "width": 320,
+      "pageOverflow": false,
+      "tableWithinPage": true,
+      "formVisible": true,
+      "iframeCount": 1
+    },
+    {
+      "width": 390,
+      "pageOverflow": false,
+      "tableWithinPage": true,
+      "formVisible": true,
+      "iframeCount": 1
+    },
+    {
+      "width": 768,
+      "pageOverflow": false,
+      "tableWithinPage": true,
+      "formVisible": true,
+      "iframeCount": 1
+    },
+    {
+      "width": 1024,
+      "pageOverflow": false,
+      "tableWithinPage": true,
+      "formVisible": true,
+      "iframeCount": 1
+    },
+    {
+      "width": 1440,
+      "pageOverflow": false,
+      "tableWithinPage": true,
+      "formVisible": true,
+      "iframeCount": 1
+    }
+  ],
+  "realPhet": {
+    "loaded": true,
+    "title": "‪Circuit Construction Kit: DC‬",
+    "url": "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_all.html",
+    "visibleTextSample": "Circuit Construction Kit: DC\n\nWelcome to Circuit Construction Kit: DC. It has 2 interactive screens that you can explore. Choose a screen to start exploring.\n\nIntro Screen\n\nBuild circuits and measure voltage and current.\n\nLab Screen\n\nConstruct circuits with a larger variety of components and experiment with advanced options.\n\nSim Resources\nPreferences\nAll Audio\nKeyboard Shortcuts\nPhET Menu\n\nfalse\n‪Circuit Construction Kit: DC‬\n‪Intro‬\n‪Lab‬\n‪Circuit Construction Kit: DC‬\n‪Intro‬\n‪Lab‬",
+    "afterKeyboardSelection": "Lab Screen, Circuit Construction Kit: DC\n\nThe Lab Screen changes as you play with it. It has a Play Area and a Control Area.\n\nIn Play Area:\n\nA Construction Area creates a building space for components added from a Circuit Component Toolbox. Build and navigate your circuits there. If Voltmeters and Ammeters are out of the toolbox, you can take measurements.\n\nIn Control Area:\n\nVoltmeters and Ammeters can be found in the Sensor Toolbox. Display Options provide ways to add or remove information about components in the Construction Area. There's an option to choose between a Lifelike View or a Schematic View for circuit components, and you can Reset All to clear everything and start over.\n\nCurrently, Construction Area has no circuit components. Several lifelike components are available in Circuit Components carousel.\n\nAdd circuit components and start connecting. Be sure to add at least one Wire.\n\nThis screen has custom interactions. If needed, check out keyboard shortcuts under Sim Resources.\n\nPlay Area\nConstruction Area\n\nAdd circuit components and sensors as needed. Then, use connection options to build circuits, measurement options to take measurements, and edit options to adjust component specifications. Use Delete key to snip connections or remove components and sensors. Connected components auto-organize into groups and everything is movable with the Arrow keys. Checkout Keyboa"
+  },
+  "date": "2026-10-23T06:29:37.926Z",
+  "browser": "155.0.8059.85"
+}

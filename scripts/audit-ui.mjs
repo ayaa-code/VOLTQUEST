@@ -47,6 +47,16 @@ if (phase === 'before') {
   }
 }
 
+async function completeTable(page) {
+  for (const select of await page.locator('.observation-form select').all())
+    await select.selectOption({ index: 1 })
+  for (const input of await page.locator('.observation-form input').all())
+    await input.fill('6')
+  await page
+    .getByRole('button', { name: 'Simpan pengamatan dan lanjut' })
+    .click()
+}
+
 function measure() {
   const rgba = (value) => {
     const values = value.match(/[\d.]+/g)?.map(Number) ?? [0, 0, 0, 0]
@@ -315,10 +325,8 @@ try {
         .getByRole('button', { name: 'Simpan pengamatan dan lanjut' })
         .click()
       await snapshot('guided-observation-validation')
-      await page
-        .getByRole('button', { name: 'Lanjut tanpa pengamatan', exact: true })
-        .click()
-      await snapshot('guided-reflection-skipped')
+      await completeTable(page)
+      await snapshot('guided-reflection-recorded')
     }
     await page.getByRole('radio', { name: 'A Kabel', exact: true }).focus()
     await page.keyboard.press('Space')
@@ -412,8 +420,12 @@ try {
           .getByRole('radio', { name: 'Belum yakin', exact: true })
           .check()
         await page
-          .getByRole('button', { name: '4 Refleksi', exact: true })
+          .getByRole('button', { name: 'Lanjut ke eksperimen', exact: true })
           .click()
+        await page
+          .getByRole('button', { name: 'Lanjut ke pengamatan', exact: true })
+          .click()
+        await completeTable(page)
         await page.locator('input[name="answer"]').first().check()
         await page
           .getByRole('button', { name: 'Kirim jawaban', exact: true })

@@ -683,7 +683,9 @@ function App() {
                 PhET Interactive Simulations <ExternalLink size={12} />
               </a>
               , University of Colorado Boulder. VoltQuest menyediakan panduan
-              dan refleksi, tanpa membaca aktivitasmu di PhET secara otomatis.
+              dan refleksi. Simulasi dapat dijalankan di dalam halaman misi atau
+              di tab baru. Isi tabel dari pengukuranmu sendiri; VoltQuest tidak
+              membaca aktivitas atau angka PhET secara otomatis.
             </p>
           </div>
         </Dialog>
