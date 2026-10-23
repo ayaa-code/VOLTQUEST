@@ -23,7 +23,9 @@ test('menjalankan materi, analisis PhET, dan revisi kuis formatif secara berurut
   await expect(page.getByRole('heading', { name: 'Petualangan Listrik Dinamis' })).toBeVisible()
   await expect(page.locator('.learning-path-card')).toHaveCount(3)
   await expect(page.locator('.dashboard-circuit')).toHaveAttribute('data-renderer', '3d')
-  await expect(page.getByText('Hambatan Ohmik dan Non Ohmik').first()).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' }),
+  ).toBeVisible()
 
   await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
   await expect(page.getByRole('heading', { name: 'Arus Listrik' })).toBeVisible()
@@ -33,7 +35,8 @@ test('menjalankan materi, analisis PhET, dan revisi kuis formatif secara berurut
   const challengeCard = page
     .locator('.learning-path-card')
     .filter({ hasText: 'Challenge Analisis PhET' })
-  await challengeCard.getByRole('button', { name: 'Buka tahap' }).click()
+  await challengeCard.click()
+  await page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }).click()
   await page.getByRole('button', { name: 'Mulai simulasi di sini' }).click()
   await page.locator('textarea').nth(0).fill('Arus terlihat mengalir saat rangkaian tertutup.')
   await page.locator('textarea').nth(1).fill('Arus memerlukan lintasan tertutup untuk mengalir.')
@@ -44,7 +47,8 @@ test('menjalankan materi, analisis PhET, dan revisi kuis formatif secara berurut
   const quizCard = page
     .locator('.learning-path-card')
     .filter({ hasText: 'Kuis dan Asesmen' })
-  await quizCard.getByRole('button', { name: 'Buka tahap' }).click()
+  await quizCard.click()
+  await page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }).click()
   await page.getByLabel('Jawaban angka dalam C').fill('12000')
   await page.getByRole('button', { name: 'Periksa jawaban' }).click()
   await expect(page.getByRole('status')).toContainText('Ingat kembali materinya')

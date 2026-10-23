@@ -2491,12 +2491,28 @@ fieldset:disabled .answer-option input {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 8px 24px rgb(87 61 119 / 6%);
   min-width: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.learning-path-card:hover,
+.learning-path-card:focus-visible {
+  border-color: #9c7ac6;
+  box-shadow: 0 12px 30px rgb(87 61 119 / 13%);
+  transform: translateY(-2px);
+}
+.learning-path-card:focus-visible {
+  outline: 3px solid rgb(105 75 168 / 32%);
+  outline-offset: 3px;
 }
 .path-card-icon {
   display: grid;
@@ -2516,22 +2532,36 @@ fieldset:disabled .answer-option input {
   color: var(--text-secondary);
   font-size: 0.875rem;
 }
-.path-rows {
-  display: grid;
+.path-card-open {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  flex: 1;
+  margin-top: auto;
+  color: #6f4bb2;
+  font-size: 0.875rem;
+  font-weight: 700;
 }
+.path-rows { display: grid; gap: 8px; }
 .path-row {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
+  width: 100%;
   align-items: start;
   gap: 8px;
   padding: 9px 0;
+  border: 0;
   color: #59496b;
+  background: transparent;
+  font: inherit;
+  text-align: left;
   border-bottom: 1px solid #f0ecf4;
   font-size: 0.875rem;
   line-height: 1.45;
+  cursor: pointer;
 }
+.path-row:not(:disabled):hover > span:nth-child(2) { color: #6f4bb2; }
+.path-row:focus-visible { outline: 2px solid #9c7ac6; outline-offset: 3px; border-radius: 6px; }
+.path-row:disabled { cursor: not-allowed; }
 .path-row > span:first-child {
   color: #168d79;
 }
@@ -2613,6 +2643,26 @@ fieldset:disabled .answer-option input {
 }
 .learning-page {
   padding-bottom: 36px;
+}
+.path-catalog {
+  max-width: 860px;
+  margin-inline: auto;
+}
+.path-catalog h1 {
+  margin: 12px 0 6px;
+  color: #4f3d67;
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+}
+.path-catalog > p {
+  margin-bottom: 18px;
+  color: var(--text-secondary);
+}
+.path-catalog .path-row {
+  padding: 16px 8px;
+  font-size: 1rem;
+}
+.path-catalog .path-row small {
+  font-size: 0.8125rem;
 }
 .learning-detail {
   max-width: 800px;

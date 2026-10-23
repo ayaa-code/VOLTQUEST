@@ -21,10 +21,13 @@ import { useDynamicLearning } from '../hooks/useDynamicLearning'
 
 type View =
   | { type: 'home' }
+  | { type: 'catalog'; path: LearningPath }
   | { type: 'material'; id: number }
   | { type: 'challenge'; id: number }
   | { type: 'quiz'; id: number }
   | { type: 'summative' }
+
+type LearningPath = 'material' | 'challenge' | 'quiz'
 
 const stateText = (done: boolean, ready: boolean) =>
   done ? 'Selesai' : ready ? 'Siap dikerjakan' : 'Terkunci'
@@ -59,6 +62,19 @@ export function DynamicLearning({
     }
     return { type: 'summative' }
   })()
+  if (view.type === 'catalog')
+    return (
+      <PathCatalog
+        path={view.path}
+        learning={learning}
+        materialReady={materialReady}
+        challengeReady={challengeReady}
+        quizReady={quizReady}
+        summativeReady={allQuizDone}
+        onBack={() => setView({ type: 'home' })}
+        onOpen={(nextView) => setView(nextView)}
+      />
+    )
   if (view.type !== 'home')
     return (
       <LearningPanel
@@ -131,87 +147,20 @@ export function DynamicLearning({
           icon={<BookOpen />}
           title="Materi Listrik Dinamis"
           count={`${materialCount}/6 selesai`}
-          onOpen={() =>
-            setView({
-              type: 'material',
-              id:
-                dynamicTopics.find(
-                  (topic) =>
-                    materialReady(topic.id) &&
-                    !learning.materials.includes(topic.id),
-                )?.id ?? 1,
-            })
-          }
-        >
-          {dynamicTopics.map((topic) => (
-            <PathRow
-              key={topic.id}
-              label={topic.title}
-              state={stateText(
-                learning.materials.includes(topic.id),
-                materialReady(topic.id),
-              )}
-            />
-          ))}
-        </PathCard>
+          onOpen={() => setView({ type: 'catalog', path: 'material' })}
+        />
         <PathCard
           icon={<FlaskConical />}
           title="Challenge Analisis PhET"
           count={`${challengeCount}/6 selesai`}
-          onOpen={() =>
-            setView({
-              type: 'challenge',
-              id:
-                dynamicTopics.find(
-                  (topic) =>
-                    challengeReady(topic.id) &&
-                    !learning.challenges.includes(topic.id),
-                )?.id ?? 1,
-            })
-          }
-        >
-          {dynamicTopics.map((topic) => (
-            <PathRow
-              key={topic.id}
-              label={`Challenge ${topic.id}: ${topic.title}`}
-              state={stateText(
-                learning.challenges.includes(topic.id),
-                challengeReady(topic.id),
-              )}
-            />
-          ))}
-        </PathCard>
+          onOpen={() => setView({ type: 'catalog', path: 'challenge' })}
+        />
         <PathCard
           icon={<ClipboardCheck />}
           title="Kuis dan Asesmen"
           count={`${quizCount}/6 formatif`}
-          onOpen={() =>
-            setView({
-              type: 'quiz',
-              id:
-                dynamicTopics.find(
-                  (topic) =>
-                    quizReady(topic.id) &&
-                    !learning.quizzes[topic.id]?.complete,
-                )?.id ?? 1,
-            })
-          }
-        >
-          {dynamicTopics.map((topic) => (
-            <PathRow
-              key={topic.id}
-              label={`Formatif ${topic.id}: ${topic.title}`}
-              state={stateText(
-                Boolean(learning.quizzes[topic.id]?.complete),
-                quizReady(topic.id),
-              )}
-            />
-          ))}
-          <PathRow
-            label="Sumatif Listrik Dinamis"
-            state={stateText(learning.summative.submitted, allQuizDone)}
-          />
-        </PathCard>
+          onOpen={() => setView({ type: 'catalog', path: 'quiz' })}
+        />
       </section>
 
       <section
@@ -266,33 +215,48 @@ function PathCard({
   icon,
   title,
   count,
-  children,
   onOpen,
 }: {
   icon: React.ReactNode
   title: string
   count: string
-  children: React.ReactNode
   onOpen: () => void
 }) {
   return (
-    <section className="learning-path-card">
+    <button
+      type="button"
+      className="learning-path-card"
+      onClick={onOpen}
+      aria-label={`Buka daftar ${title}`}
+    >
       <div className="path-card-icon">{icon}</div>
       <div>
         <h2>{title}</h2>
         <p>{count}</p>
       </div>
-      <div className="path-rows">{children}</div>
-      <button className="secondary-button" onClick={onOpen}>
-        Buka tahap <ArrowRight size={16} />
-      </button>
-    </section>
+      <span className="path-card-open">
+        Lihat daftar <ArrowRight size={16} />
+      </span>
+    </button>
   )
 }
-function PathRow({ label, state }: { label: string; state: string }) {
+function PathRow({
+  label,
+  state,
+  onOpen,
+}: {
+  label: string
+  state: string
+  onOpen?: () => void
+}) {
   const done = state === 'Selesai'
   return (
-    <div className={`path-row ${state === 'Terkunci' ? 'locked' : ''}`}>
+    <button
+      type="button"
+      className={`path-row ${state === 'Terkunci' ? 'locked' : ''}`}
+      disabled={state === 'Terkunci'}
+      onClick={onOpen}
+    >
       <span>
         {done ? (
           <CheckCircle2 size={16} />
@@ -304,7 +268,85 @@ function PathRow({ label, state }: { label: string; state: string }) {
       </span>
       <span>{label}</span>
       <small>{state}</small>
-    </div>
+    </button>
+  )
+}
+
+function PathCatalog({
+  path,
+  learning,
+  materialReady,
+  challengeReady,
+  quizReady,
+  summativeReady,
+  onBack,
+  onOpen,
+}: {
+  path: LearningPath
+  learning: ReturnType<typeof useDynamicLearning>['learning']
+  materialReady: (id: number) => boolean
+  challengeReady: (id: number) => boolean
+  quizReady: (id: number) => boolean
+  summativeReady: boolean
+  onBack: () => void
+  onOpen: (view: View) => void
+}) {
+  const heading =
+    path === 'material'
+      ? 'Materi Listrik Dinamis'
+      : path === 'challenge'
+        ? 'Challenge Analisis PhET'
+        : 'Kuis dan Asesmen'
+  return (
+    <main className="mission-page page-enter learning-page path-catalog-page">
+      <button className="text-button back-button" onClick={onBack}>
+        <ArrowLeft size={17} /> Kembali ke Listrik Dinamis
+      </button>
+      <section className="content-card path-catalog">
+        <span className="section-kicker">DAFTAR TAHAP</span>
+        <h1>{heading}</h1>
+        <p>
+          Pilih tahap yang sudah terbuka untuk melanjutkan pembelajaranmu.
+        </p>
+        <div className="path-rows">
+          {dynamicTopics.map((topic) => {
+            const done =
+              path === 'material'
+                ? learning.materials.includes(topic.id)
+                : path === 'challenge'
+                  ? learning.challenges.includes(topic.id)
+                  : Boolean(learning.quizzes[topic.id]?.complete)
+            const ready =
+              path === 'material'
+                ? materialReady(topic.id)
+                : path === 'challenge'
+                  ? challengeReady(topic.id)
+                  : quizReady(topic.id)
+            const label =
+              path === 'material'
+                ? topic.title
+                : path === 'challenge'
+                  ? `Challenge ${topic.id}: ${topic.title}`
+                  : `Formatif ${topic.id}: ${topic.title}`
+            return (
+              <PathRow
+                key={topic.id}
+                label={label}
+                state={stateText(done, ready)}
+                onOpen={() => onOpen({ type: path, id: topic.id })}
+              />
+            )
+          })}
+          {path === 'quiz' && (
+            <PathRow
+              label="Sumatif Listrik Dinamis"
+              state={stateText(learning.summative.submitted, summativeReady)}
+              onOpen={() => onOpen({ type: 'summative' })}
+            />
+          )}
+        </div>
+      </section>
+    </main>
   )
 }
 
