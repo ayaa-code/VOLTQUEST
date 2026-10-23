@@ -1,6 +1,6 @@
 # VoltQuest
 
-[Repository GitHub](https://github.com/aliyadewirahmawati-ui/VOLTQUEST) · [Import ke Vercel](https://vercel.com/new/import?s=https%3A%2F%2Fgithub.com%2Faliyadewirahmawati-ui%2FVOLTQUEST) · [Panduan deployment](docs/deployment.md)
+[Repository GitHub](https://github.com/ayaa-code/VOLTQUEST) · [Import ke Vercel](https://vercel.com/new/import?s=https%3A%2F%2Fgithub.com%2Fayaa-code%2FVOLTQUEST) · [Panduan deployment](docs/deployment.md)
 
 Demo pendamping eksperimen listrik dinamis untuk Fisika Fase F SMA / MA, bertema **Sekolah Tangguh Energi**. Versi saat ini menyediakan alur prediksi → eksperimen PhET → pengamatan manual → refleksi untuk lima misi, dengan draf lokal dan petunjuk tetap per misi. Dibangun dengan React, TypeScript, Vite, CSS, dan ikon Lucide. Tanpa backend atau database.
 
