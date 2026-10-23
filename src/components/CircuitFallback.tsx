@@ -3,11 +3,14 @@ import { useId } from 'react'
 export function CircuitFallback({
   on,
   toggle,
+  variant = 'login',
 }: {
   on: boolean
   toggle: () => void
+  variant?: 'login' | 'dashboard'
 }) {
   const id = useId().replaceAll(':', '')
+  const pastel = variant === 'dashboard'
   return (
     <svg className="login-circuit-svg" viewBox="0 0 600 340" aria-hidden="true">
       <defs>
@@ -29,10 +32,13 @@ export function CircuitFallback({
       <g transform="translate(0 8)">
         <path
           d="M70 110 385 48 542 215 223 300Z"
-          fill="#071d30"
-          stroke="#31556a"
+          fill={pastel ? '#d1c2e7' : '#071d30'}
+          stroke={pastel ? '#9c83c1' : '#31556a'}
         />
-        <path d="M70 110V122L223 312 542 227V215L223 300Z" fill="#071827" />
+        <path
+          d="M70 110V122L223 312 542 227V215L223 300Z"
+          fill={pastel ? '#9f87bd' : '#071827'}
+        />
         <g fill="none" strokeLinecap="round" strokeLinejoin="round">
           <path
             d="M150 144 120 108 220 88M278 77 321 68M366 86 482 206 203 268 174 213"
@@ -41,14 +47,14 @@ export function CircuitFallback({
           />
           <path
             d="M150 137 120 101 220 81M278 70 321 61M366 79 482 199 203 261 174 206"
-            stroke="#5796a8"
+            stroke={pastel ? '#7956ac' : '#5796a8'}
             strokeWidth="7"
           />
           {on && (
             <path
               className="fallback-current"
               d="M150 137 120 101 220 81 278 70 321 61 366 79 482 199 203 261 174 206"
-              stroke="#81f3ff"
+              stroke={pastel ? '#007b81' : '#81f3ff'}
               strokeWidth="4"
               strokeDasharray="2 22"
             />

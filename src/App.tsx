@@ -24,7 +24,7 @@ import { MissionView } from './components/MissionView'
 import { PracticeHub } from './components/PracticeHub'
 import type { RecommendationRef } from './data/feedbackRules'
 import { Brand, ProgressBar, MissionCard } from './components/LearningUI'
-import { CircuitArt } from './components/CircuitArt'
+import { CircuitAnimation } from './components/CircuitAnimation'
 import { LoginPage } from './components/LoginPage'
 import { Dialog } from './components/Dialog'
 import { useProgress } from './hooks/useProgress'
@@ -249,11 +249,8 @@ function App() {
                     <FlaskConical size={14} /> Panduan eksperimen dan refleksi
                   </span>
                 </div>
-                <div className="hero-art">
-                  <CircuitArt compact />
-                  <span className="hero-sticker">
-                    <Zap size={15} fill="currentColor" /> Siap menyalakan ide?
-                  </span>
+                <div className="hero-art hero-interactive">
+                  <CircuitAnimation variant="dashboard" />
                 </div>
               </section>
               <section

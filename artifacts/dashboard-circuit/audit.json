@@ -1,0 +1,174 @@
+{
+  "date": "2026-10-23T14:00:23.026Z",
+  "errors": [],
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "overflow": false,
+      "hero": {
+        "x": 16,
+        "y": 220.84375,
+        "width": 288,
+        "height": 651.5625,
+        "bottom": 872.40625
+      },
+      "copy": {
+        "x": 17,
+        "y": 221.84375,
+        "width": 286,
+        "height": 368.5625,
+        "bottom": 590.40625
+      },
+      "scene": {
+        "x": 31,
+        "y": 590.40625,
+        "width": 258,
+        "height": 265,
+        "bottom": 855.40625
+      },
+      "renderer": "3d",
+      "canvasCount": 1
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "overflow": false,
+      "hero": {
+        "x": 16,
+        "y": 230.5,
+        "width": 358,
+        "height": 554.171875,
+        "bottom": 784.671875
+      },
+      "copy": {
+        "x": 17,
+        "y": 231.5,
+        "width": 356,
+        "height": 304.375,
+        "bottom": 535.875
+      },
+      "scene": {
+        "x": 31,
+        "y": 535.875,
+        "width": 328,
+        "height": 231.796875,
+        "bottom": 767.671875
+      },
+      "renderer": "3d",
+      "canvasCount": 1
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "overflow": false,
+      "hero": {
+        "x": 32,
+        "y": 260,
+        "width": 704,
+        "height": 320.4375,
+        "bottom": 580.4375
+      },
+      "copy": {
+        "x": 33,
+        "y": 261,
+        "width": 382.90625,
+        "height": 318.4375,
+        "bottom": 579.4375
+      },
+      "scene": {
+        "x": 435.90625,
+        "y": 294.21875,
+        "width": 279.09375,
+        "height": 248,
+        "bottom": 542.21875
+      },
+      "renderer": "3d",
+      "canvasCount": 1
+    },
+    {
+      "width": 1024,
+      "height": 600,
+      "overflow": false,
+      "hero": {
+        "x": 32,
+        "y": 204.96875,
+        "width": 960,
+        "height": 308.375,
+        "bottom": 513.34375
+      },
+      "copy": {
+        "x": 33,
+        "y": 205.96875,
+        "width": 522.53125,
+        "height": 306.375,
+        "bottom": 512.34375
+      },
+      "scene": {
+        "x": 575.53125,
+        "y": 233.15625,
+        "width": 395.46875,
+        "height": 248,
+        "bottom": 481.15625
+      },
+      "renderer": "3d",
+      "canvasCount": 1
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "overflow": false,
+      "hero": {
+        "x": 170,
+        "y": 252.578125,
+        "width": 1100,
+        "height": 359.96875,
+        "bottom": 612.546875
+      },
+      "copy": {
+        "x": 171,
+        "y": 253.578125,
+        "width": 598.90625,
+        "height": 357.96875,
+        "bottom": 611.546875
+      },
+      "scene": {
+        "x": 789.90625,
+        "y": 271.5625,
+        "width": 459.09375,
+        "height": 318,
+        "bottom": 589.5625
+      },
+      "renderer": "3d",
+      "canvasCount": 1
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "overflow": false,
+      "hero": {
+        "x": 410,
+        "y": 260.578125,
+        "width": 1100,
+        "height": 359.96875,
+        "bottom": 620.546875
+      },
+      "copy": {
+        "x": 411,
+        "y": 261.578125,
+        "width": 598.90625,
+        "height": 357.96875,
+        "bottom": 619.546875
+      },
+      "scene": {
+        "x": 1029.90625,
+        "y": 279.5625,
+        "width": 459.09375,
+        "height": 318,
+        "bottom": 597.5625
+      },
+      "renderer": "3d",
+      "canvasCount": 1
+    }
+  ]
+}

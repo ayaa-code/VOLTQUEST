@@ -154,6 +154,15 @@ test('3D switch, keyboard pause, visibility and unmount release animation resour
   await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(page.locator('.dashboard')).toBeVisible()
+  await expect(page.locator('.dashboard-circuit')).toHaveAttribute(
+    'data-renderer',
+    '3d',
+  )
+  await expect(page.locator('canvas')).toHaveCount(1)
+  await expect
+    .poll(() => page.evaluate(() => window.energyProbe.pending))
+    .toBe(1)
+  await page.getByRole('button', { name: 'Mulai misi pertama' }).click()
   await expectStopped(page)
   expect(
     await page.evaluate(() => ({
@@ -161,6 +170,25 @@ test('3D switch, keyboard pause, visibility and unmount release animation resour
       listeners: window.energyProbe.listeners,
     })),
   ).toEqual({ observers: 0, listeners: 0 })
+  for (let i = 0; i < 2; i++) {
+    await page.getByRole('button', { name: 'Beranda VoltQuest' }).click()
+    await expect(page.locator('.dashboard-circuit')).toHaveAttribute(
+      'data-renderer',
+      '3d',
+    )
+    await expect(page.locator('canvas')).toHaveCount(1)
+    await page.getByRole('button', { name: 'Mulai misi pertama' }).click()
+    await expectStopped(page)
+    await expect(page.locator('canvas')).toHaveCount(0)
+  }
+  await page.getByLabel('Buka profil siswa').click()
+  await page.getByRole('button', { name: 'Keluar dari profil' }).click()
+  await expect(page.locator('.login-circuit')).toHaveAttribute(
+    'data-renderer',
+    '3d',
+  )
+  await expect(page.locator('canvas')).toHaveCount(1)
+  expect(await page.evaluate(() => window.energyProbe.maxPending)).toBe(1)
 })
 
 test('reduced motion and offscreen pause keep switch interactive', async ({

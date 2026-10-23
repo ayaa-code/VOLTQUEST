@@ -13,7 +13,9 @@ export function createCircuitScene(
   state: () => CircuitState,
   toggle: () => void,
   fail: () => void,
+  variant: 'login' | 'dashboard' = 'login',
 ) {
+  const pastel = variant === 'dashboard'
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
     antialias: true,
@@ -28,7 +30,9 @@ export function createCircuitScene(
   const camera = new THREE.OrthographicCamera(-3.5, 3.5, 2.1, -2.1, 0.1, 30)
   camera.position.set(3.3, 6, 7.5)
   camera.lookAt(0, 0.1, 0)
-  scene.add(new THREE.HemisphereLight(0xd9f6ff, 0x102436, 3))
+  scene.add(
+    new THREE.HemisphereLight(0xd9f6ff, pastel ? 0x82709c : 0x102436, 3),
+  )
   const keyLight = new THREE.DirectionalLight(0xffffff, 4)
   keyLight.position.set(-3, 6, 3)
   scene.add(keyLight)
@@ -37,8 +41,8 @@ export function createCircuitScene(
   scene.add(rim)
   const mat = (color: number, metalness = 0.1, roughness = 0.45) =>
     new THREE.MeshStandardMaterial({ color, metalness, roughness })
-  const navy = mat(0x183c52),
-    wire = mat(0x438b9b, 0.5),
+  const navy = mat(pastel ? 0x544275 : 0x183c52),
+    wire = mat(pastel ? 0x7050aa : 0x438b9b, 0.5),
     metal = mat(0xbdd4d9, 0.8, 0.28),
     copper = mat(0xe6b873, 0.65)
   const teal = mat(0x12b99a, 0.3),
@@ -81,7 +85,7 @@ export function createCircuitScene(
       0,
     )
   }
-  box(5.7, 0.12, 3.5, mat(0x102b3f), 0, -0.04, 0)
+  box(5.7, 0.12, 3.5, mat(pastel ? 0xb9a5d6 : 0x102b3f), 0, -0.04, 0)
   // Four disjoint wire runs: the components themselves close the circuit.
   tube([v(-2.05, -0.5), v(-2.05, -1.2), v(-1.25, -1.2)])
   tube([v(-0.5, -1.2), v(0.35, -1.2)])
@@ -120,7 +124,7 @@ export function createCircuitScene(
   // Short leads meet the actual terminals, not the battery housing.
   tube([v(-2.05, -0.5), v(-2.05, -0.59, 0.39)], metal)
   tube([v(-2.05, 0.5), v(-2.05, 0.5, 0.39)], metal)
-  box(1.04, 0.1, 0.55, mat(0x718993), -0.88, 0.14, -1.2)
+  box(1.04, 0.1, 0.55, mat(pastel ? 0xb8a1d7 : 0x718993), -0.88, 0.14, -1.2)
   for (const x of [-1.25, -0.5])
     mesh(
       new THREE.CylinderGeometry(0.075, 0.075, 0.12, 16),
@@ -221,9 +225,11 @@ export function createCircuitScene(
     .slice(1)
     .forEach((p, i) => path.add(new THREE.LineCurve3(points[i], p)))
   const particleGeo = new THREE.SphereGeometry(0.037, 6, 6)
-  const particleMaterial = new THREE.MeshBasicMaterial({ color: 0x8cf5ff })
+  const particleMaterial = new THREE.MeshBasicMaterial({
+    color: pastel ? 0x007b81 : 0x8cf5ff,
+  })
   const tailMaterial = new THREE.MeshBasicMaterial({
-    color: 0x50c6df,
+    color: pastel ? 0x007b81 : 0x50c6df,
     transparent: true,
     opacity: 0.3,
   })
