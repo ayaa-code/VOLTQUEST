@@ -21,11 +21,13 @@ test('email validation, reveal, invalid credentials, remembered email and loadin
     0,
   )
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
-  await expect(page.getByLabel('Email', { exact: true })).toBeFocused()
+  await expect(page.getByLabel(/^Email(?: atau username)?$/)).toBeFocused()
   await expect(
     page.getByText('Masukkan alamat email yang valid.'),
   ).toBeVisible()
-  await page.getByLabel('Email', { exact: true }).fill('siswa@voltquest.demo')
+  await page
+    .getByLabel(/^Email(?: atau username)?$/)
+    .fill('siswa@voltquest.demo')
   await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
   await page.getByRole('button', { name: 'Tampilkan kata sandi' }).click()
   await expect(page.getByLabel('Kata sandi', { exact: true })).toHaveAttribute(
@@ -35,7 +37,9 @@ test('email validation, reveal, invalid credentials, remembered email and loadin
   await page.getByLabel('Kata sandi', { exact: true }).fill('salah1234')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('belum cocok')
-  await page.getByLabel('Email', { exact: true }).fill('siswa@voltquest.demo')
+  await page
+    .getByLabel(/^Email(?: atau username)?$/)
+    .fill('siswa@voltquest.demo')
   await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
   await page.getByLabel('Ingat saya').check()
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
@@ -53,7 +57,7 @@ test('email validation, reveal, invalid credentials, remembered email and loadin
   ).toBe('account:siswa@voltquest.demo')
   await page.getByLabel('Buka profil siswa').click()
   await page.getByRole('button', { name: 'Keluar dari profil' }).click()
-  await expect(page.getByLabel('Email', { exact: true })).toHaveValue(
+  await expect(page.getByLabel(/^Email(?: atau username)?$/)).toHaveValue(
     'siswa@voltquest.demo',
   )
   await expect(page.getByLabel('Kata sandi', { exact: true })).toHaveValue('')
@@ -86,7 +90,7 @@ test('local registration, duplicate guard, recovery and separate email profiles'
   await page.goto('/')
   await page.getByRole('button', { name: 'Daftar', exact: true }).click()
   await page.getByLabel('Siapa nama panggilanmu?').fill('Alya')
-  await page.getByLabel('Email', { exact: true }).fill('alya@example.test')
+  await page.getByLabel(/^Email(?: atau username)?$/).fill('alya@example.test')
   await page.getByLabel('Kata sandi', { exact: true }).fill('Contoh12345')
   await page.getByRole('button', { name: 'Daftar', exact: true }).click()
   await expect(page.getByLabel('Kode pemulihan')).toBeVisible()
@@ -145,7 +149,7 @@ test('corrupt account storage is retained and built-in demo still works', async 
     localStorage.setItem('voltquest.accounts.v1', 'null'),
   )
   await page.goto('/')
-  await page.getByLabel('Email', { exact: true }).fill('nara@example.test')
+  await page.getByLabel(/^Email(?: atau username)?$/).fill('nara@example.test')
   await page.getByLabel('Kata sandi', { exact: true }).fill('Contoh1234')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(page.locator('.auth-error')).toContainText(
@@ -154,7 +158,9 @@ test('corrupt account storage is retained and built-in demo still works', async 
   expect(
     await page.evaluate(() => localStorage.getItem('voltquest.accounts.v1')),
   ).toBe('null')
-  await page.getByLabel('Email', { exact: true }).fill('siswa@voltquest.demo')
+  await page
+    .getByLabel(/^Email(?: atau username)?$/)
+    .fill('siswa@voltquest.demo')
   await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(page.locator('.dashboard')).toBeVisible()
@@ -171,7 +177,7 @@ test('storage failure keeps demo usable and does not falsely register an account
   await page.goto('/')
   await page.getByRole('button', { name: 'Daftar', exact: true }).click()
   await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
-  await page.getByLabel('Email', { exact: true }).fill('nara@example.test')
+  await page.getByLabel(/^Email(?: atau username)?$/).fill('nara@example.test')
   await page.getByLabel('Kata sandi', { exact: true }).fill('Contoh1234')
   await page.getByRole('button', { name: 'Daftar', exact: true }).click()
   await expect(page.locator('.auth-error')).toContainText(
@@ -179,7 +185,9 @@ test('storage failure keeps demo usable and does not falsely register an account
   )
   await expect(page.getByLabel('Kode pemulihan')).toHaveCount(0)
   await page.getByRole('button', { name: 'Kembali ke login email' }).click()
-  await page.getByLabel('Email', { exact: true }).fill('siswa@voltquest.demo')
+  await page
+    .getByLabel(/^Email(?: atau username)?$/)
+    .fill('siswa@voltquest.demo')
   await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(

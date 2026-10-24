@@ -20,6 +20,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { missions } from './data/missions'
+import { isAdminDemo } from './data/demoAccess'
 import { MissionView } from './components/MissionView'
 import { PracticeHub } from './components/PracticeHub'
 import type { RecommendationRef } from './data/feedbackRules'
@@ -141,6 +142,9 @@ function App() {
                 </button>
               </nav>
               <div className="header-right">
+                {isAdminDemo(profileId) && (
+                  <span className="section-kicker">Demo</span>
+                )}
                 <span className="header-xp">
                   <Zap size={16} fill="currentColor" /> {count * 100}
                   <span> XP</span>
@@ -569,6 +573,9 @@ function App() {
               {profile.name.charAt(0).toLocaleUpperCase('id-ID')}
             </span>
             <h3>{profile.name}</h3>
+            {isAdminDemo(profileId) && (
+              <span className="section-kicker">Demo</span>
+            )}
             <p>Penjelajah Fisika Fase F</p>
             <span className="profile-stats">
               {count} misi selesai <span>·</span> {count * 100} XP

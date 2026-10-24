@@ -10,6 +10,7 @@ import {
   Mail,
 } from 'lucide-react'
 import { Brand } from './LearningUI'
+import { ADMIN_DEMO_ID } from '../data/demoAccess'
 import {
   authenticate,
   registerLocal,
@@ -86,9 +87,10 @@ export function LoginPage({
     if ((mode === 'register' || mode === 'legacy') && !name.trim())
       invalid.name = 'Tulis nama panggilanmu.'
     if (mode !== 'legacy') {
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail))
+      const demoLogin = mode === 'login' && cleanEmail === 'admin'
+      if (!demoLogin && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail))
         invalid.email = 'Masukkan alamat email yang valid.'
-      if (password.length < 8)
+      if (!demoLogin && password.length < 8)
         invalid.password = 'Kata sandi minimal 8 karakter.'
       if (mode === 'reset' && !code.trim())
         invalid.code = 'Masukkan kode pemulihan saat mendaftar.'
@@ -143,7 +145,11 @@ export function LoginPage({
         }
         // Hold the local transition briefly so loading and success remain perceivable.
         timer.current = setTimeout(() => {
-          if (mounted.current) finish(displayName, `account:${cleanEmail}`)
+          if (mounted.current)
+            finish(
+              displayName,
+              cleanEmail === 'admin' ? ADMIN_DEMO_ID : `account:${cleanEmail}`,
+            )
         }, 420)
       }
     } catch (error) {
@@ -248,14 +254,20 @@ export function LoginPage({
                   {mode !== 'legacy' && (
                     <>
                       <div className="auth-field">
-                        <label htmlFor="auth-email">Email</label>
+                        <label htmlFor="auth-email">
+                          {mode === 'login' ? 'Email atau username' : 'Email'}
+                        </label>
                         <div className="auth-input-wrap">
                           <Mail size={18} />
                           <input
                             id="auth-email"
-                            type="email"
+                            type={mode === 'login' ? 'text' : 'email'}
                             inputMode="email"
-                            placeholder="Masukkan email"
+                            placeholder={
+                              mode === 'login'
+                                ? 'Masukkan email atau username'
+                                : 'Masukkan email'
+                            }
                             autoComplete="username"
                             autoCapitalize="none"
                             spellCheck={false}
@@ -300,7 +312,12 @@ export function LoginPage({
                                 ? 'current-password'
                                 : 'new-password'
                             }
-                            minLength={8}
+                            minLength={
+                              mode === 'login' &&
+                              email.trim().toLowerCase() === 'admin'
+                                ? 1
+                                : 8
+                            }
                             maxLength={128}
                             required
                             {...errorProps('password')}

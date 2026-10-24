@@ -73,6 +73,10 @@ export function rememberEmail(email: string, remember: boolean) {
   else localStorage.removeItem(EMAIL_KEY)
 }
 export async function authenticate(email: string, password: string) {
+  if (email === 'admin') {
+    if (password === 'admin') return 'Admin'
+    throw new Error('Email atau kata sandi belum cocok. Coba lagi.')
+  }
   if (email === DEMO.email && password === DEMO.password) return DEMO.name
   const account = accounts()[email]
   if (

@@ -94,7 +94,7 @@ export function useDynamicLearning(profileId: string | null) {
     profileId,
     answerEnergy: (id: number, values: string[]) =>
       update((current) => {
-        if (!learningAccess(current).quizReady(2)) return current
+        if (!learningAccess(current, profileId).quizReady(2)) return current
         const old = current.checkpoints?.[2] ?? {
           solved: [],
           answers: {},
@@ -124,7 +124,7 @@ export function useDynamicLearning(profileId: string | null) {
         const old = current.checkpoints?.[2]
         if (
           !old ||
-          !learningAccess(current).quizReady(2) ||
+          !learningAccess(current, profileId).quizReady(2) ||
           ![1, 2, 3].every((id) => old.solved.includes(id))
         )
           return current
@@ -138,7 +138,7 @@ export function useDynamicLearning(profileId: string | null) {
       }),
     answerCurrentGame: (missionId: number, key: string) =>
       update((current) => {
-        if (!learningAccess(current).quizReady(1)) return current
+        if (!learningAccess(current, profileId).quizReady(1)) return current
         const mission = MISSIONS_DATA.find((m) => m.id === missionId)
         if (
           !mission ||
@@ -175,7 +175,7 @@ export function useDynamicLearning(profileId: string | null) {
         const old = current.checkpoints?.[1]
         if (
           !old ||
-          !learningAccess(current).quizReady(1) ||
+          !learningAccess(current, profileId).quizReady(1) ||
           !MISSIONS_DATA.every((m) => old.solved.includes(m.id))
         )
           return current
@@ -189,7 +189,8 @@ export function useDynamicLearning(profileId: string | null) {
       }),
     saveWorksheet: (record: WorksheetRecord) =>
       update((current) => {
-        if (!learningAccess(current).challengeReady(1)) return current
+        if (!learningAccess(current, profileId).challengeReady(1))
+          return current
         // Completion can only be granted by completeWorksheet, never arbitrary saves.
         return {
           ...current,
@@ -201,7 +202,7 @@ export function useDynamicLearning(profileId: string | null) {
         const record = current.worksheet
         if (
           !record ||
-          !learningAccess(current).basicsDone ||
+          !learningAccess(current, profileId).basicsDone ||
           !record.data.visited ||
           record.snapshot !== snapshot ||
           snapshotOf(record.data) !== snapshot ||
@@ -220,13 +221,13 @@ export function useDynamicLearning(profileId: string | null) {
     markMaterial: (id: number) =>
       update((current) =>
         current.materials.includes(id) ||
-        !learningAccess(current).materialReady(id)
+        !learningAccess(current, profileId).materialReady(id)
           ? current
           : { ...current, materials: [...current.materials, id] },
       ),
     saveQuizDraft: (id: number, draft: string) =>
       update((current) =>
-        !learningAccess(current).quizReady(id)
+        !learningAccess(current, profileId).quizReady(id)
           ? current
           : {
               ...current,
@@ -245,7 +246,7 @@ export function useDynamicLearning(profileId: string | null) {
       ),
     submitQuiz: (id: number, answer: string, correct: boolean) =>
       update((current) =>
-        !learningAccess(current).quizReady(id)
+        !learningAccess(current, profileId).quizReady(id)
           ? current
           : {
               ...current,
@@ -265,7 +266,7 @@ export function useDynamicLearning(profileId: string | null) {
       submitted: boolean,
     ) =>
       update((current) =>
-        !learningAccess(current).summativeReady
+        !learningAccess(current, profileId).summativeReady
           ? current
           : {
               ...current,

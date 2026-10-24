@@ -48,7 +48,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
   }, [view])
   const { learning } = store
   const { materialReady, challengeReady, quizReady, summativeReady } =
-    learningAccess(learning)
+    learningAccess(learning, profileId)
   const next = ((): View => {
     for (const topic of dynamicTopics) {
       if (!learning.materials.includes(topic.id))
