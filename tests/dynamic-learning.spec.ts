@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { finishCurrentGame } from './game-helpers'
 
 const profile = {
   active: 'student:nara',
@@ -63,23 +64,23 @@ test('materi menawarkan formatif yang sama, revisi membuka materi berikutnya, da
   await expect(
     page.getByText('KUIS FORMATIF 01', { exact: true }),
   ).toBeVisible()
-  await page.getByLabel('Jawaban angka dalam C').fill('12000')
-  await page.getByRole('button', { name: 'Periksa jawaban' }).click()
-  await expect(page.getByRole('status')).toContainText(
-    'Ingat kembali materinya',
+  await page.getByRole('button', { name: 'Mode soal tanpa gerak' }).click()
+  await page.locator('.cq-option-btn').first().click()
+  await expect(page.locator('.cq-feedback-box')).toContainText(
+    'Belum tepat, mari revisi.',
   )
   await expect(
     page.getByRole('button', { name: 'Lanjut ke materi berikutnya' }),
   ).toHaveCount(0)
-  await page.getByRole('button', { name: 'Coba revisi jawaban' }).click()
   await page.getByRole('button', { name: 'Pelajari kembali materi' }).click()
   await expect(
     page.getByRole('heading', { name: 'Arus Listrik' }),
   ).toBeVisible()
   await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
-  await page.getByLabel('Jawaban angka dalam C').fill('18000')
-  await page.getByRole('button', { name: 'Periksa jawaban' }).click()
-  await expect(page.getByRole('status')).toContainText('Kuis formatif selesai')
+  await finishCurrentGame(page)
+  await expect(
+    page.getByText('Kuis formatif selesai. Progres belajarmu tetap tersimpan.'),
+  ).toBeVisible()
   await expect(
     page.getByRole('button', { name: 'Buka Challenge PhET' }),
   ).toHaveCount(0)
@@ -115,10 +116,13 @@ test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai p
     await expect(
       page.getByText(`KUIS FORMATIF ${number}`, { exact: true }),
     ).toBeVisible()
-    await expect(page.getByRole('textbox')).toHaveValue('')
-    await page.getByRole('textbox').fill(answer)
-    await page.getByRole('button', { name: 'Periksa jawaban' }).click()
-    await expect(page.getByRole('status')).toContainText('Jawabanmu tepat.')
+    if (index === 0) await finishCurrentGame(page)
+    else {
+      await expect(page.getByRole('textbox')).toHaveValue('')
+      await page.getByRole('textbox').fill(answer)
+      await page.getByRole('button', { name: 'Periksa jawaban' }).click()
+      await expect(page.getByRole('status')).toContainText('Jawabanmu tepat.')
+    }
     await page
       .getByRole('button', {
         name:
@@ -219,7 +223,8 @@ test('progres lama dan profil lain dipertahankan saat meninjau kembali materi', 
   await expect(
     page.getByText('KUIS FORMATIF 01', { exact: true }),
   ).toBeVisible()
-  await expect(page.getByRole('textbox')).toHaveValue('12000')
+  await page.getByText('Jawaban formatif sebelumnya',{exact:true}).click()
+  await expect(page.getByText('12000',{exact:true})).toBeVisible()
 })
 
 test('membuka sumatif hanya setelah enam kuis formatif tersimpan pada profil siswa', async ({

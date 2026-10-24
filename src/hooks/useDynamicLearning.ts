@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { learningAccess } from '../data/learningAccess'
+import { MISSIONS_DATA } from '../data/currentGame'
 import {
   inspectWorksheet,
   snapshotOf,
@@ -12,6 +13,7 @@ type ChallengeDraft = {
   reflection: string
 }
 type QuizAttempt = {
+  game?: { solved: number[]; answers: Record<string, string>; attempts: number }
   answer: string
   attempts: number
   complete: boolean
@@ -88,6 +90,64 @@ export function useDynamicLearning(profileId: string | null) {
     learning,
     storageError,
     profileId,
+    answerCurrentGame: (missionId: number, key: string) =>
+      update((current) => {
+        if (!learningAccess(current).quizReady(1)) return current
+        const mission = MISSIONS_DATA.find((m) => m.id === missionId)
+        if (
+          !mission ||
+          !mission.question.options.some((option) => option.key === key)
+        )
+          return current
+        const old = current.quizzes[1] ?? {
+          answer: '',
+          attempts: 0,
+          complete: false,
+        }
+        const game = old.game ?? { solved: [], answers: {}, attempts: 0 }
+        if (missionId > 1 && !game.solved.includes(missionId - 1))
+          return current
+        const solved =
+          key === mission.question.correctKey
+            ? [...new Set([...game.solved, missionId])]
+            : game.solved
+        return {
+          ...current,
+          quizzes: {
+            ...current.quizzes,
+            1: {
+              ...old,
+              game: {
+                solved,
+                answers: { ...game.answers, [missionId]: key },
+                attempts: game.attempts + 1,
+              },
+            },
+          },
+        }
+      }),
+    completeCurrentGame: () =>
+      update((current) => {
+        const old = current.quizzes[1]
+        if (
+          !old?.game ||
+          !learningAccess(current).quizReady(1) ||
+          !MISSIONS_DATA.every((m) => old.game!.solved.includes(m.id))
+        )
+          return current
+        return {
+          ...current,
+          quizzes: {
+            ...current.quizzes,
+            1: {
+              ...old,
+              answer: 'Circuit Quest: 3/3 misi selesai',
+              attempts: old.attempts + 1,
+              complete: true,
+            },
+          },
+        }
+      }),
     saveWorksheet: (record: WorksheetRecord) =>
       update((current) => {
         if (!learningAccess(current).challengeReady(1)) return current

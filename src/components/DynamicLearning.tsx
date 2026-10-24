@@ -10,6 +10,7 @@ import {
 import { CircuitAnimation } from './CircuitAnimation'
 import { ChallengeWorksheet } from './ChallengeWorksheet'
 import { AssistantChat } from './AssistantChat'
+import { CurrentFormativeGame } from './CurrentFormativeGame'
 import {
   dynamicTopics,
   summativeEssays,
@@ -495,19 +496,28 @@ function LearningPanel({
           onMaterial={(id) => onOpen({ type: 'material', id })}
         />
       ) : view.type === 'quiz' ? (
-        <Formative
-          topic={topic!}
-          store={store}
-          onBack={() => onOpen({ type: 'catalog', path: 'quiz' })}
-          onReview={() => onOpen({ type: 'material', id: topic!.id })}
-          onNext={() =>
-            onOpen(
-              topic!.id < dynamicTopics.length
-                ? { type: 'material', id: topic!.id + 1 }
-                : { type: 'home' },
-            )
-          }
-        />
+        topic!.id === 1 ? (
+          <CurrentFormativeGame
+            store={store}
+            onBack={() => onOpen({ type: 'catalog', path: 'quiz' })}
+            onReview={() => onOpen({ type: 'material', id: 1 })}
+            onNext={() => onOpen({ type: 'material', id: 2 })}
+          />
+        ) : (
+          <Formative
+            topic={topic!}
+            store={store}
+            onBack={() => onOpen({ type: 'catalog', path: 'quiz' })}
+            onReview={() => onOpen({ type: 'material', id: topic!.id })}
+            onNext={() =>
+              onOpen(
+                topic!.id < dynamicTopics.length
+                  ? { type: 'material', id: topic!.id + 1 }
+                  : { type: 'home' },
+              )
+            }
+          />
+        )
       ) : summativeReady ? (
         <Summative store={store} onBack={onBack} />
       ) : (

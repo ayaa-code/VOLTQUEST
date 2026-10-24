@@ -304,7 +304,9 @@ test('unsubmitted quiz draft survives material review without counting a submiss
 }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
-  await page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }).click()
+  await page
+    .getByRole('button', { name: 'Formatif 2: Hambatan Ohmik dan Non-Ohmik' })
+    .click()
   await page.getByRole('textbox').fill('12345')
   await page.getByRole('button', { name: 'Pelajari kembali materi' }).click()
   await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
@@ -314,7 +316,7 @@ test('unsubmitted quiz draft survives material review without counting a submiss
     await page.evaluate(
       () =>
         JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!)
-          .profiles['student:nara'].quizzes[1].attempts,
+          .profiles['student:nara'].quizzes[2]?.attempts ?? 0,
     ),
   ).toBe(1)
 })

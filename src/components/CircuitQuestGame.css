@@ -1,0 +1,510 @@
+.cq-container {
+  width: 100%;
+  background-color: #e3f2ff;
+  color: #163449;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  border: 2px solid #bddbe5;
+  border-radius: 18px;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cq-container {
+  font-family: inherit;
+  min-width: 0;
+  border: 2px solid var(--card-ink, #163449);
+  background: #e8f6ff;
+}
+.cq-container :is(.cq-topbar, .cq-card, .cq-controls-bar, .cq-stage-wrapper) {
+  border-color: #163449;
+}
+.cq-container .cq-card {
+  box-shadow: 4px 5px 0 rgb(22 52 73 / 20%);
+}
+.cq-container :is(.cq-btn, .cq-option-btn) {
+  min-height: 44px;
+}
+.cq-container :is(button, canvas):focus-visible {
+  outline: 3px solid #175f98;
+  outline-offset: 3px;
+}
+.cq-container .cq-access-help {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  user-select: text;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cq-container * {
+    transition: none;
+  }
+}
+
+.cq-container * {
+  box-sizing: border-box;
+}
+
+/* BAGIAN ATAS: HUD */
+.cq-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background-color: #fffefa;
+  border: 2px solid #bddbe5;
+  border-radius: 14px;
+  padding: 10px 16px;
+}
+
+.cq-topbar-left,
+.cq-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cq-badge {
+  background-color: #e3f2ff;
+  border: 1.5px solid #bddbe5;
+  color: #163449;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cq-badge-sub {
+  color: #40566a;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Indikator Baterai Accu */
+.cq-accu-widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fffefa;
+  border: 1.5px solid #bddbe5;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.cq-battery-shell {
+  width: 68px;
+  height: 20px;
+  border: 2px solid #163449;
+  border-radius: 5px;
+  padding: 2px;
+  position: relative;
+  background-color: #e3f2ff;
+  display: flex;
+  align-items: center;
+}
+
+.cq-battery-shell::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 4px;
+  width: 4px;
+  height: 8px;
+  background-color: #163449;
+  border-radius: 0 2px 2px 0;
+}
+
+.cq-battery-fill {
+  height: 100%;
+  background-color: #2e6a35;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.cq-battery-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #163449;
+}
+
+/* Tiga Ikon Hati Nyawa */
+.cq-hearts {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #e3f2ff;
+  border: 1.5px solid #bddbe5;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.cq-heart-icon {
+  width: 20px;
+  height: 20px;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.cq-heart-lost {
+  opacity: 0.28;
+  transform: scale(0.85);
+}
+
+/* Banner Petunjuk Singkat */
+.cq-mission-hint {
+  background-color: #fffefa;
+  border: 1.5px solid #bddbe5;
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.92rem;
+  color: #40566a;
+}
+
+.cq-mission-hint strong {
+  color: #163449;
+}
+
+.cq-item-progress {
+  background-color: #e3f2ff;
+  color: #145b7d;
+  border: 1.5px solid #bddbe5;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* BAGIAN TENGAH: AREA PERMAINAN 2D */
+.cq-stage-wrapper {
+  position: relative;
+  width: 100%;
+  height: 540px;
+  background-color: #e3f2ff;
+  border: 2px solid #bddbe5;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cq-canvas {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* OVERLAY KARTU PUTIH-KREM (SOAL, ULANGI MISI, SELESAI) */
+.cq-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(227, 242, 255, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 15;
+}
+
+.cq-card {
+  background-color: #fffefa;
+  border: 2px solid #bddbe5;
+  border-radius: 18px;
+  padding: 22px 24px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 94%;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(22, 52, 73, 0.08);
+  color: #163449;
+}
+
+.cq-card-center {
+  text-align: center;
+  max-width: 440px;
+}
+
+.cq-card-tag {
+  display: inline-block;
+  background-color: #e3f2ff;
+  color: #145b7d;
+  border: 1px solid #bddbe5;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.cq-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #163449;
+  margin: 0 0 8px 0;
+}
+
+.cq-question-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #163449;
+  font-weight: 600;
+  margin: 0 0 14px 0;
+  background-color: #e3f2ff;
+  border: 1.5px solid #bddbe5;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.cq-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.cq-option-btn {
+  width: 100%;
+  text-align: left;
+  background-color: #fffefa;
+  border: 2px solid #bddbe5;
+  color: #163449;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.cq-option-btn:hover:not(:disabled) {
+  background-color: #e3f2ff;
+  border-color: #145b7d;
+  transform: translateX(2px);
+}
+
+.cq-option-btn.cq-option-correct {
+  background-color: #2e6a35;
+  border-color: #2e6a35;
+  color: #fffefa;
+}
+
+.cq-option-btn.cq-option-wrong {
+  background-color: #e3f2ff;
+  border-color: #40566a;
+  color: #40566a;
+  opacity: 0.75;
+}
+
+.cq-option-key {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: #145b7d;
+  color: #fffefa;
+  font-weight: 800;
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cq-option-btn.cq-option-correct .cq-option-key {
+  background-color: #fffefa;
+  color: #2e6a35;
+}
+
+.cq-feedback-box {
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  font-weight: 600;
+  margin-bottom: 14px;
+  border: 1.5px solid #bddbe5;
+  background-color: #e3f2ff;
+  color: #163449;
+}
+
+.cq-feedback-box.cq-feedback-correct {
+  border-color: #2e6a35;
+}
+
+/* Tombol Aksi di dalam Kartu */
+.cq-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.cq-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    opacity 0.15s ease;
+}
+
+.cq-btn:hover {
+  transform: translateY(-1px);
+}
+
+.cq-btn:active {
+  transform: translateY(1px);
+}
+
+.cq-btn-primary {
+  background-color: #2e6a35;
+  color: #fffefa;
+}
+
+.cq-btn-secondary {
+  background-color: #145b7d;
+  color: #fffefa;
+}
+
+.cq-score-pill {
+  display: inline-block;
+  background-color: #e3f2ff;
+  border: 2px solid #bddbe5;
+  color: #163449;
+  font-weight: 800;
+  font-size: 1.35rem;
+  padding: 8px 22px;
+  border-radius: 14px;
+  margin: 10px 0 14px 0;
+}
+
+/* BAGIAN BAWAH: KONTROL SENTUH BULAT */
+.cq-controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fffefa;
+  border: 2px solid #bddbe5;
+  border-radius: 16px;
+  padding: 10px 20px;
+}
+
+.cq-dpad-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cq-ctrl-circle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 2px solid #163449;
+  color: #fffefa;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #163449;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+  touch-action: none;
+}
+
+.cq-ctrl-circle:active,
+.cq-ctrl-circle.cq-ctrl-active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #163449;
+}
+
+.cq-ctrl-move {
+  background-color: #145b7d;
+}
+
+.cq-ctrl-jump {
+  background-color: #2e6a35;
+  width: 66px;
+  height: 66px;
+}
+
+.cq-ctrl-hint {
+  color: #40566a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  /* Let questions use the page scroll instead of a tiny nested scroll window. */
+  .cq-stage-wrapper:has(.cq-overlay) {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+  .cq-stage-wrapper:has(.cq-overlay) .cq-canvas {
+    display: none;
+  }
+  .cq-stage-wrapper .cq-overlay {
+    position: relative;
+    padding: 10px;
+    width: 100%;
+    border-radius: 14px;
+  }
+  .cq-stage-wrapper .cq-card {
+    max-height: none;
+    overflow: visible;
+  }
+  .cq-container {
+    padding: 10px;
+    gap: 8px;
+  }
+  .cq-stage-wrapper {
+    height: 390px;
+  }
+  .cq-ctrl-hint {
+    display: none;
+  }
+  .cq-mission-hint {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.84rem;
+  }
+  .cq-card {
+    padding: 16px;
+  }
+}
