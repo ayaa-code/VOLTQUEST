@@ -182,9 +182,6 @@ export function LessonContent({ topicId }: { topicId: number }) {
                   onChange={(event) =>
                     speech.setRate(Number(event.target.value))
                   }
-                  disabled={
-                    speech.status === 'reading' || speech.status === 'paused'
-                  }
                 >
                   <option value={0.8}>0,8×</option>
                   <option value={1}>1×</option>
@@ -192,17 +189,13 @@ export function LessonContent({ topicId }: { topicId: number }) {
                 </select>
               </label>
             </div>
-            {speech.status !== 'idle' && (
+            {(speech.status === 'finished' || speech.status === 'error') && (
               <p className="lesson-audio-status" role="status">
-                {speech.status === 'reading'
-                  ? `Sedang membaca bagian ${speech.part} dari ${speech.total}.`
-                  : speech.status === 'paused'
-                    ? `Dijeda pada bagian ${speech.part} dari ${speech.total}.`
-                    : speech.status === 'finished'
-                      ? 'Pembacaan materi selesai.'
-                      : speech.status === 'error'
-                        ? 'Pembacaan terhenti. Coba mulai kembali atau baca teks di bawah.'
-                        : ''}
+                {speech.status === 'finished'
+                  ? 'Pembacaan materi selesai.'
+                  : speech.status === 'error'
+                    ? 'Pembacaan terhenti. Coba mulai kembali atau baca teks di bawah.'
+                    : ''}
               </p>
             )}
           </>

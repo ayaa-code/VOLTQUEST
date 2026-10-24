@@ -28,7 +28,10 @@ export function useLessonSpeech(lesson: Lesson) {
     'idle' | 'reading' | 'paused' | 'finished' | 'error'
   >('idle')
   const [part, setPart] = useState(0)
-  const [rate, setRate] = useState(1)
+  const [rate, setRateState] = useState(1)
+  const rateRef = useRef(1)
+  const position = useRef(0)
+  const restartOnResume = useRef(false)
   const [indonesianVoice, setIndonesianVoice] = useState(false)
   const voices = useRef<SpeechSynthesisVoice[]>([])
   const generation = useRef(0)
@@ -61,10 +64,11 @@ export function useLessonSpeech(lesson: Lesson) {
     generation.current++
     window.speechSynthesis?.cancel()
     utterance.current = null
+    restartOnResume.current = false
     setStatus('idle')
     setPart(0)
   }, [])
-  function start() {
+  function startFrom(index = 0) {
     if (!supported) return
     stop()
     const token = generation.current
@@ -80,17 +84,36 @@ export function useLessonSpeech(lesson: Lesson) {
       next.lang = 'id-ID'
       const voice = voices.current.find((item) => /^id(?:-|$)/i.test(item.lang))
       if (voice) next.voice = voice
-      next.rate = rate
+      next.rate = rateRef.current
       next.onend = () => speak(index + 1)
       next.onerror = () => {
         if (token === generation.current) setStatus('error')
       }
       utterance.current = next
+      position.current = index
       setPart(index + 1)
       setStatus('reading')
       synth.speak(next)
     }
-    speak(0)
+    // Some engines retain a paused state after cancel().
+    if (synth.paused) synth.resume()
+    speak(index)
+  }
+  function start() {
+    startFrom(0)
+  }
+  function setRate(value: number) {
+    if (![0.8, 1, 1.2].includes(value)) return
+    rateRef.current = value
+    setRateState(value)
+    if (status === 'reading') startFrom(position.current)
+    else if (status === 'paused') {
+      // Apply on explicit resume; changing speed must not unpause audio.
+      generation.current++
+      window.speechSynthesis.cancel()
+      utterance.current = null
+      restartOnResume.current = true
+    }
   }
   function pause() {
     if (supported && status === 'reading') {
@@ -100,6 +123,10 @@ export function useLessonSpeech(lesson: Lesson) {
   }
   function resume() {
     if (supported && status === 'paused') {
+      if (restartOnResume.current) {
+        startFrom(position.current)
+        return
+      }
       window.speechSynthesis.resume()
       setStatus('reading')
     }
