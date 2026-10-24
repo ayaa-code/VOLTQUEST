@@ -96,10 +96,7 @@ legend {
 .summative-detail .answer-option,
 .auth-subtitle,
 .auth-signup,
-.auth-local-note,
 .auth-remember-hint,
-.auth-demo details,
-.auth-demo p,
 .auth-recovery p,
 .electric-class {
   color: var(--text-secondary);
@@ -175,9 +172,7 @@ legend {
 .text-button,
 .back-link,
 .auth-options button,
-.auth-signup button,
-.auth-demo button,
-.auth-legacy {
+.auth-signup button {
   color: var(--focus);
 }
 .back-button,
@@ -386,7 +381,6 @@ input[type='checkbox'],
   margin-bottom: 24px;
   color: var(--text-secondary);
 }
-.auth-demo strong,
 .electric-class span {
   color: var(--focus);
 }
@@ -403,9 +397,6 @@ input[type='checkbox'],
 }
 .auth-transition {
   color: var(--success);
-}
-.auth-demo {
-  border-color: var(--line);
 }
 .dashboard-circuit.circuit-animation {
   --focus: #145b7d;

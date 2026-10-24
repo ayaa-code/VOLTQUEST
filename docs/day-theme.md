@@ -25,7 +25,9 @@ merah yang berbeda dari sukses.
 
 Login memiliki satu kartu terpusat. Tidak ada kanvas, observer animasi, atau
 pemuatan scene Three.js saat login dibuka. Semua fitur autentikasi lokal tetap
-ada, termasuk tautan kode kelas yang dipindahkan ke dalam kartu. Pada layar yang
+ada. Tombol akun demo, rincian akun demo, tautan profil lama, dan catatan mode
+demo telah dihapus dari kartu login; data yang sudah tersimpan tetap dipertahankan.
+Tautan kode kelas berada di dalam kartu. Pada layar yang
 pendek, halaman dapat digulir sehingga validasi tidak memotong isian atau tombol.
 
 Banner dashboard berisi sambutan ilmuwan muda, satu kalimat pendukung, serta

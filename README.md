@@ -79,7 +79,7 @@ Dengan dev server aktif di `http://127.0.0.1:5173/`, jalankan `node scripts/audi
 
 ## Alur demo
 
-1. Klik **Coba dengan akun demo**, lalu **Masuk**. Untuk melanjutkan profil sebelumnya, pilih **Buka profil lama tanpa email** dan isi nama yang sama.
+1. Pilih **Daftar** untuk membuat akun lokal dan simpan kode pemulihan. Setelah itu, masuk menggunakan email dan kata sandi. Gunakan akun serta browser yang sama untuk melanjutkan progres tersimpan.
 2. Cari atau pilih salah satu dari lima kartu misi.
 3. Baca briefing dan target. Pilih prediksi, termasuk “Belum yakin”; alasan opsional.
 4. Ikuti panduan di langkah Eksperimen dan klik **Mulai simulasi di sini**. PhET tampil di halaman misi. Lanjutkan ke Pengamatan untuk mengisi tabel sambil mempertahankan simulasi yang sedang berjalan. Lengkapi seluruh hasil lalu klik **Simpan pengamatan dan lanjut** untuk membuka Refleksi. Hasil tidak dinilai terhadap nilai ideal; alasan tertulis tetap opsional.

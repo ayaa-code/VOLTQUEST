@@ -11,7 +11,10 @@ test('component labels follow the 3D circuit without overlapping controls', asyn
   await expect(page.locator('canvas')).toHaveCount(0)
   for (const variant of ['dashboard']) {
     if (variant === 'dashboard') {
-      await page.getByRole('button', { name: 'Coba dengan akun demo' }).click()
+      await page
+        .getByLabel('Email', { exact: true })
+        .fill('siswa@voltquest.demo')
+      await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
       await page.getByRole('button', { name: 'Masuk', exact: true }).click()
       await expect(page.locator('.dashboard')).toBeVisible()
     }

@@ -141,56 +141,7 @@
   font-size: 0.8125rem;
   margin: 6px 0;
 }
-.auth-demo {
-  border-top: 1px solid var(--line);
-  padding-top: 6px;
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.auth-demo details {
-  font-size: 0.6875rem;
-}
-.auth-demo summary {
-  cursor: pointer;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.auth-demo p {
-  font-size: 0.75rem;
-  line-height: 1.7;
-  margin-top: 6px;
-  overflow-wrap: anywhere;
-}
-.auth-demo strong {
-  font-weight: 550;
-}
-.auth-demo button {
-  min-height: 44px;
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  padding: 0;
-  font-size: 0.75rem;
-  font-weight: 650;
-}
-.auth-legacy {
-  min-height: 44px;
-  font-size: 0.75rem;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  padding: 0;
-}
-.auth-local-note {
-  font-size: 0.6875rem;
-  line-height: 1.6;
-  margin-top: 8px;
-}
+
 .auth-field-error,
 .auth-error {
   font-size: 0.75rem;
@@ -225,11 +176,7 @@
 .auth-card button {
   min-width: 44px;
 }
-.auth-demo summary:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
+
 .auth-spinner {
   animation: login-spin 1s linear infinite;
 }
@@ -260,12 +207,7 @@
   .auth-signup {
     margin: 0;
   }
-  .auth-demo {
-    padding-top: 2px;
-  }
-  .auth-local-note {
-    margin-top: 4px;
-  }
+
   .electric-class {
     margin-top: 6px;
   }

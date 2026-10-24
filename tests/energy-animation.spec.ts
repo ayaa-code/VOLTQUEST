@@ -141,10 +141,8 @@ test('login loads no 3D scene; dashboard switch, visibility and navigation relea
   await expect(page.locator('canvas')).toHaveCount(0)
   expect(sceneRequests).toEqual([])
   await expectStopped(page)
-  await page
-    .getByRole('button', { name: 'Buka profil lama tanpa email' })
-    .click()
-  await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
+  await page.getByLabel('Email', { exact: true }).fill('siswa@voltquest.demo')
+  await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   const circuit = page.locator('.dashboard-circuit')
   await expect(circuit).toHaveAttribute('data-renderer', '3d')
@@ -236,7 +234,8 @@ test('WebGL unavailability does not affect login or block learning', async ({
   })
   await page.goto('/')
   await expect(page.locator('canvas')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Coba dengan akun demo' }).click()
+  await page.getByLabel('Email', { exact: true }).fill('siswa@voltquest.demo')
+  await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(
     page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),

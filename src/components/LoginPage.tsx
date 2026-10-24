@@ -12,7 +12,6 @@ import {
 import { Brand } from './LearningUI'
 import {
   authenticate,
-  DEMO,
   registerLocal,
   rememberedEmail,
   rememberEmail,
@@ -157,7 +156,7 @@ export function LoginPage({
           error.name !== 'QuotaExceededError' &&
           error.name !== 'SecurityError'
             ? error.message
-            : 'Penyimpanan perangkat tidak tersedia. Gunakan akun demo atau profil lama.',
+            : 'Penyimpanan perangkat tidak tersedia. Periksa izin penyimpanan browser, lalu coba lagi.',
       })
     }
   }
@@ -404,41 +403,8 @@ export function LoginPage({
                     </button>
                   )}
                 </p>
-                <div className="auth-demo">
-                  <button
-                    disabled={busy}
-                    onClick={() => {
-                      changeMode('login')
-                      setEmail(DEMO.email)
-                      setPassword(DEMO.password)
-                    }}
-                  >
-                    Coba dengan akun demo <ArrowRight size={14} />
-                  </button>
-                  <details>
-                    <summary>Lihat akun demo</summary>
-                    <p>
-                      Email: <strong>{DEMO.email}</strong>
-                      <br />
-                      Kata sandi: <strong>{DEMO.password}</strong>
-                    </p>
-                  </details>
-                </div>
-                {mode !== 'legacy' && (
-                  <button
-                    disabled={busy}
-                    className="auth-legacy"
-                    onClick={() => changeMode('legacy')}
-                  >
-                    Buka profil lama tanpa email
-                  </button>
-                )}
               </>
             )}
-            <p className="auth-local-note">
-              Mode demo lokal · Akun dan progres tersimpan di browser ini.
-              Gunakan kata sandi khusus demo.
-            </p>
             <button
               className="electric-class"
               disabled={busy}
