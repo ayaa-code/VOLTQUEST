@@ -16,46 +16,214 @@ test.beforeEach(async ({ page }) => {
   }, profile)
 })
 
-test('menjalankan materi, analisis PhET, dan revisi kuis formatif secara berurutan', async ({
+test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan challenge tetap tersedia', async ({
   page,
 }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'Petualangan Listrik Dinamis' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Petualangan Listrik Dinamis' }),
+  ).toBeVisible()
   await expect(page.locator('.learning-path-card')).toHaveCount(3)
-  await expect(page.locator('.dashboard-circuit')).toHaveAttribute('data-renderer', '3d')
+  await expect(page.locator('.dashboard-circuit')).toHaveAttribute(
+    'data-renderer',
+    '3d',
+  )
   await expect(
     page.getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' }),
   ).toBeVisible()
 
-  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
-  await expect(page.getByRole('heading', { name: 'Arus Listrik' })).toBeVisible()
+  await page
+    .getByRole('button', { name: 'Buka daftar Kuis dan Asesmen' })
+    .click()
+  await expect(
+    page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }),
+  ).toBeDisabled()
+  await expect(
+    page.getByRole('button', { name: 'Sumatif Listrik Dinamis' }),
+  ).toBeDisabled()
+  await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
+  await page
+    .getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' })
+    .click()
+  const secondMaterial = page.getByRole('button', {
+    name: 'Hambatan Ohmik dan Non Ohmik',
+  })
+  await expect(secondMaterial).toBeDisabled()
+  await page.getByRole('button', { name: 'Arus Listrik' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Arus Listrik' }),
+  ).toBeVisible()
   await page.getByRole('button', { name: 'Tandai sudah dipelajari' }).click()
-  await page.getByRole('button', { name: 'Lihat progres belajar' }).click()
-
-  const challengeCard = page
-    .locator('.learning-path-card')
-    .filter({ hasText: 'Challenge Analisis PhET' })
-  await challengeCard.click()
-  await page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }).click()
-  await page.getByRole('button', { name: 'Mulai simulasi di sini' }).click()
-  await page.locator('textarea').nth(0).fill('Arus terlihat mengalir saat rangkaian tertutup.')
-  await page.locator('textarea').nth(1).fill('Arus memerlukan lintasan tertutup untuk mengalir.')
-  await expect(page.getByRole('button', { name: 'Selesaikan challenge' })).toBeEnabled()
-  await page.getByRole('button', { name: 'Selesaikan challenge' }).click()
-  await page.getByRole('button', { name: 'Kembali ke progres' }).click()
-
-  const quizCard = page
-    .locator('.learning-path-card')
-    .filter({ hasText: 'Kuis dan Asesmen' })
-  await quizCard.click()
-  await page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }).click()
+  await expect(page.getByRole('status')).toContainText(
+    'Materi selesai. Sekarang cek pemahamanmu melalui kuis formatif.',
+  )
+  await page.getByRole('button', { name: 'Kembali ke daftar materi' }).click()
+  await expect(secondMaterial).toBeDisabled()
+  await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
+  await page
+    .getByRole('button', { name: 'Buka daftar Challenge Analisis PhET' })
+    .click()
+  await expect(
+    page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }),
+  ).toBeEnabled()
+  await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
+  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await expect(
+    page.getByText('KUIS FORMATIF 01', { exact: true }),
+  ).toBeVisible()
   await page.getByLabel('Jawaban angka dalam C').fill('12000')
   await page.getByRole('button', { name: 'Periksa jawaban' }).click()
-  await expect(page.getByRole('status')).toContainText('Ingat kembali materinya')
+  await expect(page.getByRole('status')).toContainText(
+    'Ingat kembali materinya',
+  )
+  await expect(
+    page.getByRole('button', { name: 'Lanjut ke materi berikutnya' }),
+  ).toHaveCount(0)
   await page.getByRole('button', { name: 'Coba revisi jawaban' }).click()
+  await page.getByRole('button', { name: 'Pelajari kembali materi' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Arus Listrik' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Kerjakan Kuis Formatif' }).click()
   await page.getByLabel('Jawaban angka dalam C').fill('18000')
   await page.getByRole('button', { name: 'Periksa jawaban' }).click()
   await expect(page.getByRole('status')).toContainText('Kuis formatif selesai')
+  await page.getByRole('button', { name: 'Buka Challenge PhET' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Arus Listrik' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Mulai simulasi di sini' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Kembali ke progres' }).click()
+  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Hambatan Ohmik dan Non Ohmik' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Tandai sudah dipelajari' }).click()
+  await page.getByRole('button', { name: 'Kerjakan Kuis Formatif' }).click()
+  await expect(
+    page.getByText('KUIS FORMATIF 02', { exact: true }),
+  ).toBeVisible()
+  await expect(page.getByRole('textbox')).toHaveValue('')
+  await expect(page.locator('.header-xp')).toContainText('0')
+})
+
+test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai prasyarat', async ({
+  page,
+}) => {
+  test.setTimeout(60000)
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  const answers = ['18000', '20', '0,85', '8', '4,5', '320']
+  for (const [index, answer] of answers.entries()) {
+    const number = String(index + 1).padStart(2, '0')
+    await expect(
+      page.getByText(`MATERI ${number}`, { exact: true }),
+    ).toBeVisible()
+    await page.getByRole('button', { name: 'Tandai sudah dipelajari' }).click()
+    await page.getByRole('button', { name: 'Kerjakan Kuis Formatif' }).click()
+    await expect(
+      page.getByText(`KUIS FORMATIF ${number}`, { exact: true }),
+    ).toBeVisible()
+    await expect(page.getByRole('textbox')).toHaveValue('')
+    await page.getByRole('textbox').fill(answer)
+    await page.getByRole('button', { name: 'Periksa jawaban' }).click()
+    await expect(page.getByRole('status')).toContainText('Jawabanmu tepat.')
+    await page
+      .getByRole('button', {
+        name:
+          index === 5
+            ? 'Kerjakan asesmen sumatif'
+            : 'Lanjut ke materi berikutnya',
+      })
+      .click()
+  }
+  await expect(page.getByText('ASESMEN SUMATIF', { exact: true })).toBeVisible()
+  const progress = await page.evaluate(
+    () =>
+      JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!)
+        .profiles['student:nara'],
+  )
+  expect(progress.challenges).toEqual([])
+  expect(progress.materials).toEqual([1, 2, 3, 4, 5, 6])
+  expect(
+    Object.values(progress.quizzes).every(
+      (quiz) => (quiz as { complete: boolean }).complete,
+    ),
+  ).toBe(true)
+  await page.reload()
+  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await expect(page.getByText('ASESMEN SUMATIF', { exact: true })).toBeVisible()
+})
+
+test('progres lama dan profil lain dipertahankan saat meninjau kembali materi', async ({
+  page,
+}) => {
+  const legacy = {
+    version: 1,
+    profiles: {
+      'student:nara': {
+        materials: [1, 2],
+        challenges: [1],
+        challengeDrafts: {
+          1: {
+            visited: true,
+            observation: 'Catatan lama',
+            reflection: 'Refleksi lama',
+          },
+        },
+        quizzes: { 1: { answer: '12000', attempts: 2, complete: false } },
+        summative: { answers: {}, essays: ['', ''], submitted: false },
+      },
+      'student:bima': {
+        materials: [1],
+        challenges: [],
+        challengeDrafts: {},
+        quizzes: {},
+        summative: { answers: {}, essays: ['', ''], submitted: false },
+      },
+    },
+  }
+  await page.addInitScript(
+    (saved) =>
+      localStorage.setItem(
+        'voltquest.dynamic-electricity.v1',
+        JSON.stringify(saved),
+      ),
+    legacy,
+  )
+  await page.goto('/')
+  await page
+    .getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' })
+    .click()
+  await page
+    .getByRole('button', { name: 'Hambatan Ohmik dan Non Ohmik' })
+    .click()
+  await expect(
+    page.getByRole('button', { name: 'Kerjakan Kuis Formatif' }),
+  ).toBeDisabled()
+  await expect(
+    page.getByText(
+      'Selesaikan kuis formatif sebelumnya untuk membuka kuis ini.',
+    ),
+  ).toBeVisible()
+  expect(
+    await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!),
+    ),
+  ).toEqual(legacy)
+  expect(
+    await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('voltquest.v1')!),
+    ),
+  ).toEqual(profile)
+  await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
+  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await expect(
+    page.getByText('KUIS FORMATIF 01', { exact: true }),
+  ).toBeVisible()
+  await expect(page.getByRole('textbox')).toHaveValue('12000')
 })
 
 test('membuka sumatif hanya setelah enam kuis formatif tersimpan pada profil siswa', async ({
@@ -86,7 +254,11 @@ test('membuka sumatif hanya setelah enam kuis formatif tersimpan pada profil sis
   })
   await page.goto('/')
   await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
-  await expect(page.getByRole('heading', { name: 'Listrik Dinamis' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Listrik Dinamis' }),
+  ).toBeVisible()
   await expect(page.getByText('Dua kawat tembaga X dan Y')).toBeVisible()
-  await expect(page.getByText('tidak mengklaim menilai uraian secara otomatis')).toBeVisible()
+  await expect(
+    page.getByText('tidak mengklaim menilai uraian secara otomatis'),
+  ).toBeVisible()
 })

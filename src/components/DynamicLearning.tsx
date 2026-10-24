@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -41,9 +41,14 @@ export function DynamicLearning({
 }) {
   const store = useDynamicLearning(profileId)
   const [view, setView] = useState<View>({ type: 'home' })
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [view])
   const { learning } = store
   const materialReady = (id: number) =>
-    id === 1 || learning.materials.includes(id - 1)
+    id === 1 ||
+    learning.materials.includes(id) ||
+    Boolean(learning.quizzes[id - 1]?.complete)
   const challengeReady = (id: number) => learning.materials.includes(id)
   const quizReady = (id: number) =>
     learning.materials.includes(id) &&
@@ -51,12 +56,10 @@ export function DynamicLearning({
   const allQuizDone = dynamicTopics.every(
     (topic) => learning.quizzes[topic.id]?.complete,
   )
-  const next = (() : View => {
+  const next = ((): View => {
     for (const topic of dynamicTopics) {
       if (!learning.materials.includes(topic.id))
         return { type: 'material', id: topic.id }
-      if (!learning.challenges.includes(topic.id))
-        return { type: 'challenge', id: topic.id }
       if (!learning.quizzes[topic.id]?.complete)
         return { type: 'quiz', id: topic.id }
     }
@@ -78,8 +81,10 @@ export function DynamicLearning({
   if (view.type !== 'home')
     return (
       <LearningPanel
+        key={`${view.type}:${'id' in view ? view.id : ''}`}
         view={view}
         onBack={() => setView({ type: 'home' })}
+        onOpen={setView}
         store={store}
         materialReady={materialReady}
         challengeReady={challengeReady}
@@ -305,9 +310,7 @@ function PathCatalog({
       <section className="content-card path-catalog">
         <span className="section-kicker">DAFTAR TAHAP</span>
         <h1>{heading}</h1>
-        <p>
-          Pilih tahap yang sudah terbuka untuk melanjutkan pembelajaranmu.
-        </p>
+        <p>Pilih tahap yang sudah terbuka untuk melanjutkan pembelajaranmu.</p>
         <div className="path-rows">
           {dynamicTopics.map((topic) => {
             const done =
@@ -353,14 +356,16 @@ function PathCatalog({
 function LearningPanel({
   view,
   onBack,
+  onOpen,
   store,
   materialReady,
   challengeReady,
   quizReady,
   summativeReady,
 }: {
-  view: Exclude<View, { type: 'home' }>
+  view: Exclude<View, { type: 'home' } | { type: 'catalog' }>
   onBack: () => void
+  onOpen: (view: View) => void
   store: ReturnType<typeof useDynamicLearning>
   materialReady: (id: number) => boolean
   challengeReady: (id: number) => boolean
@@ -385,12 +390,27 @@ function LearningPanel({
           topic={topic!}
           done={store.learning.materials.includes(topic!.id)}
           onDone={() => store.markMaterial(topic!.id)}
-          onNext={onBack}
+          quizAvailable={quizReady(topic!.id)}
+          onQuiz={() => onOpen({ type: 'quiz', id: topic!.id })}
+          onBack={() => onOpen({ type: 'catalog', path: 'material' })}
         />
       ) : view.type === 'challenge' ? (
         <Challenge topic={topic!} store={store} onBack={onBack} />
       ) : view.type === 'quiz' ? (
-        <Formative topic={topic!} store={store} onBack={onBack} />
+        <Formative
+          topic={topic!}
+          store={store}
+          onBack={() => onOpen({ type: 'catalog', path: 'quiz' })}
+          onReview={() => onOpen({ type: 'material', id: topic!.id })}
+          onChallenge={() => onOpen({ type: 'challenge', id: topic!.id })}
+          onNext={() =>
+            onOpen(
+              topic!.id < dynamicTopics.length
+                ? { type: 'material', id: topic!.id + 1 }
+                : { type: 'summative' },
+            )
+          }
+        />
       ) : summativeReady ? (
         <Summative store={store} onBack={onBack} />
       ) : (
@@ -418,7 +438,7 @@ function Locked({
       <h1>Tahap ini belum terbuka</h1>
       <p>
         {type === 'material'
-          ? `Selesaikan materi sebelumnya sebelum mempelajari ${topic.title}.`
+          ? `Selesaikan kuis formatif sebelumnya sebelum mempelajari ${topic.title}.`
           : type === 'challenge'
             ? `Selesaikan materi ${topic.title} terlebih dahulu.`
             : `Selesaikan materi ${topic.title} dan kuis formatif sebelumnya terlebih dahulu.`}
@@ -430,12 +450,16 @@ function Material({
   topic,
   done,
   onDone,
-  onNext,
+  quizAvailable,
+  onQuiz,
+  onBack,
 }: {
   topic: (typeof dynamicTopics)[number]
   done: boolean
   onDone: () => void
-  onNext: () => void
+  quizAvailable: boolean
+  onQuiz: () => void
+  onBack: () => void
 }) {
   return (
     <section className="content-card learning-detail">
@@ -452,16 +476,31 @@ function Material({
         <p>{topic.summary}</p>
       </div>
       {done ? (
-        <p className="success-note">
-          <CheckCircle2 size={18} /> Materi ini sudah selesai dipelajari.
-        </p>
+        <div className="learning-completion">
+          <p className="success-note" role="status">
+            <CheckCircle2 size={20} aria-hidden="true" /> Materi selesai.
+            Sekarang cek pemahamanmu melalui kuis formatif.
+          </p>
+          {!quizAvailable && (
+            <p>Selesaikan kuis formatif sebelumnya untuk membuka kuis ini.</p>
+          )}
+          <div className="learning-actions">
+            <button
+              className="primary-button"
+              disabled={!quizAvailable}
+              onClick={onQuiz}
+            >
+              Kerjakan Kuis Formatif <ArrowRight size={17} />
+            </button>
+          </div>
+        </div>
       ) : (
         <button className="primary-button" onClick={onDone}>
           Tandai sudah dipelajari <CheckCircle2 size={17} />
         </button>
       )}
-      <button className="text-button" onClick={onNext}>
-        Lihat progres belajar <ArrowRight size={16} />
+      <button className="text-button" onClick={onBack}>
+        Kembali ke daftar materi <ArrowRight size={16} />
       </button>
     </section>
   )
@@ -549,10 +588,16 @@ function Formative({
   topic,
   store,
   onBack,
+  onReview,
+  onChallenge,
+  onNext,
 }: {
   topic: (typeof dynamicTopics)[number]
   store: ReturnType<typeof useDynamicLearning>
   onBack: () => void
+  onReview: () => void
+  onChallenge: () => void
+  onNext: () => void
 }) {
   const saved = store.learning.quizzes[topic.id]
   const [answer, setAnswer] = useState(saved?.answer ?? '')
@@ -616,10 +661,26 @@ function Formative({
           )}
         </div>
       )}
+      {saved?.complete && (
+        <div className="learning-actions quiz-next-actions">
+          <button className="primary-button" onClick={onNext}>
+            {topic.id < dynamicTopics.length
+              ? 'Lanjut ke materi berikutnya'
+              : 'Kerjakan asesmen sumatif'}{' '}
+            <ArrowRight size={17} />
+          </button>
+          <button className="secondary-button" onClick={onChallenge}>
+            Buka Challenge PhET <FlaskConical size={17} />
+          </button>
+          <button className="text-button" onClick={onBack}>
+            Kembali ke daftar belajar
+          </button>
+        </div>
+      )}
       <aside id="quiz-reminder" className="learning-summary">
         <strong>Ingat kembali materinya</strong>
         <p>{topic.summary}</p>
-        <button className="text-button" onClick={onBack}>
+        <button className="text-button" onClick={onReview}>
           Pelajari kembali materi
         </button>
       </aside>

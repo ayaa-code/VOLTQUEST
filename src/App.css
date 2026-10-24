@@ -2502,7 +2502,10 @@ fieldset:disabled .answer-option input {
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 .learning-path-card:hover,
 .learning-path-card:focus-visible {
@@ -2541,7 +2544,10 @@ fieldset:disabled .answer-option input {
   font-size: 0.875rem;
   font-weight: 700;
 }
-.path-rows { display: grid; gap: 8px; }
+.path-rows {
+  display: grid;
+  gap: 8px;
+}
 .path-row {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
@@ -2559,9 +2565,17 @@ fieldset:disabled .answer-option input {
   line-height: 1.45;
   cursor: pointer;
 }
-.path-row:not(:disabled):hover > span:nth-child(2) { color: #6f4bb2; }
-.path-row:focus-visible { outline: 2px solid #9c7ac6; outline-offset: 3px; border-radius: 6px; }
-.path-row:disabled { cursor: not-allowed; }
+.path-row:not(:disabled):hover > span:nth-child(2) {
+  color: #6f4bb2;
+}
+.path-row:focus-visible {
+  outline: 2px solid #9c7ac6;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.path-row:disabled {
+  cursor: not-allowed;
+}
 .path-row > span:first-child {
   color: #168d79;
 }
@@ -2703,6 +2717,40 @@ fieldset:disabled .answer-option input {
   align-items: center;
   margin-top: 18px;
   color: #167461 !important;
+}
+.learning-completion {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid #bddfce;
+  border-radius: 14px;
+  background: #e8f5ee;
+}
+.learning-completion .success-note {
+  margin-top: 0;
+  align-items: flex-start;
+}
+.learning-completion .success-note svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.learning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.learning-actions .primary-button,
+.learning-actions .text-button {
+  margin-top: 0;
+}
+@media (max-width: 480px) {
+  .learning-actions > button {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+  }
 }
 .locked-panel {
   max-width: 620px;
