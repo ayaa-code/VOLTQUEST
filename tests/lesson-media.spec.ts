@@ -292,11 +292,21 @@ test('speech is opt-in, handles late Indonesian voices, pause/resume, formulas, 
     .click()
   await expect(page.locator('.lesson-video-frame iframe')).toHaveCount(0)
   const cancels = await page.evaluate(() => window.lessonSpeechProbe.cancels)
-  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
+  await page
+    .getByRole('button', { name: 'Lanjut ke materi berikutnya', exact: true })
+    .click()
   expect(
     await page.evaluate(() => window.lessonSpeechProbe.cancels),
   ).toBeGreaterThan(cancels)
-  await expect(page.locator('.lesson-audio')).toHaveCount(0)
+  await expect(
+    page.getByRole('heading', {
+      name: 'Hambatan Ohmik dan Non-Ohmik',
+      exact: true,
+    }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Hentikan', exact: true }),
+  ).toBeDisabled()
 })
 
 test('unsupported speech does not block text, video, or formative access', async ({
@@ -322,30 +332,13 @@ test('unsupported speech does not block text, video, or formative access', async
   await expect(page.locator('.lesson-manuscript')).toContainText('Baterai buah')
   await page.getByRole('button', { name: 'Putar video Arus Listrik' }).click()
   await expect(page.locator('.lesson-video-frame iframe')).toBeVisible()
-  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
-  await expect(
-    page.getByText('KUIS FORMATIF 01', { exact: true }),
-  ).toBeVisible()
-})
-
-test('unsubmitted quiz draft survives material review without counting a submission', async ({
-  page,
-}) => {
-  await page.goto('/')
-  await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
   await page
-    .getByRole('button', { name: 'Formatif 2: Hambatan Ohmik dan Non-Ohmik' })
+    .getByRole('button', { name: 'Lanjut ke materi berikutnya', exact: true })
     .click()
-  await page.getByRole('textbox').fill('12345')
-  await page.getByRole('button', { name: 'Pelajari kembali materi' }).click()
-  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
-  await expect(page.getByRole('textbox')).toHaveValue('12345')
-  await expect(page.locator('.quiz-feedback')).toHaveCount(0)
-  expect(
-    await page.evaluate(
-      () =>
-        JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!)
-          .profiles['student:nara'].quizzes[2]?.attempts ?? 0,
-    ),
-  ).toBe(1)
+  await expect(
+    page.getByRole('heading', {
+      name: 'Hambatan Ohmik dan Non-Ohmik',
+      exact: true,
+    }),
+  ).toBeVisible()
 })

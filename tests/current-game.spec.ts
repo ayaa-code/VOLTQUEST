@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }) => {
         version: 1,
         profiles: {
           'student:nara': {
-            materials: [1],
+            materials: [1, 2, 3],
             challenges: [],
             challengeDrafts: {},
             quizzes: {},
@@ -41,7 +41,9 @@ test.beforeEach(async ({ page }) => {
 })
 async function enter(page: import('@playwright/test').Page) {
   await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
-  await page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }).click()
+  await page
+    .getByRole('button', { name: 'Formative Checkpoint 1', exact: true })
+    .click()
   await page.locator('.cq-container').waitFor()
 }
 test('three game questions unlock next lesson, persist separately, and preserve XP', async ({
@@ -64,10 +66,10 @@ test('three game questions unlock next lesson, persist separately, and preserve 
   const result = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!),
   )
-  expect(result.profiles['student:nara'].quizzes[1].game.solved).toEqual([
+  expect(result.profiles['student:nara'].checkpoints[1].solved).toEqual([
     1, 2, 3,
   ])
-  expect(result.profiles['student:nara'].quizzes[1].complete).toBeTruthy()
+  expect(result.profiles['student:nara'].checkpoints[1].complete).toBeTruthy()
   expect(result.profiles['student:bima'].quizzes).toEqual({})
   await expect(page.locator('.header-xp')).toContainText('0')
   for (const width of [1440, 1024, 768, 390, 320]) {
@@ -79,10 +81,12 @@ test('three game questions unlock next lesson, persist separately, and preserve 
     ).toBeTruthy()
   }
   await page
-    .getByRole('button', { name: 'Lanjut ke materi berikutnya' })
+    .getByRole('button', {
+      name: 'Lanjut ke Rangkaian Listrik Seri dan Paralel',
+    })
     .click()
   await expect(
-    page.getByRole('heading', { name: 'Hambatan Ohmik dan Non-Ohmik' }),
+    page.getByRole('heading', { name: 'Rangkaian Listrik Seri dan Paralel' }),
   ).toBeVisible()
 })
 test('canvas keyboard and touch controls work; mission answers resume after returning', async ({
@@ -109,7 +113,10 @@ test('canvas keyboard and touch controls work; mission answers resume after retu
   await playToGate(page)
   await page.locator('.cq-option-btn').first().click()
   await page.getByRole('button', { name: 'Pelajari kembali materi' }).click()
-  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
+  await page
+    .getByRole('button', { name: 'Kembali ke Listrik Dinamis', exact: true })
+    .click()
+  await enter(page)
   await expect(page.locator('.cq-topbar-left')).toContainText('Misi 2')
   const right = page.getByRole('button', { name: 'Gerak Kanan' }),
     jump = page.getByRole('button', { name: 'Lompat' })

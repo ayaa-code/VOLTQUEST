@@ -1,10 +1,12 @@
 import type { ProfileLearning } from '../hooks/useDynamicLearning'
+import { checkpointDone } from './checkpoints'
 
 const ids = [1, 2, 3, 4, 5, 6]
 export function learningAccess(learning: ProfileLearning) {
-  const basicsDone = ids.every(
-    (id) => learning.materials.includes(id) && learning.quizzes[id]?.complete,
-  )
+  const basicsDone =
+    ids.every((id) => learning.materials.includes(id)) &&
+    checkpointDone(learning, 1) &&
+    checkpointDone(learning, 2)
   const challengesDone = Boolean(learning.worksheet?.completedAt)
   return {
     basicsDone,
@@ -12,19 +14,24 @@ export function learningAccess(learning: ProfileLearning) {
       ids.includes(id) &&
       (id === 1 ||
         learning.materials.includes(id) ||
-        Boolean(learning.quizzes[id - 1]?.complete)),
+        (id === 4
+          ? checkpointDone(learning, 1)
+          : learning.materials.includes(id - 1))),
     quizReady: (id: number) =>
-      ids.includes(id) &&
-      (Boolean(learning.quizzes[id]?.complete) ||
-        (learning.materials.includes(id) &&
-          (id === 1 || Boolean(learning.quizzes[id - 1]?.complete)))),
-    challengeReady: (id: number) => id === 1 && basicsDone,
-    summativeReady:
-      learning.summative.submitted || (basicsDone && challengesDone),
+      [1, 2].includes(id) &&
+      (checkpointDone(learning, id) ||
+        (id === 1
+          ? [1, 2, 3].every((n) => learning.materials.includes(n))
+          : checkpointDone(learning, 1) &&
+            [4, 5, 6].every((n) => learning.materials.includes(n)))),
+    challengeReady: (id: number) =>
+      id === 1 &&
+      (basicsDone || challengesDone || learning.summative.submitted),
+    summativeReady: learning.summative.submitted || challengesDone,
   }
 }
 
 export const challengePrerequisite =
-  'Selesaikan enam materi dan enam tes formatif untuk membuka satu Challenge eksplorasi PhET.'
+  'Selesaikan enam materi dan dua Formative Checkpoint untuk membuka Challenge eksplorasi PhET.'
 export const summativePrerequisite =
-  'Selesaikan enam materi, enam tes formatif, dan satu Challenge untuk membuka asesmen sumatif.'
+  'Selesaikan dua Formative Checkpoint dan Challenge untuk membuka asesmen sumatif.'

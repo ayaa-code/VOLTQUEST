@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { MISSIONS_DATA } from '../data/currentGame'
 import './CircuitQuestGame.css'
 
-/** @param {{onComplete:()=>void,onReview:()=>void,onFinish:()=>boolean,onAnswer:(id:number,key:string)=>boolean,initialMission?:number,initialScore?:number}} props */
+/** @param {{onComplete:()=>void,onReview:(id?:number)=>void,onFinish:()=>boolean,onAnswer:(id:number,key:string)=>boolean,initialMission?:number,initialScore?:number}} props */
 export function CircuitQuestGame({
   onComplete,
   onReview,
@@ -559,15 +559,15 @@ export function CircuitQuestGame({
                   <p>
                     {
                       [
-                        'Arah elektron berlawanan dengan arus konvensional pada rangkaian luar sumber DC.',
-                        'Gunakan Q = It. Ubah waktu dari jam menjadi sekon sebelum menghitung.',
-                        'Hitung Q = It terlebih dahulu, kemudian n = Q/e dengan e = 1,6 × 10⁻¹⁹ C.',
+                        'Q = It. Ubah waktu dari jam menjadi sekon sebelum menghitung.',
+                        'R = V/I. Komponen ohmik memiliki perbandingan V/I tetap.',
+                        'R = ρL/A. Diameter setengah membuat luas penampang seperempat.',
                       ][missionIndex]
                     }
                   </p>
                   <button
                     className="cq-btn cq-btn-secondary"
-                    onClick={onReview}
+                    onClick={() => onReview(currentMission.id)}
                   >
                     Pelajari kembali materi
                   </button>
@@ -635,7 +635,7 @@ export function CircuitQuestGame({
                   margin: '4px 0 8px',
                 }}
               >
-                Kamu telah menyelesaikan misi arus listrik.
+                Tiga misi konsep listrik berhasil kamu selesaikan.
               </p>
               <div className="cq-score-pill">Skor Akhir: {score}</div>
               <div className="cq-btn-row">
@@ -651,7 +651,7 @@ export function CircuitQuestGame({
                   className="cq-btn cq-btn-primary"
                   onClick={onComplete}
                 >
-                  Kembali ke Materi
+                  Lanjut ke Materi 4
                 </button>
               </div>
             </div>
@@ -715,7 +715,7 @@ export function CircuitQuestGame({
  */
 
 function drawNature(ctx) {
-  ctx.fillStyle = '#bce8ff'
+  ctx.fillStyle = '#83cff2'
   ctx.fillRect(0, 0, 900, 520)
   ctx.fillStyle = '#fffefa'
   for (const [x, y] of [
@@ -729,14 +729,14 @@ function drawNature(ctx) {
     ctx.ellipse(x + 14, y - 16, 30, 24, 0, 0, Math.PI * 2)
     ctx.fill()
   }
-  ctx.fillStyle = '#afd779'
+  ctx.fillStyle = '#72b84a'
   ctx.beginPath()
   ctx.moveTo(0, 460)
   ctx.quadraticCurveTo(130, 170, 370, 460)
   ctx.quadraticCurveTo(650, 180, 900, 460)
   ctx.closePath()
   ctx.fill()
-  ctx.fillStyle = '#86bd71'
+  ctx.fillStyle = '#50973d'
   ctx.beginPath()
   ctx.moveTo(0, 460)
   ctx.quadraticCurveTo(400, 260, 900, 460)
@@ -746,7 +746,7 @@ function drawNature(ctx) {
     [65, 400],
     [850, 380],
   ]) {
-    ctx.fillStyle = '#92744f'
+    ctx.fillStyle = '#8b6345'
     ctx.fillRect(x - 5, y - 62, 10, 62)
     ctx.fillStyle = '#4d9656'
     ctx.beginPath()

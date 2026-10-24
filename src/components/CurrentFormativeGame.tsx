@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import type { useDynamicLearning } from '../hooks/useDynamicLearning'
 import { MISSIONS_DATA } from '../data/currentGame'
+import { checkpointDone } from '../data/checkpoints'
 const CircuitQuestGame = lazy(() => import('./CircuitQuestGame.jsx'))
 export function CurrentFormativeGame({
   store,
@@ -10,42 +11,32 @@ export function CurrentFormativeGame({
 }: {
   store: ReturnType<typeof useDynamicLearning>
   onBack: () => void
-  onReview: () => void
+  onReview: (id?: number) => void
   onNext: () => void
 }) {
-  const saved = store.learning.quizzes[1]
-  const solved = saved?.game?.solved ?? []
+  const saved = store.learning.checkpoints?.[1]
+  const solved = saved?.solved ?? []
+  const complete = checkpointDone(store.learning, 1)
   const next = MISSIONS_DATA.findIndex((m) => !solved.includes(m.id))
   return (
     <section className="content-card learning-detail quiz-detail current-formative-game">
-      <span className="section-kicker">KUIS FORMATIF 01</span>
-      <h1>Arus Listrik</h1>
+      <span className="section-kicker">FORMATIF 1 · TIGA SUBMATERI</span>
+      <h1>Formative Checkpoint 1</h1>
       <h2>Circuit Quest — Petualangan Piko</h2>
       <Suspense fallback={<p role="status">Menyiapkan permainan Piko…</p>}>
         <CircuitQuestGame
-          initialMission={next === -1 ? 3 : next}
+          initialMission={complete || next === -1 ? 3 : next}
           initialScore={solved.length * 100}
           onAnswer={store.answerCurrentGame}
           onFinish={store.completeCurrentGame}
-          onComplete={onReview}
+          onComplete={onNext}
           onReview={onReview}
         />
       </Suspense>
-      {solved.length === 3 && !saved?.complete && (
+      {solved.length === 3 && !complete && (
         <button className="primary-button" onClick={store.completeCurrentGame}>
           Simpan penyelesaian formatif
         </button>
-      )}
-      {saved?.answer && !saved.answer.startsWith('Circuit Quest:') && (
-        <details>
-          <summary>Jawaban formatif sebelumnya</summary>
-          <p>{saved.answer}</p>
-          <p>
-            {saved.complete
-              ? 'Sudah selesai pada versi sebelumnya.'
-              : 'Belum selesai pada versi sebelumnya.'}
-          </p>
-        </details>
       )}
       {store.storageError && (
         <p role="alert">
@@ -53,13 +44,13 @@ export function CurrentFormativeGame({
           setelah penyimpanan tersedia.
         </p>
       )}
-      {saved?.complete && (
+      {complete && (
         <div className="learning-completion">
           <p className="success-note">
             Kuis formatif selesai. Progres belajarmu tetap tersimpan.
           </p>
           <button className="primary-button" onClick={onNext}>
-            Lanjut ke materi berikutnya
+            Lanjut ke Rangkaian Listrik Seri dan Paralel
           </button>
         </div>
       )}

@@ -11,6 +11,8 @@ import { CircuitAnimation } from './CircuitAnimation'
 import { ChallengeWorksheet } from './ChallengeWorksheet'
 import { AssistantChat } from './AssistantChat'
 import { CurrentFormativeGame } from './CurrentFormativeGame'
+import { EnergyControlRoom } from './EnergyControlRoom'
+import { checkpointDone } from '../data/checkpoints'
 import {
   dynamicTopics,
   summativeEssays,
@@ -51,8 +53,11 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
     for (const topic of dynamicTopics) {
       if (!learning.materials.includes(topic.id))
         return { type: 'material', id: topic.id }
-      if (!learning.quizzes[topic.id]?.complete)
-        return { type: 'quiz', id: topic.id }
+      if (
+        (topic.id === 3 || topic.id === 6) &&
+        !checkpointDone(learning, topic.id / 3)
+      )
+        return { type: 'quiz', id: topic.id / 3 }
     }
     return !learning.worksheet?.completedAt
       ? { type: 'challenge', id: 1 }
@@ -88,10 +93,8 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
 
   const materialCount = learning.materials.length
   const challengeCount = learning.worksheet?.completedAt ? 1 : 0
-  const quizCount = Object.values(learning.quizzes).filter(
-    (quiz) => quiz.complete,
-  ).length
-  const units = 14
+  const quizCount = [1, 2].filter((id) => checkpointDone(learning, id)).length
+  const units = 10
   const done =
     materialCount +
     challengeCount +
@@ -164,10 +167,10 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           number="03"
           action="Test Your Knowledge"
           steps={[
-            ...dynamicTopics.map((topic) => ({
-              title: topic.title,
-              done: Boolean(learning.quizzes[topic.id]?.complete),
-              ready: Boolean(quizReady(topic.id)),
+            ...[1, 2].map((id) => ({
+              title: `Formative Checkpoint ${id}`,
+              done: checkpointDone(learning, id),
+              ready: Boolean(quizReady(id)),
             })),
             {
               title: 'Sumatif Listrik Dinamis',
@@ -211,8 +214,8 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           <li className={challengeCount === 1 ? 'done' : ''}>
             Challenge <small>{challengeCount}/1</small>
           </li>
-          <li className={quizCount === 6 ? 'done' : ''}>
-            Formatif <small>{quizCount}/6</small>
+          <li className={quizCount === 2 ? 'done' : ''}>
+            Formatif <small>{quizCount}/2</small>
           </li>
           <li className={learning.summative.submitted ? 'done' : ''}>
             Sumatif{' '}
@@ -327,6 +330,7 @@ function PathRow({
       className={`path-row ${state === 'Terkunci' ? 'locked' : ''}`}
       disabled={state === 'Terkunci'}
       onClick={onOpen}
+      aria-label={label}
     >
       <span>
         {done ? (
@@ -386,14 +390,16 @@ function PathCatalog({
         <div className="path-rows">
           {(path === 'challenge'
             ? dynamicTopics.slice(0, 1)
-            : dynamicTopics
+            : path === 'quiz'
+              ? dynamicTopics.slice(0, 2)
+              : dynamicTopics
           ).map((topic) => {
             const done =
               path === 'material'
                 ? learning.materials.includes(topic.id)
                 : path === 'challenge'
                   ? Boolean(learning.worksheet?.completedAt)
-                  : Boolean(learning.quizzes[topic.id]?.complete)
+                  : checkpointDone(learning, topic.id)
             const ready =
               path === 'material'
                 ? materialReady(topic.id)
@@ -405,7 +411,7 @@ function PathCatalog({
                 ? topic.title
                 : path === 'challenge'
                   ? 'Challenge'
-                  : `Formatif ${topic.id}: ${topic.title}`
+                  : `Formative Checkpoint ${topic.id}`
             return (
               <PathRow
                 key={topic.id}
@@ -484,8 +490,18 @@ function LearningPanel({
           topic={topic!}
           done={store.learning.materials.includes(topic!.id)}
           onDone={() => store.markMaterial(topic!.id)}
-          quizAvailable={quizReady(topic!.id)}
-          onQuiz={() => onOpen({ type: 'quiz', id: topic!.id })}
+          quizAvailable={
+            topic!.id % 3 === 0
+              ? quizReady(topic!.id / 3)
+              : materialReady(topic!.id + 1)
+          }
+          onQuiz={() =>
+            onOpen(
+              topic!.id % 3 === 0
+                ? { type: 'quiz', id: topic!.id / 3 }
+                : { type: 'material', id: topic!.id + 1 },
+            )
+          }
           onBack={() => onOpen({ type: 'catalog', path: 'material' })}
         />
       ) : view.type === 'challenge' ? (
@@ -500,22 +516,15 @@ function LearningPanel({
           <CurrentFormativeGame
             store={store}
             onBack={() => onOpen({ type: 'catalog', path: 'quiz' })}
-            onReview={() => onOpen({ type: 'material', id: 1 })}
-            onNext={() => onOpen({ type: 'material', id: 2 })}
+            onReview={(id = 1) => onOpen({ type: 'material', id })}
+            onNext={() => onOpen({ type: 'material', id: 4 })}
           />
         ) : (
-          <Formative
-            topic={topic!}
+          <EnergyControlRoom
             store={store}
             onBack={() => onOpen({ type: 'catalog', path: 'quiz' })}
-            onReview={() => onOpen({ type: 'material', id: topic!.id })}
-            onNext={() =>
-              onOpen(
-                topic!.id < dynamicTopics.length
-                  ? { type: 'material', id: topic!.id + 1 }
-                  : { type: 'home' },
-              )
-            }
+            onReview={(id) => onOpen({ type: 'material', id })}
+            onNext={() => onOpen({ type: 'challenge', id: 1 })}
           />
         )
       ) : summativeReady ? (
@@ -584,7 +593,9 @@ function Material({
         <div className="learning-completion">
           <p className="success-note" role="status">
             <CheckCircle2 size={20} aria-hidden="true" /> Materi selesai.
-            Sekarang cek pemahamanmu melalui tes formatif.
+            {topic.id % 3 === 0
+              ? 'Sekarang cek pemahamanmu melalui Formative Checkpoint.'
+              : 'Lanjutkan ke submateri berikutnya.'}
           </p>
           {!quizAvailable && (
             <p>Selesaikan kuis formatif sebelumnya untuk membuka kuis ini.</p>
@@ -595,7 +606,10 @@ function Material({
               disabled={!quizAvailable}
               onClick={onQuiz}
             >
-              Kerjakan Tes Formatif <ArrowRight size={17} />
+              {topic.id % 3 === 0
+                ? `Kerjakan Formative Checkpoint ${topic.id / 3}`
+                : 'Lanjut ke materi berikutnya'}{' '}
+              <ArrowRight size={17} />
             </button>
           </div>
         </div>
@@ -607,113 +621,6 @@ function Material({
       <button className="text-button" onClick={onBack}>
         Kembali ke daftar materi <ArrowRight size={16} />
       </button>
-    </section>
-  )
-}
-function Formative({
-  topic,
-  store,
-  onBack,
-  onReview,
-  onNext,
-}: {
-  topic: (typeof dynamicTopics)[number]
-  store: ReturnType<typeof useDynamicLearning>
-  onBack: () => void
-  onReview: () => void
-  onNext: () => void
-}) {
-  const saved = store.learning.quizzes[topic.id]
-  const [answer, setAnswer] = useState(saved?.draft ?? saved?.answer ?? '')
-  const [checked, setChecked] = useState(
-    Boolean(saved?.attempts) && saved?.draft === undefined,
-  )
-  const numeric = Number(answer.replace(',', '.'))
-  const correct =
-    Number.isFinite(numeric) && Math.abs(numeric - topic.answer) < 0.001
-  function submit(e: React.FormEvent) {
-    e.preventDefault()
-    store.submitQuiz(topic.id, answer, correct)
-    setChecked(true)
-  }
-  return (
-    <section className="content-card learning-detail quiz-detail">
-      <span className="section-kicker">
-        KUIS FORMATIF {String(topic.id).padStart(2, '0')}
-      </span>
-      <h1>{topic.title}</h1>
-      <p className="quiz-question">{topic.question}</p>
-      <form onSubmit={submit}>
-        <label className="guided-field">
-          Jawaban angka <span>dalam {topic.unit}</span>
-          <input
-            inputMode="decimal"
-            required
-            value={answer}
-            onChange={(e) => {
-              setAnswer(e.target.value)
-              store.saveQuizDraft(topic.id, e.target.value)
-              setChecked(false)
-            }}
-            aria-describedby="quiz-reminder"
-          />
-        </label>
-        <button className="primary-button">Periksa jawaban</button>
-      </form>
-      {checked && (
-        <div
-          className={correct ? 'quiz-feedback correct' : 'quiz-feedback'}
-          role="status"
-        >
-          <strong>
-            {correct ? 'Jawabanmu tepat.' : 'Belum tepat, mari revisi.'}
-          </strong>
-          <p>
-            {correct
-              ? topic.explanation
-              : 'Ingat kembali materinya: ' + topic.reminder}
-          </p>
-          {!correct && (
-            <button
-              className="secondary-button"
-              onClick={() => setChecked(false)}
-            >
-              Coba revisi jawaban
-            </button>
-          )}
-          {correct && (
-            <p className="success-note">
-              <CheckCircle2 size={18} /> Kuis formatif selesai.
-            </p>
-          )}
-        </div>
-      )}
-      {saved?.complete && (
-        <div className="learning-actions quiz-next-actions">
-          <button className="primary-button" onClick={onNext}>
-            {topic.id < dynamicTopics.length
-              ? 'Lanjut ke materi berikutnya'
-              : 'Kembali ke dashboard'}{' '}
-            <ArrowRight size={17} />
-          </button>
-          {topic.id === dynamicTopics.length && (
-            <p>
-              Seluruh materi dan tes formatif selesai. Challenge PhET kini
-              terbuka melalui dashboard.
-            </p>
-          )}
-          <button className="text-button" onClick={onBack}>
-            Kembali ke daftar belajar
-          </button>
-        </div>
-      )}
-      <aside id="quiz-reminder" className="learning-summary">
-        <strong>Ingat kembali materinya</strong>
-        <p>{topic.summary}</p>
-        <button className="text-button" onClick={onReview}>
-          Pelajari kembali materi
-        </button>
-      </aside>
     </section>
   )
 }

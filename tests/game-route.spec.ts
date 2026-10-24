@@ -18,7 +18,7 @@ test('physical route', async ({ page }, testInfo) => {
         version: 1,
         profiles: {
           'student:nara': {
-            materials: [1],
+            materials: [1, 2, 3],
             challenges: [],
             challengeDrafts: {},
             quizzes: {},
@@ -30,7 +30,9 @@ test('physical route', async ({ page }, testInfo) => {
   })
   await page.goto('/')
   await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
-  await page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }).click()
+  await page
+    .getByRole('button', { name: 'Formative Checkpoint 1', exact: true })
+    .click()
   await page.locator('.cq-canvas').waitFor()
   await expect(page.locator('.cq-canvas')).toHaveAttribute(
     'data-grounded',
@@ -42,11 +44,9 @@ test('physical route', async ({ page }, testInfo) => {
   for (const [index, key] of ['B', 'D', 'D'].entries()) {
     await playToGate(page)
     if (index === 0)
-      await page
-        .locator('.cq-stage-wrapper')
-        .screenshot({
-          path: `tmp/nature-question-${testInfo.project.name}.png`,
-        })
+      await page.locator('.cq-stage-wrapper').screenshot({
+        path: `tmp/nature-question-${testInfo.project.name}.png`,
+      })
     await page
       .locator('.cq-option-btn')
       .filter({

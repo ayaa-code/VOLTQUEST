@@ -91,7 +91,7 @@ test('single worksheet preserves legacy notes, saves and unlocks summative only 
   await page.goto('/')
   await expect(
     page.getByRole('progressbar', { name: 'Progres Listrik Dinamis' }),
-  ).toHaveAttribute('aria-valuemax', '14')
+  ).toHaveAttribute('aria-valuemax', '10')
   await page.getByRole('button', { name: 'Start Challenge' }).click()
   await expect(page.locator('.path-row')).toHaveCount(1)
   await page.getByText('Catatan Challenge sebelumnya', { exact: true }).click()

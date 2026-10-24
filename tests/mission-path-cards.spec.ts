@@ -119,7 +119,7 @@ test('mission cards fit five viewport widths and support full-card clicks and ke
     page.getByRole('heading', { name: 'Kuis dan Asesmen', exact: true }),
   ).toBeVisible()
   await expect(
-    page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }),
+    page.getByRole('button', { name: 'Formative Checkpoint 1', exact: true }),
   ).toBeDisabled()
 })
 
@@ -165,13 +165,13 @@ test('rails reflect saved profile progress and keep summative locked until all s
   await expect(challenge.locator('.mission-step.done')).toHaveCount(0)
   await expect(challenge.locator('.mission-step.active')).toHaveCount(0)
   await expect(challenge.locator('.mission-step.locked')).toHaveCount(1)
-  await expect(quiz.locator('.mission-step.done')).toHaveCount(2)
+  await expect(quiz.locator('.mission-step.done')).toHaveCount(0)
   await expect(quiz.locator('.mission-step.active')).toHaveCount(1)
   await expect(quiz.locator('.mission-step').last()).toHaveAttribute(
     'aria-label',
     /Sumatif.*Locked/,
   )
-  await expect(quiz.locator('.mission-card-count')).toContainText('2 / 7')
+  await expect(quiz.locator('.mission-card-count')).toContainText('0 / 3')
   await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
   await expect(
     page.getByRole('button', { name: 'Sumatif Listrik Dinamis' }),

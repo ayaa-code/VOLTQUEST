@@ -2,7 +2,7 @@ export const MISSIONS_DATA = [
   {
     id: 1,
     title: 'Misi 1 dari 3',
-    subtitle: 'Misi 1: Arah Elektron',
+    subtitle: 'Misi 1: Arus Listrik',
     instruction:
       'Bantu Piko mengumpulkan 3 elektron biru kecil di jalur kabel menuju gerbang soal!',
     targetCount: 3,
@@ -23,37 +23,35 @@ export const MISSIONS_DATA = [
     gateX: 805,
     question: {
       prompt:
-        'Dalam kawat logam, arah aliran elektron dan arah arus konvensional yang benar adalah …',
+        'Akumulator diisi arus 2,5 A selama 2 jam. Berapa muatan listrik yang mengalir?',
       options: [
         {
           key: 'A',
-          text: 'Elektron dari positif ke negatif, arus dari negatif ke positif.',
+          text: '1.800 C',
         },
         {
           key: 'B',
-          text: 'Elektron dari negatif ke positif, arus dari positif ke negatif.',
+          text: '18.000 C',
         },
         {
           key: 'C',
-          text: 'Elektron dari positif ke negatif, arus dari positif ke negatif.',
+          text: '5.000 C',
         },
         {
           key: 'D',
-          text: 'Elektron dari negatif ke positif, arus dari negatif ke positif.',
+          text: '9.000 C',
         },
-        { key: 'E', text: 'Elektron bergerak acak, arus tidak memiliki arah.' },
+        { key: 'E', text: '36.000 C' },
       ],
       correctKey: 'B',
-      correctFeedback:
-        'Hebat! Elektron bergerak dari negatif ke positif, sedangkan arus konvensional dari positif ke negatif.',
-      wrongFeedback:
-        'Belum tepat! Ingat ya, elektron bermuatan negatif sehingga tertarik ke kutub positif.',
+      correctFeedback: 'Benar! Q = It = 2,5 × 7.200 = 18.000 C.',
+      wrongFeedback: 'Ubah 2 jam menjadi 7.200 sekon, kemudian gunakan Q = It.',
     },
   },
   {
     id: 2,
     title: 'Misi 2 dari 3',
-    subtitle: 'Misi 2: Isi Accu',
+    subtitle: 'Misi 2: Ohmik dan Non-ohmik',
     instruction:
       'Kumpulkan 3 energy cell hijau untuk mengisi accu dan lompati genangan listrik kecil!',
     targetCount: 3,
@@ -77,24 +75,25 @@ export const MISSIONS_DATA = [
     gateX: 805,
     question: {
       prompt:
-        'Sebuah accu diisi ulang dengan arus konstan 2,5 A selama 2 jam. Total muatan listrik yang mengalir adalah …',
+        'Data V dan I: (2 V; 0,10 A), (4 V; 0,20 A), (6 V; 0,30 A), (8 V; 0,40 A). Tentukan jenis komponen dan hambatannya.',
       options: [
-        { key: 'A', text: '1.800 C' },
-        { key: 'B', text: '5.000 C' },
-        { key: 'C', text: '9.000 C' },
-        { key: 'D', text: '18.000 C' },
-        { key: 'E', text: '36.000 C' },
+        { key: 'A', text: 'Non-ohmik, 20 Ω' },
+        { key: 'B', text: 'Ohmik, 2 Ω' },
+        { key: 'C', text: 'Non-ohmik, 40 Ω' },
+        { key: 'D', text: 'Ohmik, 20 Ω' },
+        { key: 'E', text: 'Ohmik, 40 Ω' },
       ],
       correctKey: 'D',
-      correctFeedback: 'Benar! Q = I × t = 2,5 × 7.200 = 18.000 C.',
+      correctFeedback:
+        'Benar! Semua pengukuran memiliki V/I = 20 Ω, sehingga komponen ohmik.',
       wrongFeedback:
-        'Coba hitung lagi! Ubah waktu 2 jam menjadi detik terlebih dahulu (2 × 3.600 detik).',
+        'Hitung V/I pada setiap pasangan. Nilai tetap berarti komponen ohmik.',
     },
   },
   {
     id: 3,
     title: 'Misi 3 dari 3',
-    subtitle: 'Misi 3: Pemindai Elektron',
+    subtitle: 'Misi 3: Hambatan Jenis · Pemindai',
     instruction:
       'Arahkan Piko menuju kaca pembesar pemindai listrik, lalu masuk ke gerbang akhir!',
     targetCount: 1,
@@ -114,19 +113,19 @@ export const MISSIONS_DATA = [
     gateX: 805,
     question: {
       prompt:
-        'Sebuah kawat dialiri arus 0,8 A selama 10 s. Jika muatan satu elektron adalah 1,6 × 10^-19 C, jumlah elektron yang melintasi penampang kawat adalah …',
+        'Kawat A dan B dari bahan sama. Panjang B dua kali A, diameter B setengah A. Jika hambatan A = 10 Ω, berapa hambatan B?',
       options: [
-        { key: 'A', text: '4 × 10^18 elektron' },
-        { key: 'B', text: '5 × 10^18 elektron' },
-        { key: 'C', text: '4 × 10^19 elektron' },
-        { key: 'D', text: '5 × 10^19 elektron' },
-        { key: 'E', text: '8 × 10^19 elektron' },
+        { key: 'A', text: '5 Ω' },
+        { key: 'B', text: '20 Ω' },
+        { key: 'C', text: '40 Ω' },
+        { key: 'D', text: '80 Ω' },
+        { key: 'E', text: '160 Ω' },
       ],
       correctKey: 'D',
       correctFeedback:
-        'Benar! Q = It = 8 C, sehingga jumlah elektronnya 5 × 10^19.',
+        'Benar! Luas B seperempat A. R B = 2 ÷ (1/4) × 10 = 80 Ω.',
       wrongFeedback:
-        'Hampir benar! Cari muatan Q = I × t dulu, kemudian bagi Q dengan muatan elektron e.',
+        'Gunakan R = ρL/A. Luas penampang mengikuti kuadrat diameter.',
     },
   },
 ]

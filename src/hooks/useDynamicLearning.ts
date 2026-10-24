@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { learningAccess } from '../data/learningAccess'
 import { MISSIONS_DATA } from '../data/currentGame'
+import { checkEnergyAnswer, type CheckpointProgress } from '../data/checkpoints'
 import {
   inspectWorksheet,
   snapshotOf,
@@ -20,6 +21,7 @@ type QuizAttempt = {
   draft?: string
 }
 export type ProfileLearning = {
+  checkpoints?: Record<string, CheckpointProgress>
   worksheet?: WorksheetRecord
   materials: number[]
   challenges: number[]
@@ -90,6 +92,50 @@ export function useDynamicLearning(profileId: string | null) {
     learning,
     storageError,
     profileId,
+    answerEnergy: (id: number, values: string[]) =>
+      update((current) => {
+        if (!learningAccess(current).quizReady(2)) return current
+        const old = current.checkpoints?.[2] ?? {
+          solved: [],
+          answers: {},
+          attempts: 0,
+          complete: false,
+        }
+        if (id < 1 || id > 3 || (id > 1 && !old.solved.includes(id - 1)))
+          return current
+        const solved = checkEnergyAnswer(id, values)
+          ? [...new Set([...old.solved, id])]
+          : old.solved
+        return {
+          ...current,
+          checkpoints: {
+            ...current.checkpoints,
+            2: {
+              ...old,
+              solved,
+              answers: { ...old.answers, [id]: values },
+              attempts: old.attempts + 1,
+            },
+          },
+        }
+      }),
+    completeEnergy: () =>
+      update((current) => {
+        const old = current.checkpoints?.[2]
+        if (
+          !old ||
+          !learningAccess(current).quizReady(2) ||
+          ![1, 2, 3].every((id) => old.solved.includes(id))
+        )
+          return current
+        return {
+          ...current,
+          checkpoints: {
+            ...current.checkpoints,
+            2: { ...old, complete: true },
+          },
+        }
+      }),
     answerCurrentGame: (missionId: number, key: string) =>
       update((current) => {
         if (!learningAccess(current).quizReady(1)) return current
@@ -99,12 +145,12 @@ export function useDynamicLearning(profileId: string | null) {
           !mission.question.options.some((option) => option.key === key)
         )
           return current
-        const old = current.quizzes[1] ?? {
-          answer: '',
+        const game = current.checkpoints?.[1] ?? {
+          solved: [],
+          answers: {},
           attempts: 0,
           complete: false,
         }
-        const game = old.game ?? { solved: [], answers: {}, attempts: 0 }
         if (missionId > 1 && !game.solved.includes(missionId - 1))
           return current
         const solved =
@@ -113,38 +159,31 @@ export function useDynamicLearning(profileId: string | null) {
             : game.solved
         return {
           ...current,
-          quizzes: {
-            ...current.quizzes,
+          checkpoints: {
+            ...current.checkpoints,
             1: {
-              ...old,
-              game: {
-                solved,
-                answers: { ...game.answers, [missionId]: key },
-                attempts: game.attempts + 1,
-              },
+              ...game,
+              solved,
+              answers: { ...game.answers, [missionId]: [key] },
+              attempts: game.attempts + 1,
             },
           },
         }
       }),
     completeCurrentGame: () =>
       update((current) => {
-        const old = current.quizzes[1]
+        const old = current.checkpoints?.[1]
         if (
-          !old?.game ||
+          !old ||
           !learningAccess(current).quizReady(1) ||
-          !MISSIONS_DATA.every((m) => old.game!.solved.includes(m.id))
+          !MISSIONS_DATA.every((m) => old.solved.includes(m.id))
         )
           return current
         return {
           ...current,
-          quizzes: {
-            ...current.quizzes,
-            1: {
-              ...old,
-              answer: 'Circuit Quest: 3/3 misi selesai',
-              attempts: old.attempts + 1,
-              complete: true,
-            },
+          checkpoints: {
+            ...current.checkpoints,
+            1: { ...old, complete: true },
           },
         }
       }),
