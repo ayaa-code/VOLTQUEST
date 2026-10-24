@@ -127,7 +127,7 @@ test('local registration, duplicate guard, recovery and separate email profiles'
   await expect(
     page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
   ).toBeVisible()
-  await expect(page.locator('.header-xp')).toContainText('0')
+  await expect(page.locator('.header-xp')).toHaveCount(0)
   expect(
     await page.evaluate(
       () =>

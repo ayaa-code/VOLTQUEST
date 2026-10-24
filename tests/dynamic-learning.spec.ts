@@ -57,7 +57,7 @@ test('a new learner advances through three materials before checkpoint one', asy
   await expect(
     page.getByRole('heading', { name: 'Formative Checkpoint 1', exact: true }),
   ).toBeVisible()
-  await expect(page.locator('.header-xp')).toContainText('0')
+  await expect(page.locator('.header-xp')).toHaveCount(0)
   const state = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!),
   )

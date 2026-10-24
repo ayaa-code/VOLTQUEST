@@ -53,7 +53,7 @@ export function createCircuitScene(
     stripe = mat(0x606060)
   function mesh(
     geometry: THREE.BufferGeometry,
-    material: THREE.Material,
+    material: THREE.Material | THREE.Material[],
     x: number,
     y: number,
     z: number,
@@ -67,7 +67,7 @@ export function createCircuitScene(
     w: number,
     h: number,
     d: number,
-    material: THREE.Material,
+    material: THREE.Material | THREE.Material[],
     x: number,
     y: number,
     z: number,
@@ -88,7 +88,29 @@ export function createCircuitScene(
       0,
     )
   }
-  box(5.7, 0.12, 3.5, mat(dashboard ? 0xc4e8f5 : 0xa1daf9), 0, -0.04, 0)
+  if (dashboard) {
+    // Unlit surfaces retain contrast under the strong component lighting.
+    const edge = new THREE.MeshBasicMaterial({ color: 0x52788d })
+    const top = new THREE.MeshBasicMaterial({ color: 0xb6cdd8 })
+    const underside = new THREE.MeshBasicMaterial({ color: 0x37586b })
+    box(5.7, 0.18, 3.5, [edge, edge, top, underside, edge, edge], 0, -0.07, 0)
+    box(
+      5.8,
+      0.015,
+      3.6,
+      new THREE.MeshBasicMaterial({
+        color: 0x163449,
+        transparent: true,
+        opacity: 0.12,
+        depthWrite: false,
+      }),
+      0.07,
+      -0.19,
+      0.08,
+    )
+  } else {
+    box(5.7, 0.12, 3.5, mat(0xa1daf9), 0, -0.04, 0)
+  }
   // Four disjoint wire runs: the components themselves close the circuit.
   tube([v(-2.05, -0.5), v(-2.05, -1.2), v(-1.25, -1.2)])
   tube([v(-0.5, -1.2), v(0.35, -1.2)])

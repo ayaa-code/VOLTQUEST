@@ -71,7 +71,7 @@ test('three game questions unlock next lesson, persist separately, and preserve 
   ])
   expect(result.profiles['student:nara'].checkpoints[1].complete).toBeTruthy()
   expect(result.profiles['student:bima'].quizzes).toEqual({})
-  await expect(page.locator('.header-xp')).toContainText('0')
+  await expect(page.locator('.header-xp')).toHaveCount(0)
   for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 900 })
     expect(

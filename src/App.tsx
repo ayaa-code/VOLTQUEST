@@ -145,10 +145,6 @@ function App() {
                 {isAdminDemo(profileId) && (
                   <span className="section-kicker">Demo</span>
                 )}
-                <span className="header-xp">
-                  <Zap size={16} fill="currentColor" /> {count * 100}
-                  <span> XP</span>
-                </span>
                 <button
                   className="avatar"
                   onClick={() => setModal('profile')}
