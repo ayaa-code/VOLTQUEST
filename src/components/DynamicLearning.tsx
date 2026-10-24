@@ -2,10 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   CheckCircle2,
-  ClipboardCheck,
-  Leaf,
   FlaskConical,
   LockKeyhole,
   Play,
@@ -133,7 +130,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
         aria-label="Jalur belajar Listrik Dinamis"
       >
         <PathCard
-          icon={<BookOpen />}
+          icon="📚"
           title="Learning Path"
           variant="lessons"
           number="01"
@@ -146,7 +143,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           onOpen={() => setView({ type: 'catalog', path: 'material' })}
         />
         <PathCard
-          icon={<FlaskConical />}
+          icon="🔬"
           title="PhET Challenge"
           variant="challenge"
           number="02"
@@ -159,7 +156,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           onOpen={() => setView({ type: 'catalog', path: 'challenge' })}
         />
         <PathCard
-          icon={<ClipboardCheck />}
+          icon="📝"
           title="Quizzes & Assessment"
           variant="assessment"
           number="03"
@@ -240,7 +237,7 @@ function PathCard({
   steps,
   onOpen,
 }: {
-  icon: React.ReactNode
+  icon: string
   title: string
   variant: 'lessons' | 'challenge' | 'assessment'
   number: string
@@ -257,14 +254,7 @@ function PathCard({
     >
       <div className="mission-card-header" aria-hidden="true">
         <span className="mission-card-number">{number}</span>
-        <svg className="mission-card-circuit" viewBox="0 0 320 100" fill="none">
-          <path d="M0 36h56l24 24h36M320 24h-58l-30 30h-40M320 80h-38l-18-18h-30" />
-          <circle cx="116" cy="60" r="4" />
-          <circle cx="192" cy="54" r="4" />
-          <circle cx="234" cy="62" r="4" />
-          <circle cx="45" cy="36" r="3" />
-        </svg>
-        <span className="mission-card-medallion">{icon}</span>
+        <span className="mission-card-emoji">{icon}</span>
       </div>
       <div className="mission-card-body">
         <h2>{title}</h2>
@@ -315,11 +305,6 @@ function PathCard({
           {action}
           <ArrowRight size={19} aria-hidden="true" />
         </button>
-      </div>
-      <div className="mission-card-garden" aria-hidden="true">
-        <Leaf />
-        <Leaf />
-        <Leaf />
       </div>
     </article>
   )

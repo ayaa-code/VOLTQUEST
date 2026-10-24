@@ -33,8 +33,8 @@ test('mission cards fit five viewport widths and support full-card clicks and ke
     const bounds = await cards.evaluateAll((elements) =>
       elements.map((element) => {
         const card = element.getBoundingClientRect()
-        const medallion = element
-          .querySelector('.mission-card-medallion')!
+        const emoji = element
+          .querySelector('.mission-card-emoji')!
           .getBoundingClientRect()
         const action = element.querySelector('button')!.getBoundingClientRect()
         const steps = element
@@ -44,8 +44,8 @@ test('mission cards fit five viewport widths and support full-card clicks and ke
           x: card.x,
           y: card.y,
           right: card.right,
-          medalLeft: medallion.left,
-          medalRight: medallion.right,
+          emojiLeft: emoji.left,
+          emojiRight: emoji.right,
           actionLeft: action.left,
           actionRight: action.right,
           actionHeight: action.height,
@@ -58,8 +58,8 @@ test('mission cards fit five viewport widths and support full-card clicks and ke
       }),
     )
     for (const bound of bounds) {
-      expect(bound.medalLeft).toBeGreaterThanOrEqual(bound.x)
-      expect(bound.medalRight).toBeLessThanOrEqual(bound.right)
+      expect(bound.emojiLeft).toBeGreaterThanOrEqual(bound.x)
+      expect(bound.emojiRight).toBeLessThanOrEqual(bound.right)
       expect(bound.actionLeft).toBeGreaterThanOrEqual(bound.x)
       expect(bound.actionRight).toBeLessThanOrEqual(bound.right)
       expect(bound.actionHeight).toBeGreaterThanOrEqual(44)
@@ -76,6 +76,16 @@ test('mission cards fit five viewport widths and support full-card clicks and ke
     }
   }
   const titles = ['Learning Path', 'PhET Challenge', 'Quizzes & Assessment']
+  await expect(page.locator('.mission-card-emoji')).toHaveText([
+    '📚',
+    '🔬',
+    '📝',
+  ])
+  await expect(
+    page.locator(
+      '.mission-card-medallion, .mission-card-circuit, .mission-card-garden',
+    ),
+  ).toHaveCount(0)
   for (const title of titles)
     await expect(
       page.getByRole('heading', { name: title, exact: true }),
