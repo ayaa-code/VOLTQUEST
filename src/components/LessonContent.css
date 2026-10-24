@@ -52,6 +52,12 @@
   margin-block: 16px;
   color: var(--text);
 }
+.learning-detail .lesson-manuscript > p {
+  text-align: justify;
+  text-align-last: start;
+  text-justify: inter-word;
+  hyphens: auto;
+}
 .learning-detail .lesson-manuscript h2 {
   margin-block: 32px 12px;
   font-size: clamp(1.15rem, 2vw, 1.45rem);
@@ -64,6 +70,8 @@
   border-radius: 10px;
 }
 .lesson-formula p {
+  text-align: center;
+  text-align-last: center;
   font-weight: 700;
   font-size: clamp(1rem, 2vw, 1.2rem);
   overflow-wrap: anywhere;
