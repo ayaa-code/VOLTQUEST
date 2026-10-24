@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react'
+import { learningAccess } from '../data/learningAccess'
 
 type ChallengeDraft = {
   visited: boolean
   observation: string
   reflection: string
 }
-type QuizAttempt = { answer: string; attempts: number; complete: boolean }
-type ProfileLearning = {
+type QuizAttempt = {
+  answer: string
+  attempts: number
+  complete: boolean
+  draft?: string
+}
+export type ProfileLearning = {
   materials: number[]
   challenges: number[]
   challengeDrafts: Record<string, ChallengeDraft>
@@ -73,41 +79,74 @@ export function useDynamicLearning(profileId: string | null) {
     storageError,
     markMaterial: (id: number) =>
       update((current) =>
-        current.materials.includes(id)
+        current.materials.includes(id) ||
+        !learningAccess(current).materialReady(id)
           ? current
           : { ...current, materials: [...current.materials, id] },
       ),
     saveChallenge: (id: number, draft: ChallengeDraft) =>
-      update((current) => ({
-        ...current,
-        challengeDrafts: { ...current.challengeDrafts, [id]: draft },
-      })),
+      update((current) =>
+        !learningAccess(current).challengeReady(id)
+          ? current
+          : {
+              ...current,
+              challengeDrafts: { ...current.challengeDrafts, [id]: draft },
+            },
+      ),
     completeChallenge: (id: number) =>
       update((current) =>
-        current.challenges.includes(id)
+        current.challenges.includes(id) ||
+        !learningAccess(current).challengeReady(id)
           ? current
           : { ...current, challenges: [...current.challenges, id] },
       ),
+    saveQuizDraft: (id: number, draft: string) =>
+      update((current) =>
+        !learningAccess(current).quizReady(id)
+          ? current
+          : {
+              ...current,
+              quizzes: {
+                ...current.quizzes,
+                [id]: {
+                  ...(current.quizzes[id] ?? {
+                    answer: '',
+                    attempts: 0,
+                    complete: false,
+                  }),
+                  draft,
+                },
+              },
+            },
+      ),
     submitQuiz: (id: number, answer: string, correct: boolean) =>
-      update((current) => ({
-        ...current,
-        quizzes: {
-          ...current.quizzes,
-          [id]: {
-            answer,
-            attempts: (current.quizzes[id]?.attempts ?? 0) + 1,
-            complete: current.quizzes[id]?.complete || correct,
-          },
-        },
-      })),
+      update((current) =>
+        !learningAccess(current).quizReady(id)
+          ? current
+          : {
+              ...current,
+              quizzes: {
+                ...current.quizzes,
+                [id]: {
+                  answer,
+                  attempts: (current.quizzes[id]?.attempts ?? 0) + 1,
+                  complete: current.quizzes[id]?.complete || correct,
+                },
+              },
+            },
+      ),
     saveSummative: (
       answers: Record<string, number>,
       essays: string[],
       submitted: boolean,
     ) =>
-      update((current) => ({
-        ...current,
-        summative: { answers, essays, submitted },
-      })),
+      update((current) =>
+        !learningAccess(current).summativeReady
+          ? current
+          : {
+              ...current,
+              summative: { answers, essays, submitted },
+            },
+      ),
   }
 }

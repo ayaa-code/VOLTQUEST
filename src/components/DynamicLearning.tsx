@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  FlaskConical,
   LockKeyhole,
   Play,
   Sparkles,
@@ -16,6 +15,12 @@ import {
   summativeQuestions,
 } from '../data/dynamicElectricity'
 import { useDynamicLearning } from '../hooks/useDynamicLearning'
+import {
+  learningAccess,
+  challengePrerequisite,
+  summativePrerequisite,
+} from '../data/learningAccess'
+import { LessonContent, LessonResources } from './LessonContent'
 import './MissionPathCards.css'
 
 type View =
@@ -38,17 +43,8 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [view])
   const { learning } = store
-  const materialReady = (id: number) =>
-    id === 1 ||
-    learning.materials.includes(id) ||
-    Boolean(learning.quizzes[id - 1]?.complete)
-  const challengeReady = (id: number) => learning.materials.includes(id)
-  const quizReady = (id: number) =>
-    learning.materials.includes(id) &&
-    (id === 1 || learning.quizzes[id - 1]?.complete)
-  const allQuizDone = dynamicTopics.every(
-    (topic) => learning.quizzes[topic.id]?.complete,
-  )
+  const { materialReady, challengeReady, quizReady, summativeReady } =
+    learningAccess(learning)
   const next = ((): View => {
     for (const topic of dynamicTopics) {
       if (!learning.materials.includes(topic.id))
@@ -56,7 +52,12 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
       if (!learning.quizzes[topic.id]?.complete)
         return { type: 'quiz', id: topic.id }
     }
-    return { type: 'summative' }
+    const nextChallenge = dynamicTopics.find(
+      (topic) => !learning.challenges.includes(topic.id),
+    )
+    return nextChallenge
+      ? { type: 'challenge', id: nextChallenge.id }
+      : { type: 'summative' }
   })()
   if (view.type === 'catalog')
     return (
@@ -66,7 +67,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
         materialReady={materialReady}
         challengeReady={challengeReady}
         quizReady={quizReady}
-        summativeReady={allQuizDone}
+        summativeReady={summativeReady}
         onBack={() => setView({ type: 'home' })}
         onOpen={(nextView) => setView(nextView)}
       />
@@ -82,7 +83,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
         materialReady={materialReady}
         challengeReady={challengeReady}
         quizReady={quizReady}
-        summativeReady={allQuizDone}
+        summativeReady={summativeReady}
       />
     )
 
@@ -170,7 +171,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
             {
               title: 'Sumatif Listrik Dinamis',
               done: learning.summative.submitted,
-              ready: allQuizDone,
+              ready: summativeReady,
             },
           ]}
           onOpen={() => setView({ type: 'catalog', path: 'quiz' })}
@@ -217,7 +218,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
             <small>
               {learning.summative.submitted
                 ? 'Selesai'
-                : allQuizDone
+                : summativeReady
                   ? 'Terbuka'
                   : 'Terkunci'}
             </small>
@@ -375,6 +376,12 @@ function PathCatalog({
         <span className="section-kicker">DAFTAR TAHAP</span>
         <h1>{heading}</h1>
         <p>Pilih tahap yang sudah terbuka untuk melanjutkan pembelajaranmu.</p>
+        {path === 'challenge' && (
+          <p className="learning-summary">{challengePrerequisite}</p>
+        )}
+        {path === 'quiz' && (
+          <p className="learning-summary">{summativePrerequisite}</p>
+        )}
         <div className="path-rows">
           {dynamicTopics.map((topic) => {
             const done =
@@ -413,6 +420,7 @@ function PathCatalog({
           )}
         </div>
       </section>
+      {path === 'material' && <LessonResources />}
     </main>
   )
 }
@@ -466,12 +474,11 @@ function LearningPanel({
           store={store}
           onBack={() => onOpen({ type: 'catalog', path: 'quiz' })}
           onReview={() => onOpen({ type: 'material', id: topic!.id })}
-          onChallenge={() => onOpen({ type: 'challenge', id: topic!.id })}
           onNext={() =>
             onOpen(
               topic!.id < dynamicTopics.length
                 ? { type: 'material', id: topic!.id + 1 }
-                : { type: 'summative' },
+                : { type: 'home' },
             )
           }
         />
@@ -481,9 +488,7 @@ function LearningPanel({
         <section className="content-card">
           <LockKeyhole />
           <h1>Asesmen sumatif masih terkunci</h1>
-          <p>
-            Selesaikan enam kuis formatif secara berurutan untuk membukanya.
-          </p>
+          <p>{summativePrerequisite}</p>
         </section>
       )}
     </main>
@@ -504,7 +509,7 @@ function Locked({
         {type === 'material'
           ? `Selesaikan kuis formatif sebelumnya sebelum mempelajari ${topic.title}.`
           : type === 'challenge'
-            ? `Selesaikan materi ${topic.title} terlebih dahulu.`
+            ? challengePrerequisite
             : `Selesaikan materi ${topic.title} dan kuis formatif sebelumnya terlebih dahulu.`}
       </p>
     </section>
@@ -533,8 +538,7 @@ function Material({
       <h1>{topic.title}</h1>
       <h2>Tujuan belajar</h2>
       <p>{topic.objective}</p>
-      <h2>Konsep inti</h2>
-      <p>{topic.lesson}</p>
+      <LessonContent topicId={topic.id} />
       <div className="learning-summary">
         <strong>Ringkasan</strong>
         <p>{topic.summary}</p>
@@ -543,7 +547,7 @@ function Material({
         <div className="learning-completion">
           <p className="success-note" role="status">
             <CheckCircle2 size={20} aria-hidden="true" /> Materi selesai.
-            Sekarang cek pemahamanmu melalui kuis formatif.
+            Sekarang cek pemahamanmu melalui tes formatif.
           </p>
           {!quizAvailable && (
             <p>Selesaikan kuis formatif sebelumnya untuk membuka kuis ini.</p>
@@ -554,7 +558,7 @@ function Material({
               disabled={!quizAvailable}
               onClick={onQuiz}
             >
-              Kerjakan Kuis Formatif <ArrowRight size={17} />
+              Kerjakan Tes Formatif <ArrowRight size={17} />
             </button>
           </div>
         </div>
@@ -653,19 +657,19 @@ function Formative({
   store,
   onBack,
   onReview,
-  onChallenge,
   onNext,
 }: {
   topic: (typeof dynamicTopics)[number]
   store: ReturnType<typeof useDynamicLearning>
   onBack: () => void
   onReview: () => void
-  onChallenge: () => void
   onNext: () => void
 }) {
   const saved = store.learning.quizzes[topic.id]
-  const [answer, setAnswer] = useState(saved?.answer ?? '')
-  const [checked, setChecked] = useState(Boolean(saved))
+  const [answer, setAnswer] = useState(saved?.draft ?? saved?.answer ?? '')
+  const [checked, setChecked] = useState(
+    Boolean(saved?.attempts) && saved?.draft === undefined,
+  )
   const numeric = Number(answer.replace(',', '.'))
   const correct =
     Number.isFinite(numeric) && Math.abs(numeric - topic.answer) < 0.001
@@ -690,6 +694,7 @@ function Formative({
             value={answer}
             onChange={(e) => {
               setAnswer(e.target.value)
+              store.saveQuizDraft(topic.id, e.target.value)
               setChecked(false)
             }}
             aria-describedby="quiz-reminder"
@@ -730,12 +735,15 @@ function Formative({
           <button className="primary-button" onClick={onNext}>
             {topic.id < dynamicTopics.length
               ? 'Lanjut ke materi berikutnya'
-              : 'Kerjakan asesmen sumatif'}{' '}
+              : 'Kembali ke dashboard'}{' '}
             <ArrowRight size={17} />
           </button>
-          <button className="secondary-button" onClick={onChallenge}>
-            Buka Challenge PhET <FlaskConical size={17} />
-          </button>
+          {topic.id === dynamicTopics.length && (
+            <p>
+              Seluruh materi dan tes formatif selesai. Challenge PhET kini
+              terbuka melalui dashboard.
+            </p>
+          )}
           <button className="text-button" onClick={onBack}>
             Kembali ke daftar belajar
           </button>

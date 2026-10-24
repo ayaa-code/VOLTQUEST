@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
   }, profile)
 })
 
-test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan challenge tetap tersedia', async ({
+test('materi menawarkan formatif yang sama, revisi membuka materi berikutnya, dan challenge tetap terkunci', async ({
   page,
 }) => {
   await page.goto('/')
@@ -42,7 +42,7 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
   await page.getByRole('button', { name: 'Explore Lessons' }).click()
   const secondMaterial = page.getByRole('button', {
-    name: 'Hambatan Ohmik dan Non Ohmik',
+    name: 'Hambatan Ohmik dan Non-Ohmik',
   })
   await expect(secondMaterial).toBeDisabled()
   await page.getByRole('button', { name: 'Arus Listrik' }).click()
@@ -51,7 +51,7 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
   ).toBeVisible()
   await page.getByRole('button', { name: 'Tandai sudah dipelajari' }).click()
   await expect(page.getByRole('status')).toContainText(
-    'Materi selesai. Sekarang cek pemahamanmu melalui kuis formatif.',
+    'Materi selesai. Sekarang cek pemahamanmu melalui tes formatif.',
   )
   await page.getByRole('button', { name: 'Kembali ke daftar materi' }).click()
   await expect(secondMaterial).toBeDisabled()
@@ -59,7 +59,7 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
   await page.getByRole('button', { name: 'Start Challenge' }).click()
   await expect(
     page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }),
-  ).toBeEnabled()
+  ).toBeDisabled()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
   await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   await expect(
@@ -78,24 +78,21 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
   await expect(
     page.getByRole('heading', { name: 'Arus Listrik' }),
   ).toBeVisible()
-  await page.getByRole('button', { name: 'Kerjakan Kuis Formatif' }).click()
+  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
   await page.getByLabel('Jawaban angka dalam C').fill('18000')
   await page.getByRole('button', { name: 'Periksa jawaban' }).click()
   await expect(page.getByRole('status')).toContainText('Kuis formatif selesai')
-  await page.getByRole('button', { name: 'Buka Challenge PhET' }).click()
   await expect(
-    page.getByRole('heading', { name: 'Arus Listrik' }),
-  ).toBeVisible()
+    page.getByRole('button', { name: 'Buka Challenge PhET' }),
+  ).toHaveCount(0)
+  await page
+    .getByRole('button', { name: 'Lanjut ke materi berikutnya' })
+    .click()
   await expect(
-    page.getByRole('button', { name: 'Mulai simulasi di sini' }),
-  ).toBeVisible()
-  await page.getByRole('button', { name: 'Kembali ke progres' }).click()
-  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
-  await expect(
-    page.getByRole('heading', { name: 'Hambatan Ohmik dan Non Ohmik' }),
+    page.getByRole('heading', { name: 'Hambatan Ohmik dan Non-Ohmik' }),
   ).toBeVisible()
   await page.getByRole('button', { name: 'Tandai sudah dipelajari' }).click()
-  await page.getByRole('button', { name: 'Kerjakan Kuis Formatif' }).click()
+  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
   await expect(
     page.getByText('KUIS FORMATIF 02', { exact: true }),
   ).toBeVisible()
@@ -116,7 +113,7 @@ test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai p
       page.getByText(`MATERI ${number}`, { exact: true }),
     ).toBeVisible()
     await page.getByRole('button', { name: 'Tandai sudah dipelajari' }).click()
-    await page.getByRole('button', { name: 'Kerjakan Kuis Formatif' }).click()
+    await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
     await expect(
       page.getByText(`KUIS FORMATIF ${number}`, { exact: true }),
     ).toBeVisible()
@@ -127,13 +124,22 @@ test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai p
     await page
       .getByRole('button', {
         name:
-          index === 5
-            ? 'Kerjakan asesmen sumatif'
-            : 'Lanjut ke materi berikutnya',
+          index === 5 ? 'Kembali ke dashboard' : 'Lanjut ke materi berikutnya',
       })
       .click()
   }
-  await expect(page.getByText('ASESMEN SUMATIF', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Sumatif Listrik Dinamis' }),
+  ).toBeDisabled()
+  await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
+  await page.getByRole('button', { name: 'Start Challenge' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }),
+  ).toBeEnabled()
+  await expect(
+    page.getByRole('button', { name: /Challenge 2:/ }),
+  ).toBeDisabled()
   const progress = await page.evaluate(
     () =>
       JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!)
@@ -148,7 +154,7 @@ test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai p
   ).toBe(true)
   await page.reload()
   await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
-  await expect(page.getByText('ASESMEN SUMATIF', { exact: true })).toBeVisible()
+  await expect(page.getByText('CHALLENGE 01', { exact: true })).toBeVisible()
 })
 
 test('progres lama dan profil lain dipertahankan saat meninjau kembali materi', async ({
@@ -190,10 +196,10 @@ test('progres lama dan profil lain dipertahankan saat meninjau kembali materi', 
   await page.goto('/')
   await page.getByRole('button', { name: 'Explore Lessons' }).click()
   await page
-    .getByRole('button', { name: 'Hambatan Ohmik dan Non Ohmik' })
+    .getByRole('button', { name: 'Hambatan Ohmik dan Non-Ohmik' })
     .click()
   await expect(
-    page.getByRole('button', { name: 'Kerjakan Kuis Formatif' }),
+    page.getByRole('button', { name: 'Kerjakan Tes Formatif' }),
   ).toBeDisabled()
   await expect(
     page.getByText(

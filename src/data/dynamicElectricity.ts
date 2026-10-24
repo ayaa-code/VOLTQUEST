@@ -40,7 +40,7 @@ export const dynamicTopics: Topic[] = [
   },
   {
     id: 2,
-    title: 'Hambatan Ohmik dan Non Ohmik',
+    title: 'Hambatan Ohmik dan Non-Ohmik',
     objective: 'Membedakan hubungan V-I ohmik dan non-ohmik.',
     lesson:
       'Komponen ohmik memiliki hambatan tetap pada suhu konstan, sehingga grafik V terhadap I linear. Pada komponen non-ohmik, hambatan dapat berubah saat suhu atau tegangan berubah.',
@@ -83,7 +83,7 @@ export const dynamicTopics: Topic[] = [
   },
   {
     id: 4,
-    title: 'Rangkaian Listrik',
+    title: 'Rangkaian Listrik Seri dan Paralel',
     objective:
       'Menganalisis hambatan pengganti dan karakter rangkaian seri-paralel.',
     lesson:
@@ -106,7 +106,7 @@ export const dynamicTopics: Topic[] = [
   },
   {
     id: 5,
-    title: 'Rangkaian Majemuk',
+    title: 'Rangkaian Majemuk serta Hukum Kirchhoff',
     objective: 'Menerapkan Hukum Kirchhoff pada simpul dan loop.',
     lesson:
       'Hukum I Kirchhoff menyatakan jumlah arus masuk ke simpul sama dengan jumlah arus keluar. Hukum II Kirchhoff dipakai untuk menganalisis perubahan potensial pada loop tertutup.',

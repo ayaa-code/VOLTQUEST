@@ -1,46 +1,63 @@
-# Jalur Belajar Listrik Dinamis
+# Jalur belajar dan media Listrik Dinamis
 
-Dashboard VoltQuest memakai satu jalur belajar berurutan untuk setiap profil
-siswa: **materi → kuis formatif → materi berikutnya** untuk setiap submateri,
-lalu asesmen sumatif. Challenge analisis PhET tersedia sebagai penguatan
-setelah materi submateri yang sama selesai, tanpa menjadi prasyarat kuis.
+Urutan utama: enam pasangan **materi → tes formatif**, lalu enam **Challenge PhET** berurutan, kemudian **asesmen sumatif**. Formatif 1–5 menawarkan materi berikutnya. Formatif 6 kembali ke dashboard; akses Challenge melalui kartu PhET Challenge. Halaman materi/formatif tidak mempunyai tombol menuju Challenge.
 
-## Urutan materi
+## Materi lengkap
+
+`src/data/lessons.ts` memuat naskah pengguna yang diedit untuk ejaan, konsistensi satuan, arah elektron pada rangkaian luar DC, kondisi berlaku rumus, serta perbedaan rasio V/I dengan gradien lokal pada komponen non-ohmik. ID 1–6 tetap sama dengan versi lama. `dynamicElectricity.ts` tetap memuat soal, kunci, ringkasan revisi, dan panduan Challenge asli.
 
 1. Arus Listrik
-2. Hambatan Ohmik dan Non Ohmik
+2. Hambatan Ohmik dan Non-Ohmik
 3. Hambatan Jenis
-4. Rangkaian Listrik
-5. Rangkaian Majemuk
+4. Rangkaian Listrik Seri dan Paralel
+5. Rangkaian Majemuk serta Hukum Kirchhoff
 6. Daya Listrik
 
-Materi berikutnya hanya terbuka setelah kuis formatif sebelumnya selesai.
-Materi yang sudah diselesaikan dalam versi lama tetap dapat ditinjau kembali.
-Challenge dibuka oleh materi pada submateri yang sama. Kuis
-formatif dibuka setelah materinya dipelajari dan kuis formatif sebelumnya
-selesai. Sumatif terbuka setelah enam kuis formatif selesai.
+## Audio
 
-Setelah menandai materi selesai, siswa melihat kartu konfirmasi hijau dan
-tombol **Kerjakan Kuis Formatif** untuk submateri tersebut. Tombol kembali
-membuka daftar materi. Jawaban kuis yang benar membuka tombol lanjut ke materi
-berikutnya, challenge submateri yang sama, dan daftar belajar. Kuis terakhir
-menawarkan asesmen sumatif. Pengingat **Pelajari kembali materi** membuka
-materi yang sesuai. Tombol dashboard **Lanjutkan belajar** mengikuti urutan
-materi–kuis dan tidak memaksa siswa melewati challenge.
+`useLessonSpeech` memakai Web Speech API: klik untuk mulai, jeda, lanjutkan, hentikan, dan kecepatan 0,8×/1×/1,2×. Kecepatan diubah sebelum pembacaan dimulai. Seluruh judul, subjudul, paragraf, serta pelafalan rumus dibagi menjadi potongan maksimal sekitar 180 karakter. Daftar suara dimuat ulang pada `voiceschanged`; suara `id`/`id-ID` diutamakan. Kualitas suara dan fungsi jeda mengikuti dukungan perangkat; tanpa suara Indonesia, browser dapat memakai suara bawaan dan tampilan menjelaskan keterbatasan tersebut. Tanpa API, teks serta video tetap tersedia.
 
-## Data dan penilaian
+Pembacaan dibatalkan saat membuka video, mengganti materi/halaman, keluar dari halaman browser, atau komponen dibongkar. Callback lama dibatalkan melalui penanda sesi agar tidak memulai potongan baru setelah pembatalan. Mulai audio menutup video aktif. Audio adalah suara sintesis perangkat, bukan rekaman manusia. Penyelesaian audio/video tidak memberikan progres.
 
-Progres disimpan per profil pada `voltquest.dynamic-electricity.v1` di
-`localStorage`. Data ini terpisah dari progres misi dan XP lama, sehingga
-profil, akun lokal, XP, dan misi yang sudah ada tidak diubah.
+## Video
 
-Jawaban numerik formatif diperiksa terhadap kunci dengan toleransi kecil untuk
-penulisan desimal. Saat belum tepat, siswa mendapat tombol revisi dan pengingat
-materi di bawah soal. Challenge tidak membaca hasil PhET secara otomatis:
-siswa harus membuka simulasi dan menuliskan pengamatan serta refleksi sendiri.
+Kotak 16:9 tidak mengunduh iframe atau API YouTube sebelum diklik. Klik membuat iframe `youtube-nocookie.com` resmi; autoplay hanya diminta sebagai akibat klik pengguna. IFrame Player API dipakai untuk menghentikan audio saat video bermain dan menampilkan kegagalan pemutar. Jika API gagal dimuat dalam 12 detik, tersedia penjelasan dan tautan cadangan. Pemutar serta iframe dibersihkan ketika komponen ditutup. Tautan resmi YouTube selalu tersedia; tidak ada pengunduhan/ekstraksi video.
 
-Dua soal uraian pada sumatif disimpan untuk ditinjau dengan rubrik oleh guru
-atau siswa. Aplikasi tidak memberi nilai otomatis untuk uraian tersebut.
+Pemeriksaan jaringan pada 24 Oktober 2026:
 
-Soal hitungan formatif, pilihan ganda sumatif, dan tema uraian diringkas dari
-`Asesmen Formatif dan Sumatif - Listrik Dinamis V2.docx`.
+| Submateri                    | ID video    | Metadata oEmbed            | Pemutar asli di Chrome |
+| ---------------------------- | ----------- | -------------------------- | ---------------------- |
+| Arus Listrik                 | qYoF_02J_R4 | Tersedia; Tutor Dig        | Media berhasil dimuat  |
+| Hambatan Ohmik dan Non-Ohmik | Mb96Zp-DxEU | Tersedia; bisolpin         | Media berhasil dimuat  |
+| Hambatan Jenis               | 2oV9ZwM4SRU | HTTP 401                   | Video unavailable      |
+| Seri dan Paralel             | dLalv-D_HM8 | Tersedia; Bimbel Excellent | Media berhasil dimuat  |
+| Kirchhoff                    | fENcVMe9kLw | Tersedia; Ardi Satriawan   | Media berhasil dimuat  |
+| Daya Listrik                 | UOVTsD_CUK0 | Tersedia; Tutor Dig        | Media berhasil dimuat  |
+
+HTTP 200 pada halaman embed dan keberhasilan oEmbed **tidak menjamin video dapat diputar** pada semua wilayah, akun, dan perangkat. Semua halaman embed merespons 200; pemeriksaan media asli menunjukkan satu video tidak tersedia. Status pemutaran ditangani melalui error resmi IFrame API dan tautan cadangan. Video Hambatan Jenis memerlukan pemeriksaan pemilik atau tautan pengganti. Keterangan pemeriksaan bertanggal ditampilkan di materi tersebut. Tautan pengguna dipertahankan dan tidak diganti diam-diam.
+
+Pengujian pemutar asli dilakukan dengan Chrome headless dan izin jaringan: lima video mencapai HTMLMediaElement.readyState ≥ 2 pada iframe resmi; video Hambatan Jenis menampilkan “Video unavailable”. Percobaan awal di sandbox menolak akses jaringan, lalu diulang dengan izin jaringan. Tes regresi memakai pemutar tiruan agar lifecycle dan respons error dapat diuji tanpa ketergantungan jaringan eksternal. Tidak ada klaim bahwa video akan tersedia selamanya atau dapat diputar di semua perangkat.
+
+## Prasyarat dan data
+
+`learningAccess.ts` menjadi sumber aturan bersama bagi dashboard, katalog, panel, serta mutasi penyelesaian pada hook. Challenge pertama perlu enam materi dan enam formatif; selanjutnya perlu Challenge sebelumnya. Sumatif perlu seluruh tahapan. Tahap yang sudah selesai pada profil lama tetap dapat ditinjau meskipun prasyarat baru belum tercatat. Tidak ada progres otomatis yang ditambahkan untuk melengkapi data lama.
+
+Penyimpanan tetap `voltquest.dynamic-electricity.v1`, versi 1, per profil. Properti opsional `draft` pada percobaan formatif menyimpan jawaban yang belum dikirim. Pengeditan draf tidak menaikkan attempts atau memberi kelulusan; submit menghapus draf dan mencatat jawaban/percobaan. Akun, XP, profil lain, pengamatan Challenge, dan hasil sumatif lama tetap dipertahankan. Penguncian lokal adalah alur UX, bukan keamanan server terhadap manipulasi localStorage.
+
+Challenge tetap meminta pengamatan dan refleksi manual. Soal numerik formatif mempertahankan kunci dan toleransi yang ada. Dua uraian sumatif disimpan untuk ditinjau dengan rubrik, tanpa penilaian otomatis.
+
+## E-book dan sumber
+
+Belum ada PDF/EPUB e-book relevan di proyek. Tombol unduh nonaktif dengan status “E-book belum tersedia”; tidak dibuat berkas atau tautan palsu. Pemilik perlu menyediakan berkas sebelum unduhan dapat diaktifkan. Bagian sumber tampil di bawah katalog materi dan di akhir materi keenam.
+
+Referensi yang ditinjau dan ditautkan di aplikasi:
+
+- OpenStax, _University Physics Volume 2_, 9.3 Resistivity and Resistance: https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance
+- OpenStax, 9.4 Ohm’s Law: https://openstax.org/books/university-physics-volume-2/pages/9-4-ohms-law
+- OpenStax, 9.5 Electrical Energy and Power: https://openstax.org/books/university-physics-volume-2/pages/9-5-electrical-energy-and-power
+- OpenStax, 10.3 Kirchhoff’s Rules: https://openstax.org/books/university-physics-volume-2/pages/10-3-kirchhoffs-rules
+- Spesifikasi pemutar: https://developers.google.com/youtube/iframe_api_reference
+
+## Verifikasi
+
+Tes `lesson-media` memeriksa keenam naskah, pemetaan video, loading setelah klik, lima lebar viewport, kontrol sintesis suara dengan engine tiruan yang deterministik, suara Indonesia yang tiba belakangan, pembacaan rumus, error embed, pembatalan dan browser tanpa speech. Ini tidak membuktikan kualitas suara fisik atau izin YouTube sebenarnya. `dynamic-learning`, `challenge-prerequisites`, dan `mission-path-cards` memeriksa kelulusan/revisi, draf, aturan berurutan, sumatif, serta preservasi profil lama. Build dan lint juga wajib lulus sebelum push.

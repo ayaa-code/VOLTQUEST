@@ -1,0 +1,320 @@
+import { expect, test } from '@playwright/test'
+import { lessons } from '../src/data/lessons'
+
+declare global {
+  interface Window {
+    lessonSpeechProbe: {
+      spoken: SpeechSynthesisUtterance[]
+      cancels: number
+      pauses: number
+      resumes: number
+      voices: SpeechSynthesisVoice[]
+      events: EventTarget
+    }
+    lessonVideoError?: (event: { data: number }) => void
+  }
+}
+
+test.beforeEach(async ({ page }) => {
+  await page.route('https://fonts.googleapis.com/**', (route) =>
+    route.fulfill({ contentType: 'text/css', body: '' }),
+  )
+  await page.route('https://www.youtube-nocookie.com/embed/**', (route) =>
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<!doctype html><title>Test YouTube player</title>',
+    }),
+  )
+  await page.route('https://www.youtube.com/iframe_api', (route) =>
+    route.fulfill({
+      contentType: 'text/javascript',
+      body: `window.YT = { Player: function(element, options) { window.lessonVideoError = options.events.onError; this.destroy = function() { element.remove(); }; } }; window.onYouTubeIframeAPIReady();`,
+    }),
+  )
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'voltquest.v1',
+      JSON.stringify({
+        active: 'student:nara',
+        profiles: {
+          'student:nara': { name: 'Nara', completed: [], visited: [] },
+        },
+      }),
+    )
+    const ids = [1, 2, 3, 4, 5, 6]
+    localStorage.setItem(
+      'voltquest.dynamic-electricity.v1',
+      JSON.stringify({
+        version: 1,
+        profiles: {
+          'student:nara': {
+            materials: ids,
+            quizzes: Object.fromEntries(
+              ids.map((id) => [
+                id,
+                { answer: '', attempts: 1, complete: true },
+              ]),
+            ),
+            challenges: [],
+            challengeDrafts: {},
+            summative: { answers: {}, essays: ['', ''], submitted: false },
+          },
+        },
+      }),
+    )
+    const events = new EventTarget()
+    const probe = (window.lessonSpeechProbe = {
+      spoken: [],
+      cancels: 0,
+      pauses: 0,
+      resumes: 0,
+      voices: [],
+      events,
+    })
+    Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+      configurable: true,
+      value: class {
+        text: string
+        constructor(text: string) {
+          this.text = text
+        }
+      },
+    })
+    Object.defineProperty(window, 'speechSynthesis', {
+      configurable: true,
+      value: {
+        getVoices: () => probe.voices,
+        speak: (utterance: SpeechSynthesisUtterance) =>
+          probe.spoken.push(utterance),
+        cancel: () => probe.cancels++,
+        pause: () => probe.pauses++,
+        resume: () => probe.resumes++,
+        addEventListener: events.addEventListener.bind(events),
+        removeEventListener: events.removeEventListener.bind(events),
+      },
+    })
+  })
+})
+
+test('all six complete manuscripts have the mapped lazy video, accessible controls, and responsive formulas', async ({
+  page,
+}, info) => {
+  await page.goto('/')
+  for (const [id, lesson] of Object.entries(lessons)) {
+    await page.getByRole('button', { name: 'Explore Lessons' }).click()
+    await page
+      .getByRole('button', { name: lesson.title, exact: false })
+      .first()
+      .click()
+    await expect(
+      page.getByRole('heading', { name: lesson.title, exact: true }),
+    ).toBeVisible()
+    expect(await page.locator('.lesson-manuscript p').count()).toBeGreaterThan(
+      5,
+    )
+    await expect(page.locator('.lesson-manuscript')).toContainText(
+      lesson.blocks[0].text,
+    )
+    await expect(page.locator('.lesson-manuscript')).toContainText(
+      lesson.blocks.at(-1)!.text,
+    )
+    await expect(page.locator('.lesson-video-frame iframe')).toHaveCount(0)
+    await expect(
+      page.getByRole('link', { name: 'Tonton di YouTube' }),
+    ).toHaveAttribute(
+      'href',
+      `https://www.youtube.com/watch?v=${lesson.videoId}`,
+    )
+    if (id === '1' || id === '4') {
+      for (const width of [1440, 1024, 768, 390, 320]) {
+        await page.setViewportSize({ width, height: 900 })
+        await expect
+          .poll(() =>
+            page.evaluate(
+              () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+          )
+          .toBe(true)
+        await page
+          .getByRole('button', { name: `Putar video ${lesson.title}` })
+          .scrollIntoViewIfNeeded()
+        await expect(
+          page.getByRole('button', { name: `Putar video ${lesson.title}` }),
+        ).toBeInViewport()
+      }
+    }
+    await page
+      .getByRole('button', { name: `Putar video ${lesson.title}` })
+      .click()
+    await expect(page.locator('.lesson-video-frame iframe')).toHaveAttribute(
+      'src',
+      new RegExp(`/embed/${lesson.videoId}`),
+    )
+    await expect(page.locator('.lesson-video-frame iframe')).toHaveAttribute(
+      'title',
+      `Video pembelajaran ${lesson.title}`,
+    )
+    await expect(page.locator('.lesson-video-frame iframe')).toHaveAttribute(
+      'allowfullscreen',
+      '',
+    )
+    await page
+      .getByRole('button', { name: 'Kembali ke Listrik Dinamis' })
+      .click()
+    await expect(page.locator('.lesson-video-frame iframe')).toHaveCount(0)
+  }
+  await page.getByRole('button', { name: 'Explore Lessons' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Download E-book' }),
+  ).toBeDisabled()
+  await expect(page.getByText('E-book belum tersedia.')).toBeVisible()
+  await expect(page.locator('.lesson-resources a')).toHaveCount(10)
+  await page
+    .getByRole('button', { name: 'Arus Listrik', exact: false })
+    .first()
+    .click()
+  await page.setViewportSize({ width: 1024, height: 900 })
+  await page.screenshot({
+    path: `tmp/lesson-arus-${info.project.name}.png`,
+    fullPage: true,
+    animations: 'disabled',
+  })
+})
+
+test('speech is opt-in, handles late Indonesian voices, pause/resume, formulas, video errors, and cleanup', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Explore Lessons' }).click()
+  await page
+    .getByRole('button', { name: 'Arus Listrik', exact: false })
+    .first()
+    .click()
+  expect(
+    await page.evaluate(() => window.lessonSpeechProbe.spoken.length),
+  ).toBe(0)
+  await page.evaluate(() => {
+    window.lessonSpeechProbe.voices = [
+      { lang: 'id-ID', name: 'Test Indonesian' } as SpeechSynthesisVoice,
+    ]
+    window.lessonSpeechProbe.events.dispatchEvent(new Event('voiceschanged'))
+  })
+  await page.getByLabel('Kecepatan baca').selectOption('1.2')
+  await page
+    .getByRole('button', { name: 'Dengarkan materi', exact: true })
+    .click()
+  expect(
+    await page.evaluate(() => ({
+      text: window.lessonSpeechProbe.spoken[0].text,
+      lang: window.lessonSpeechProbe.spoken[0].lang,
+      rate: window.lessonSpeechProbe.spoken[0].rate,
+      voice: window.lessonSpeechProbe.spoken[0].voice?.lang,
+    })),
+  ).toEqual({ text: 'Arus Listrik', lang: 'id-ID', rate: 1.2, voice: 'id-ID' })
+  await page.getByRole('button', { name: 'Jeda', exact: true }).click()
+  expect(await page.evaluate(() => window.lessonSpeechProbe.pauses)).toBe(1)
+  await page.getByRole('button', { name: 'Lanjutkan', exact: true }).click()
+  expect(await page.evaluate(() => window.lessonSpeechProbe.resumes)).toBe(1)
+  await page.evaluate(() => {
+    // Advance every speech chunk just as the browser's speech engine does.
+    for (
+      let index = 0;
+      index < window.lessonSpeechProbe.spoken.length && index < 200;
+      index++
+    ) {
+      const chunk = window.lessonSpeechProbe.spoken[index]
+      chunk.onend?.(new Event('end') as SpeechSynthesisEvent)
+    }
+  })
+  await expect(page.getByText('Pembacaan materi selesai.')).toBeVisible()
+  expect(
+    await page.evaluate(() =>
+      window.lessonSpeechProbe.spoken.some(
+        (chunk) => chunk.text === 'I sama dengan Q dibagi t.',
+      ),
+    ),
+  ).toBe(true)
+  await page
+    .getByRole('button', { name: 'Dengarkan materi', exact: true })
+    .click()
+  await page.getByRole('button', { name: 'Hentikan', exact: true }).click()
+  await expect(
+    page.getByRole('button', { name: 'Hentikan', exact: true }),
+  ).toBeDisabled()
+  await page
+    .getByRole('button', { name: 'Dengarkan materi', exact: true })
+    .click()
+  await page.getByRole('button', { name: 'Putar video Arus Listrik' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Hentikan', exact: true }),
+  ).toBeDisabled()
+  await expect
+    .poll(() => page.evaluate(() => typeof window.lessonVideoError))
+    .toBe('function')
+  await page.evaluate(() => window.lessonVideoError!({ data: 150 }))
+  await expect(page.locator('.lesson-video-message')).toContainText(
+    'pemiliknya membatasi penyematan',
+  )
+  await expect(
+    page.getByRole('link', { name: 'Tonton di YouTube' }),
+  ).toBeVisible()
+  await page
+    .getByRole('button', { name: 'Dengarkan materi', exact: true })
+    .click()
+  await expect(page.locator('.lesson-video-frame iframe')).toHaveCount(0)
+  const cancels = await page.evaluate(() => window.lessonSpeechProbe.cancels)
+  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
+  expect(
+    await page.evaluate(() => window.lessonSpeechProbe.cancels),
+  ).toBeGreaterThan(cancels)
+  await expect(page.locator('.lesson-audio')).toHaveCount(0)
+})
+
+test('unsupported speech does not block text, video, or formative access', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(window, 'speechSynthesis', {
+      configurable: true,
+      value: undefined,
+    }),
+  )
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Explore Lessons' }).click()
+  await page
+    .getByRole('button', { name: 'Arus Listrik', exact: false })
+    .first()
+    .click()
+  await expect(
+    page.getByText('Browser ini belum mendukung pembacaan suara.', {
+      exact: false,
+    }),
+  ).toBeVisible()
+  await expect(page.locator('.lesson-manuscript')).toContainText('Baterai buah')
+  await page.getByRole('button', { name: 'Putar video Arus Listrik' }).click()
+  await expect(page.locator('.lesson-video-frame iframe')).toBeVisible()
+  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
+  await expect(
+    page.getByText('KUIS FORMATIF 01', { exact: true }),
+  ).toBeVisible()
+})
+
+test('unsubmitted quiz draft survives material review without counting a submission', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
+  await page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }).click()
+  await page.getByRole('textbox').fill('12345')
+  await page.getByRole('button', { name: 'Pelajari kembali materi' }).click()
+  await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
+  await expect(page.getByRole('textbox')).toHaveValue('12345')
+  await expect(page.locator('.quiz-feedback')).toHaveCount(0)
+  expect(
+    await page.evaluate(
+      () =>
+        JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!)
+          .profiles['student:nara'].quizzes[1].attempts,
+    ),
+  ).toBe(1)
+})

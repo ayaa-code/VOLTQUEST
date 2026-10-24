@@ -1,8 +1,8 @@
 # VoltQuest
 
-[Buka VoltQuest](https://voltquest.vercel.app) · [Repository GitHub](https://github.com/ayaa-code/VOLTQUEST) · [Panduan deployment](docs/deployment.md)
+[Buka VoltQuest](https://voltquest-jet.vercel.app) · [Repository GitHub](https://github.com/ayaa-code/VOLTQUEST) · [Panduan deployment](docs/deployment.md)
 
-Demo pendamping pembelajaran listrik dinamis untuk Fisika Fase F SMA / MA, bertema **Sekolah Tangguh Energi**. Dashboard utama menyediakan enam pasangan materi → kuis formatif, kemudian asesmen sumatif. Challenge analisis PhET tersedia sebagai penguatan setelah materi selesai. Rangkaian 3D interaktif tetap hadir pada banner pembelajaran. Dibangun dengan React, TypeScript, Vite, CSS, dan ikon Lucide. Tanpa backend atau database.
+Demo pendamping pembelajaran listrik dinamis untuk Fisika Fase F SMA / MA, bertema **Sekolah Tangguh Energi**. Dashboard utama menyediakan enam pasangan materi → tes formatif, dilanjutkan enam Challenge analisis PhET secara berurutan, lalu asesmen sumatif. Materi dilengkapi pembacaan suara perangkat dan video YouTube di dalam halaman. Rangkaian 3D interaktif tetap hadir pada banner pembelajaran. Dibangun dengan React, TypeScript, Vite, CSS, dan ikon Lucide. Tanpa backend atau database.
 
 ## Jalur belajar Listrik Dinamis
 
@@ -10,7 +10,7 @@ Tampilan memakai palet siang dan background `BG LISTRIK DINAMIS.png`: biru
 langit, putih, dan hijau. Login terpusat tanpa animasi; rangkaian 3D hanya hadir
 di banner dashboard. [Panduan tema terbaru](docs/day-theme.md).
 
-Materi selesai menawarkan kuis formatif untuk submateri yang sama. Kuis yang selesai membuka materi berikutnya; challenge tidak menjadi prasyarat kuis. Challenge meminta siswa membuka simulasi PhET dan menulis pengamatan serta refleksi mereka sendiri; VoltQuest tidak mengklaim membaca aktivitas di PhET. Jawaban angka formatif memberi kesempatan revisi dan pengingat konsep ketika belum tepat. Sumatif terdiri dari pilihan ganda yang dapat diperiksa serta uraian yang disimpan untuk ditinjau dengan rubrik, tanpa nilai uraian otomatis.
+Materi selesai menawarkan tes formatif submateri yang sama. Formatif yang selesai membuka materi berikutnya. Semua materi dan formatif wajib selesai sebelum Challenge dibuka; seluruh Challenge wajib selesai sebelum sumatif. Challenge meminta siswa membuka simulasi PhET dan menulis pengamatan serta refleksi sendiri; VoltQuest tidak membaca aktivitas PhET otomatis. Jawaban angka formatif memberi kesempatan revisi dan pengingat konsep. Draf jawaban tetap ada saat meninjau materi kembali. Sumatif terdiri dari pilihan ganda yang dapat diperiksa serta uraian yang disimpan untuk ditinjau dengan rubrik, tanpa nilai uraian otomatis.
 
 Progres jalur baru tersimpan per profil dalam penyimpanan lokal yang terpisah dari XP, akun, misi, dan data yang sudah ada. Lihat [panduan jalur belajar](docs/dynamic-learning.md).
 
