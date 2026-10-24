@@ -30,6 +30,7 @@ import { LoginPage } from './components/LoginPage'
 import { Dialog } from './components/Dialog'
 import { useProgress } from './hooks/useProgress'
 import './App.css'
+import './night-theme.css'
 
 type Modal = 'badges' | 'profile' | 'progress' | 'help' | 'class' | null
 // The former mission dashboard remains in the source while legacy mission URLs

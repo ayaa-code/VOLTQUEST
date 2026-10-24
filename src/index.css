@@ -3,23 +3,45 @@
 :root {
   font-family: 'DM Sans', sans-serif;
   color: var(--text);
-  background: #fbfafc;
+  background: var(--canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 100%;
   font-weight: 400;
-  color-scheme: light;
-  --text: #343044;
-  --text-secondary: #665c74;
-  --text-muted: #706478;
-  --purple: #7050aa;
-  --purple-hover: #5f3b96;
-  --focus: #644096;
-  --control-border: #8b7a9f;
-  --success: #326746;
-  --warning: #76541d;
+  color-scheme: dark;
+  /* Night palette sampled from the user's Listrik Dinamis illustration. */
+  --night: #051145;
+  --slate: #354e69;
+  --cloud: #b4b8c8;
+  --water: #a0c9e9;
+  --lamp: #fbe983;
+  --leaf: #5fab3d;
+  --forest: #44842f;
+  --deep-forest: #1e6022;
+  --moon: #9a8754;
+  /* Surface shades keep the night palette readable across forms and lessons. */
+  --canvas: var(--night);
+  --surface: #101f45;
+  --surface-raised: #192e50;
+  --surface-hover: #233e5c;
+  --text: #ffffff;
+  --text-secondary: #c6cedd;
+  --text-muted: var(--cloud);
+  --accent: var(--lamp);
+  --accent-hover: #fff2ab;
+  /* Compatibility aliases for the existing shared controls. */
+  --purple: var(--accent);
+  --purple-hover: var(--accent-hover);
+  --focus: var(--lamp);
+  --control-border: #7088a0;
+  --success: #8ed46d;
+  --success-surface: #152f29;
+  --warning: var(--lamp);
+  --warning-surface: #333025;
+  --danger: #ffb4ab;
+  --danger-surface: #3b252c;
   --muted: var(--text-secondary);
   --font-body: 1rem;
   --font-secondary: 0.875rem;
@@ -27,7 +49,7 @@
   --leading-body: 1.65;
   --leading-compact: 1.5;
   --touch-target: 2.75rem;
-  --line: #ece9f1;
+  --line: var(--slate);
   --heading: 'Plus Jakarta Sans', sans-serif;
   line-height: var(--leading-body);
 }
@@ -95,7 +117,8 @@ svg {
   flex-shrink: 0;
 }
 ::selection {
-  background: #e6ddfa;
+  background: var(--lamp);
+  color: var(--night);
 }
 button {
   transition:

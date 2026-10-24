@@ -6,6 +6,10 @@ Demo pendamping pembelajaran listrik dinamis untuk Fisika Fase F SMA / MA, berte
 
 ## Jalur belajar Listrik Dinamis
 
+Tampilan memakai palet malam dari ilustrasi Listrik Dinamis: navy, kuning lampu,
+biru muda, dan hijau. Login, dashboard, materi, asesmen, dialog, serta rangkaian
+3D memakai warna yang selaras. [Panduan palet](docs/night-palette.md).
+
 Materi selesai menawarkan kuis formatif untuk submateri yang sama. Kuis yang selesai membuka materi berikutnya; challenge tidak menjadi prasyarat kuis. Challenge meminta siswa membuka simulasi PhET dan menulis pengamatan serta refleksi mereka sendiri; VoltQuest tidak mengklaim membaca aktivitas di PhET. Jawaban angka formatif memberi kesempatan revisi dan pengingat konsep ketika belum tepat. Sumatif terdiri dari pilihan ganda yang dapat diperiksa serta uraian yang disimpan untuk ditinjau dengan rubrik, tanpa nilai uraian otomatis.
 
 Progres jalur baru tersimpan per profil dalam penyimpanan lokal yang terpisah dari XP, akun, misi, dan data yang sudah ada. Lihat [panduan jalur belajar](docs/dynamic-learning.md).

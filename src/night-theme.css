@@ -1,0 +1,517 @@
+/* Color layer only: the existing layout, learning flow and data stay intact.
+   Imported after component styles so both login and learning share one palette. */
+
+body,
+.app-shell {
+  background: var(--canvas);
+  color: var(--text);
+}
+
+.app-header,
+.mobile-nav,
+.dialog,
+.dialog-heading,
+.content-card,
+.learning-path-card,
+.progress-card,
+.empty-state,
+.welcome-card,
+.auth-card {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.app-header,
+.mobile-nav {
+  background: var(--night);
+}
+
+.dialog {
+  box-shadow: 0 24px 80px rgb(0 0 0 / 38%);
+}
+
+.dialog::backdrop {
+  background: rgb(5 17 69 / 78%);
+}
+
+.brand-symbol,
+.avatar,
+.path-card-icon,
+.modal-hero-icon,
+.auth-symbol {
+  background: var(--surface-raised);
+  border-color: var(--slate);
+  color: var(--lamp);
+}
+
+.avatar {
+  box-shadow: 0 0 0 1px var(--control-border);
+}
+
+.brand-quest,
+.header-xp,
+.progress-xp,
+.progress-xp strong,
+.wave,
+.title-spark,
+.hero-tag,
+.section-kicker,
+.hero-stage strong,
+.path-card-open,
+.learning-progress > strong,
+.locked-panel svg,
+.progress-summary,
+.progress-summary h3,
+.modal-intro strong,
+.profile-stats,
+.tip-spark {
+  color: var(--lamp);
+}
+
+.hero-copy h1,
+.learning-path-card h2,
+.learning-progress h2,
+.path-catalog h1,
+.learning-detail h1,
+.learning-detail h2,
+.content-card h2,
+.mission-card h3,
+.mission-heading h1,
+.dialog-heading h2,
+.profile-info h3,
+.summative-detail legend,
+legend {
+  color: var(--text);
+}
+
+.hero-copy h2 {
+  color: var(--lamp);
+}
+
+.hero-copy p,
+.hero-stage,
+.path-row,
+.learning-summary,
+.quiz-feedback,
+.summative-detail .answer-option,
+.auth-subtitle,
+.auth-signup,
+.auth-local-note,
+.auth-remember-hint,
+.auth-demo details,
+.auth-demo p,
+.auth-demo > span,
+.auth-recovery p,
+.electric-footnote,
+.electric-level,
+.electric-class {
+  color: var(--text-secondary);
+}
+
+.hero-tag > span,
+.electric-eyebrow > span {
+  background: var(--lamp);
+}
+
+.dashboard-hero {
+  background:
+    radial-gradient(ellipse at 88% 35%, rgb(251 233 131 / 8%), transparent 50%),
+    linear-gradient(125deg, var(--surface), #172f50);
+  border-color: var(--slate);
+}
+
+.learning-path-card,
+.welcome-card,
+.progress-card {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+}
+
+.learning-path-card:hover,
+.learning-path-card:focus-visible {
+  background: var(--surface-raised);
+  border-color: var(--lamp);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 22%);
+}
+
+.learning-path-card:focus-visible,
+.path-row:focus-visible {
+  outline-color: var(--focus);
+}
+
+.primary-button,
+.auth-submit {
+  color: var(--night);
+  background: var(--lamp);
+  box-shadow: 0 5px 18px rgb(251 233 131 / 10%);
+}
+
+.primary-button:not(:disabled):hover,
+.auth-submit:not(:disabled):hover {
+  color: var(--night);
+  background: var(--accent-hover);
+  box-shadow: 0 5px 22px rgb(251 233 131 / 18%);
+}
+
+.auth-submit:not(:disabled):active {
+  background: var(--lamp);
+}
+
+.secondary-button {
+  background: var(--surface-raised);
+  color: var(--water);
+  border-color: var(--control-border);
+}
+
+.secondary-button:not(:disabled):hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.auth-submit:disabled {
+  background: var(--slate);
+  border-color: var(--control-border);
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+
+.text-button,
+.back-link,
+.auth-options button,
+.auth-signup button,
+.auth-demo button,
+.auth-legacy {
+  color: var(--water);
+}
+
+.text-button:hover,
+.back-link:hover,
+.icon-button:hover,
+.app-footer button:hover,
+.desktop-nav button:hover,
+.filter-tabs button:hover,
+.search-field button:hover,
+.progress-list button:hover,
+.avatar:hover,
+.auth-eye:hover {
+  background: var(--surface-hover);
+  color: var(--lamp);
+}
+
+.desktop-nav button.active,
+.mobile-nav button.active,
+.filter-tabs button.active {
+  background: var(--surface-raised);
+  color: var(--lamp);
+}
+
+.learning-summary,
+.confirmation-feedback,
+.practice-assumption,
+.draft-summary,
+.calculation-summary,
+.profile-note,
+.learning-target,
+.observation-table caption,
+.observation-table thead,
+.phet-stage,
+.phase-chip,
+.mission-count,
+.filter-tabs button > span,
+.step-number {
+  background: var(--surface-raised);
+  border-color: var(--line);
+}
+
+.learning-target strong,
+.observation-table caption,
+.phase-chip {
+  color: var(--water);
+}
+
+.learning-meter,
+.progress-track,
+.learning-timeline li {
+  background: var(--surface-raised);
+}
+
+.learning-meter span,
+.progress-track > span {
+  background: linear-gradient(90deg, var(--forest), var(--leaf), var(--lamp));
+}
+
+.learning-timeline li,
+.path-row small,
+.path-row.locked,
+.path-row.locked > span:first-child {
+  color: var(--cloud);
+}
+
+.path-row {
+  border-color: var(--line);
+}
+
+.path-row:not(:disabled):hover > span:nth-child(2) {
+  color: var(--lamp);
+}
+
+.path-row > span:first-child,
+.lab-icon,
+.tip-icon,
+.learning-tip strong {
+  color: var(--success);
+}
+
+.learning-completion,
+.quiz-feedback.correct,
+.learning-timeline li.done,
+.feedback.success,
+.answer-option.correct,
+.correct .option-letter,
+.step-done,
+.learning-tip,
+.lab-icon,
+.auth-notice {
+  background: var(--success-surface);
+  border-color: var(--forest);
+  color: var(--success);
+}
+
+.success-note,
+.answer-correct {
+  color: var(--success) !important;
+}
+
+.quiz-question {
+  color: var(--text) !important;
+}
+
+.quiz-feedback {
+  background: var(--warning-surface);
+}
+
+.quiz-feedback strong,
+.quiz-feedback p {
+  color: var(--warning);
+}
+
+.quiz-feedback.correct strong,
+.quiz-feedback.correct p {
+  color: var(--success);
+}
+
+.feedback.retry,
+.learning-alert,
+.storage-warning,
+.phet-notice,
+.class-content .class-notice,
+.progress-trophy,
+.hero-sticker,
+.xp-chip {
+  color: var(--lamp);
+  background: var(--warning-surface);
+  border-color: var(--moon);
+}
+
+.answer-wrong,
+.field-error,
+.auth-field-error {
+  color: var(--danger) !important;
+}
+
+.auth-error {
+  color: var(--danger);
+  background: var(--danger-surface);
+}
+
+.guided-field [aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.search-field,
+.name-input,
+.class-content input,
+.guided-field input,
+.guided-field select,
+.guided-field textarea,
+.auth-field > input,
+.auth-input-wrap,
+.auth-recovery input,
+.experiment-steps button,
+.option-letter {
+  background: var(--canvas);
+  border-color: var(--control-border);
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder,
+.auth-field > input::placeholder,
+.auth-input-wrap input::placeholder {
+  color: var(--cloud);
+  opacity: 1;
+}
+
+input[type='radio'],
+input[type='checkbox'],
+.auth-remember input {
+  accent-color: var(--lamp);
+}
+
+.answer-option:hover {
+  background: var(--surface-hover);
+}
+
+.answer-option.selected,
+.selected .option-letter,
+.experiment-steps button.active {
+  color: var(--lamp);
+  background: var(--surface-raised);
+  border-color: var(--lamp);
+}
+
+.experiment-steps button:disabled,
+.badge-item.locked,
+.locked .badge-medal {
+  background: var(--surface-raised);
+  color: var(--cloud);
+}
+
+/* Existing mission and badge variants use the same night palette. */
+.lavender,
+.mint,
+.yellow,
+.coral,
+.blue {
+  --card-bg: var(--surface-raised);
+  --card-icon: var(--slate);
+  --card-ink: var(--water);
+  --card-border: var(--line);
+}
+.mint {
+  --card-ink: var(--success);
+  --card-icon: var(--deep-forest);
+}
+.yellow,
+.coral {
+  --card-ink: var(--lamp);
+}
+.final-tag {
+  background: var(--surface);
+}
+.badge-check {
+  fill: var(--surface);
+}
+
+/* Login: the warm lamp accent contrasts with the night sky and slate form. */
+.electric-login,
+.auth-card,
+.dashboard-circuit.circuit-animation {
+  --focus: var(--lamp);
+}
+.electric-login,
+.onboarding {
+  color: var(--text);
+  background-color: var(--night);
+  background-image:
+    radial-gradient(
+      ellipse at 25% 58%,
+      rgb(160 201 233 / 10%),
+      transparent 60%
+    ),
+    linear-gradient(rgb(160 201 233 / 3%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(160 201 233 / 3%) 1px, transparent 1px);
+}
+.onboarding::before {
+  background-image: radial-gradient(
+    rgb(160 201 233 / 15%) 0.8px,
+    transparent 0.8px
+  );
+}
+.electric-login .brand-quest,
+.electric-login .brand-symbol,
+.electric-copy h1 span,
+.electric-footnote svg,
+.electric-class span {
+  color: var(--lamp);
+}
+.electric-login .brand-symbol {
+  background: var(--surface-raised);
+  border-color: var(--slate);
+}
+.electric-login .brand small,
+.electric-copy > p:last-child,
+.electric-eyebrow,
+.auth-demo strong {
+  color: var(--water);
+}
+.electric-eyebrow > span {
+  box-shadow: 0 0 15px rgb(251 233 131 / 30%);
+}
+.auth-card {
+  box-shadow: 0 22px 70px rgb(0 0 0 / 25%);
+}
+.auth-input-wrap input {
+  color: var(--text);
+}
+.auth-input-wrap,
+.auth-eye {
+  color: var(--water);
+}
+.auth-input-wrap:focus-within {
+  border-color: var(--lamp);
+  box-shadow: 0 0 0 3px rgb(251 233 131 / 16%);
+}
+.auth-transition {
+  color: var(--success);
+}
+.auth-demo {
+  border-color: var(--line);
+}
+
+/* A common circuit finish on login and dashboard, with readable labels. */
+.circuit-animation,
+.dashboard-circuit.circuit-animation,
+.circuit-unavailable,
+.circuit-animation figcaption p,
+.circuit-animation figcaption small,
+.dashboard-circuit figcaption small {
+  color: var(--text-secondary);
+}
+.circuit-label,
+.dashboard-circuit .circuit-label {
+  background: rgb(5 17 69 / 92%);
+  border-color: var(--control-border);
+  color: var(--water);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+}
+.circuit-toggle,
+.circuit-pause,
+.dashboard-circuit .circuit-toggle,
+.dashboard-circuit .circuit-pause {
+  color: var(--text);
+  background: var(--surface-raised);
+  border-color: var(--control-border);
+}
+.circuit-toggle:not(:disabled):hover,
+.circuit-pause:not(:disabled):hover,
+.dashboard-circuit .circuit-toggle:not(:disabled):hover,
+.dashboard-circuit .circuit-pause:not(:disabled):hover {
+  background: var(--surface-hover);
+}
+.circuit-toggle strong,
+.dashboard-circuit .circuit-toggle strong {
+  color: var(--lamp);
+}
+.switch-track,
+.dashboard-circuit .switch-track {
+  background: var(--slate);
+}
+[aria-checked='true'] .switch-track,
+.dashboard-circuit [aria-checked='true'] .switch-track {
+  background: var(--forest);
+}
+
+/* The embedded PhET simulation keeps the simulation provider's own colors. */

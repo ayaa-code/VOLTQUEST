@@ -21,7 +21,7 @@ export function createCircuitScene(
   variant: 'login' | 'dashboard' = 'login',
   onLabels?: (positions: CircuitLabelPositions) => void,
 ) {
-  const pastel = variant === 'dashboard'
+  const dashboard = variant === 'dashboard'
   const renderer = new THREE.WebGLRenderer({
     alpha: true,
     antialias: true,
@@ -36,24 +36,22 @@ export function createCircuitScene(
   const camera = new THREE.OrthographicCamera(-3.5, 3.5, 2.1, -2.1, 0.1, 30)
   camera.position.set(3.3, 6, 7.5)
   camera.lookAt(0, 0.1, 0)
-  scene.add(
-    new THREE.HemisphereLight(0xd9f6ff, pastel ? 0x82709c : 0x102436, 3),
-  )
+  scene.add(new THREE.HemisphereLight(0xa0c9e9, 0x051145, 3))
   const keyLight = new THREE.DirectionalLight(0xffffff, 4)
   keyLight.position.set(-3, 6, 3)
   scene.add(keyLight)
-  const rim = new THREE.DirectionalLight(0x53e8db, 2)
+  const rim = new THREE.DirectionalLight(0xa0c9e9, 2)
   rim.position.set(3, 2, -4)
   scene.add(rim)
   const mat = (color: number, metalness = 0.1, roughness = 0.45) =>
     new THREE.MeshStandardMaterial({ color, metalness, roughness })
-  const navy = mat(pastel ? 0x544275 : 0x183c52),
-    wire = mat(pastel ? 0x7050aa : 0x438b9b, 0.5),
-    metal = mat(0xbdd4d9, 0.8, 0.28),
-    copper = mat(0xe6b873, 0.65)
-  const teal = mat(0x12b99a, 0.3),
-    cream = mat(0xdfbd87),
-    stripe = mat(0x634443)
+  const navy = mat(0x293244),
+    wire = mat(0xa0c9e9, 0.5),
+    metal = mat(0xb4b8c8, 0.8, 0.28),
+    copper = mat(0x9a8754, 0.65)
+  const green = mat(0x5fab3d, 0.3),
+    cream = mat(0xfbe983),
+    stripe = mat(0x606060)
   function mesh(
     geometry: THREE.BufferGeometry,
     material: THREE.Material,
@@ -91,7 +89,7 @@ export function createCircuitScene(
       0,
     )
   }
-  box(5.7, 0.12, 3.5, mat(pastel ? 0xb9a5d6 : 0x102b3f), 0, -0.04, 0)
+  box(5.7, 0.12, 3.5, mat(dashboard ? 0x354e69 : 0x1a273e), 0, -0.04, 0)
   // Four disjoint wire runs: the components themselves close the circuit.
   tube([v(-2.05, -0.5), v(-2.05, -1.2), v(-1.25, -1.2)])
   tube([v(-0.5, -1.2), v(0.35, -1.2)])
@@ -100,7 +98,7 @@ export function createCircuitScene(
   // Battery lies along Z. Positive terminal feeds the switch; negative is the return.
   const battery = mesh(
     new THREE.CylinderGeometry(0.25, 0.25, 0.9, 24),
-    teal,
+    green,
     -2.05,
     0.39,
     0,
@@ -130,7 +128,7 @@ export function createCircuitScene(
   // Short leads meet the actual terminals, not the battery housing.
   tube([v(-2.05, -0.5), v(-2.05, -0.59, 0.39)], metal)
   tube([v(-2.05, 0.5), v(-2.05, 0.5, 0.39)], metal)
-  box(1.04, 0.1, 0.55, mat(pastel ? 0xb8a1d7 : 0x718993), -0.88, 0.14, -1.2)
+  box(1.04, 0.1, 0.55, mat(0x354e69), -0.88, 0.14, -1.2)
   for (const x of [-1.25, -0.5])
     mesh(
       new THREE.CylinderGeometry(0.075, 0.075, 0.12, 16),
@@ -144,7 +142,7 @@ export function createCircuitScene(
   const bar = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.065, 0.09), copper)
   bar.position.x = 0.38
   lever.add(bar)
-  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.11, 0.18), teal)
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.11, 0.18), green)
   handle.position.set(0.48, 0.07, 0)
   lever.add(handle)
   scene.add(lever)
@@ -186,8 +184,8 @@ export function createCircuitScene(
       0,
     ).rotation.x = Math.PI / 2
   const glass = new THREE.MeshStandardMaterial({
-    color: 0xffdf91,
-    emissive: 0xffb634,
+    color: 0xfbe983,
+    emissive: 0xfbe983,
     emissiveIntensity: 0.7,
     roughness: 0.18,
     metalness: 0.05,
@@ -201,11 +199,11 @@ export function createCircuitScene(
   )
   bulb.scale.y = 1.12
   mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.18, 18), glass, 2.05, 0.54, 0)
-  const glow = new THREE.PointLight(0xffc766, 4, 3)
+  const glow = new THREE.PointLight(0xfbe983, 4, 3)
   glow.position.set(2.05, 1.05, 0)
   scene.add(glow)
   const haloMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffd077,
+    color: 0xfbe983,
     transparent: true,
     opacity: 0.045,
     depthWrite: false,
@@ -232,10 +230,10 @@ export function createCircuitScene(
     .forEach((p, i) => path.add(new THREE.LineCurve3(points[i], p)))
   const particleGeo = new THREE.SphereGeometry(0.037, 6, 6)
   const particleMaterial = new THREE.MeshBasicMaterial({
-    color: pastel ? 0x007b81 : 0x8cf5ff,
+    color: 0xfbe983,
   })
   const tailMaterial = new THREE.MeshBasicMaterial({
-    color: pastel ? 0x007b81 : 0x50c6df,
+    color: 0xa0c9e9,
     transparent: true,
     opacity: 0.3,
   })
@@ -269,7 +267,7 @@ export function createCircuitScene(
       s.reduced || s.paused
         ? target
         : THREE.MathUtils.damp(brightness, target, 8, dt || 1 / 60)
-    glass.color.setHex(conducting ? 0xffe7a4 : 0x597783)
+    glass.color.setHex(conducting ? 0xfbe983 : 0x354e69)
     glass.emissiveIntensity = brightness * (s.phase === 'success' ? 2.5 : 0.8)
     glow.intensity = brightness * (s.phase === 'success' ? 7 : 3)
     halo.visible = conducting
