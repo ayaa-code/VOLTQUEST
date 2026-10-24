@@ -119,10 +119,10 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
       <section className="dashboard-hero learning-hero">
         <div className="hero-copy">
           <span className="hero-tag">
-            <span /> LISTRIK DINAMIS
+            <span /> DYNAMIC ELECTRICITY
           </span>
-          <h1>Selamat datang, Ilmuwan Muda! ⚡</h1>
-          <p>Setiap rasa ingin tahu adalah awal dari penemuan hebat.</p>
+          <h1>Welcome, Young Scientist! ⚡</h1>
+          <p>Every great discovery begins with curiosity.</p>
         </div>
         <div className="hero-art hero-interactive">
           <CircuitAnimation variant="dashboard" />

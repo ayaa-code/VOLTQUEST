@@ -236,7 +236,7 @@ test('WebGL unavailability does not affect login or block learning', async ({
   await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(
-    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+    page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
   ).toBeVisible()
   await expect(
     page.getByRole('status').filter({ hasText: /belum didukung/i }),

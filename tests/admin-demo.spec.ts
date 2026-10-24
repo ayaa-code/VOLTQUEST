@@ -64,7 +64,7 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
   await expect(page.getByRole('alert')).toContainText('belum cocok')
   await login(page)
   await expect(
-    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+    page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
   ).toBeVisible()
   await expect(page.locator('.header-right')).toContainText('Demo')
   await expect(page.locator('.learning-progress strong').last()).toHaveText(

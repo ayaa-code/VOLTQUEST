@@ -48,7 +48,7 @@ test('email validation, reveal, invalid credentials, remembered email and loadin
     page.getByRole('button', { name: 'Berhasil masuk' }),
   ).toBeVisible()
   await expect(
-    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+    page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
   ).toBeVisible()
   expect(
     await page.evaluate(
@@ -125,7 +125,7 @@ test('local registration, duplicate guard, recovery and separate email profiles'
   await page.getByLabel('Kata sandi', { exact: true }).fill('Ganti12345')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(
-    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+    page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
   ).toBeVisible()
   await expect(page.locator('.header-xp')).toContainText('0')
   expect(
@@ -138,7 +138,7 @@ test('local registration, duplicate guard, recovery and separate email profiles'
   ).toEqual([1])
   await page.reload()
   await expect(
-    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+    page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
   ).toBeVisible()
 })
 
@@ -191,6 +191,6 @@ test('storage failure keeps demo usable and does not falsely register an account
   await page.getByLabel('Kata sandi', { exact: true }).fill('VoltQuest123')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(
-    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+    page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
   ).toBeVisible()
 })
