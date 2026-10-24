@@ -1,12 +1,25 @@
-/* Color layer only: the existing layout, learning flow and data stay intact.
-   Imported after component styles so both login and learning share one palette. */
-
-body,
-.app-shell {
+/* One shared color layer for login, learning, legacy missions, and dialogs. */
+body {
+  position: relative;
+  isolation: isolate;
   background: var(--canvas);
   color: var(--text);
 }
-
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(rgb(255 255 255 / 16%), rgb(255 255 255 / 16%)),
+    url('../BG LISTRIK DINAMIS.png') center / cover no-repeat;
+}
+.app-shell,
+.electric-login {
+  color: var(--text);
+  background: transparent;
+}
 .app-header,
 .mobile-nav,
 .dialog,
@@ -21,55 +34,48 @@ body,
   border-color: var(--line);
   color: var(--text);
 }
-
 .app-header,
 .mobile-nav {
-  background: var(--night);
+  background: rgb(255 255 255 / 97%);
 }
-
 .dialog {
-  box-shadow: 0 24px 80px rgb(0 0 0 / 38%);
+  box-shadow: 0 20px 70px rgb(22 52 73 / 16%);
 }
-
 .dialog::backdrop {
-  background: rgb(5 17 69 / 78%);
+  background: rgb(22 52 73 / 35%);
 }
-
 .brand-symbol,
 .avatar,
 .path-card-icon,
-.modal-hero-icon,
-.auth-symbol {
+.modal-hero-icon {
   background: var(--surface-raised);
-  border-color: var(--slate);
-  color: var(--lamp);
+  border-color: var(--line);
+  color: var(--accent);
 }
-
 .avatar {
-  box-shadow: 0 0 0 1px var(--control-border);
+  box-shadow: 0 0 0 1px var(--line);
 }
-
 .brand-quest,
-.header-xp,
-.progress-xp,
-.progress-xp strong,
-.wave,
-.title-spark,
 .hero-tag,
 .section-kicker,
-.hero-stage strong,
 .path-card-open,
 .learning-progress > strong,
 .locked-panel svg,
-.progress-summary,
-.progress-summary h3,
 .modal-intro strong,
-.profile-stats,
-.tip-spark {
-  color: var(--lamp);
+.profile-stats {
+  color: var(--accent);
 }
-
+.header-xp,
+.progress-xp,
+.progress-xp strong,
+.progress-summary,
+.wave,
+.title-spark,
+.tip-spark {
+  color: var(--warning);
+}
 .hero-copy h1,
+.hero-copy h2,
 .learning-path-card h2,
 .learning-progress h2,
 .path-catalog h1,
@@ -80,20 +86,13 @@ body,
 .mission-heading h1,
 .dialog-heading h2,
 .profile-info h3,
-.summative-detail legend,
+.progress-summary h3,
 legend {
   color: var(--text);
 }
-
-.hero-copy h2 {
-  color: var(--lamp);
-}
-
 .hero-copy p,
-.hero-stage,
 .path-row,
 .learning-summary,
-.quiz-feedback,
 .summative-detail .answer-option,
 .auth-subtitle,
 .auth-signup,
@@ -101,91 +100,91 @@ legend {
 .auth-remember-hint,
 .auth-demo details,
 .auth-demo p,
-.auth-demo > span,
 .auth-recovery p,
-.electric-footnote,
-.electric-level,
 .electric-class {
   color: var(--text-secondary);
 }
-
-.hero-tag > span,
-.electric-eyebrow > span {
-  background: var(--lamp);
+.hero-tag > span {
+  background: var(--leaf);
 }
-
 .dashboard-hero {
-  background:
-    radial-gradient(ellipse at 88% 35%, rgb(251 233 131 / 8%), transparent 50%),
-    linear-gradient(125deg, var(--surface), #172f50);
-  border-color: var(--slate);
+  background: linear-gradient(115deg, #fff 20%, #e3f2ff 100%);
+  border-color: var(--line);
 }
-
+.learning-hero .hero-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+.learning-hero .hero-copy h1 {
+  font-size: clamp(1.65rem, 2.7vw, 2.15rem);
+  line-height: 1.4;
+  margin: 0;
+}
+.learning-hero .hero-copy p {
+  max-width: 33ch;
+}
 .learning-path-card,
 .welcome-card,
 .progress-card {
-  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+  box-shadow: 0 6px 20px rgb(22 52 73 / 6%);
 }
-
 .learning-path-card:hover,
 .learning-path-card:focus-visible {
   background: var(--surface-raised);
-  border-color: var(--lamp);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 22%);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgb(22 52 73 / 12%);
 }
-
 .learning-path-card:focus-visible,
 .path-row:focus-visible {
   outline-color: var(--focus);
 }
-
 .primary-button,
 .auth-submit {
-  color: var(--night);
-  background: var(--lamp);
-  box-shadow: 0 5px 18px rgb(251 233 131 / 10%);
+  color: white;
+  background: var(--accent);
+  box-shadow: 0 5px 14px rgb(46 106 53 / 12%);
 }
-
 .primary-button:not(:disabled):hover,
 .auth-submit:not(:disabled):hover {
-  color: var(--night);
+  color: white;
   background: var(--accent-hover);
-  box-shadow: 0 5px 22px rgb(251 233 131 / 18%);
+  box-shadow: 0 6px 18px rgb(46 106 53 / 20%);
 }
-
 .auth-submit:not(:disabled):active {
-  background: var(--lamp);
+  background: var(--accent-hover);
 }
-
 .secondary-button {
   background: var(--surface-raised);
-  color: var(--water);
+  color: var(--text);
   border-color: var(--control-border);
 }
-
 .secondary-button:not(:disabled):hover {
   background: var(--surface-hover);
   color: var(--text);
 }
-
 .primary-button:disabled,
 .secondary-button:disabled,
 .auth-submit:disabled {
-  background: var(--slate);
-  border-color: var(--control-border);
-  color: var(--text-secondary);
+  background: #e4ecec;
+  border-color: #a2b6bb;
+  color: var(--text-muted);
   box-shadow: none;
 }
-
 .text-button,
 .back-link,
 .auth-options button,
 .auth-signup button,
 .auth-demo button,
 .auth-legacy {
-  color: var(--water);
+  color: var(--focus);
 }
-
+.back-button,
+.back-link {
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
 .text-button:hover,
 .back-link:hover,
 .icon-button:hover,
@@ -197,16 +196,14 @@ legend {
 .avatar:hover,
 .auth-eye:hover {
   background: var(--surface-hover);
-  color: var(--lamp);
+  color: var(--text);
 }
-
 .desktop-nav button.active,
 .mobile-nav button.active,
 .filter-tabs button.active {
-  background: var(--surface-raised);
-  color: var(--lamp);
+  background: var(--success-surface);
+  color: var(--accent);
 }
-
 .learning-summary,
 .confirmation-feedback,
 .practice-assumption,
@@ -224,46 +221,38 @@ legend {
   background: var(--surface-raised);
   border-color: var(--line);
 }
-
 .learning-target strong,
 .observation-table caption,
 .phase-chip {
-  color: var(--water);
+  color: var(--focus);
 }
-
 .learning-meter,
 .progress-track,
 .learning-timeline li {
   background: var(--surface-raised);
 }
-
 .learning-meter span,
 .progress-track > span {
-  background: linear-gradient(90deg, var(--forest), var(--leaf), var(--lamp));
+  background: linear-gradient(90deg, var(--leaf), var(--grass), var(--hill));
 }
-
 .learning-timeline li,
 .path-row small,
 .path-row.locked,
 .path-row.locked > span:first-child {
-  color: var(--cloud);
+  color: var(--text-muted);
 }
-
 .path-row {
   border-color: var(--line);
 }
-
 .path-row:not(:disabled):hover > span:nth-child(2) {
-  color: var(--lamp);
+  color: var(--accent);
 }
-
 .path-row > span:first-child,
 .lab-icon,
 .tip-icon,
 .learning-tip strong {
   color: var(--success);
 }
-
 .learning-completion,
 .quiz-feedback.correct,
 .learning-timeline li.done,
@@ -275,33 +264,27 @@ legend {
 .lab-icon,
 .auth-notice {
   background: var(--success-surface);
-  border-color: var(--forest);
+  border-color: var(--leaf);
   color: var(--success);
 }
-
 .success-note,
 .answer-correct {
   color: var(--success) !important;
 }
-
 .quiz-question {
   color: var(--text) !important;
 }
-
 .quiz-feedback {
   background: var(--warning-surface);
 }
-
 .quiz-feedback strong,
 .quiz-feedback p {
   color: var(--warning);
 }
-
 .quiz-feedback.correct strong,
 .quiz-feedback.correct p {
   color: var(--success);
 }
-
 .feedback.retry,
 .learning-alert,
 .storage-warning,
@@ -310,26 +293,22 @@ legend {
 .progress-trophy,
 .hero-sticker,
 .xp-chip {
-  color: var(--lamp);
+  color: var(--warning);
   background: var(--warning-surface);
-  border-color: var(--moon);
+  border-color: #c5ae55;
 }
-
 .answer-wrong,
 .field-error,
 .auth-field-error {
   color: var(--danger) !important;
 }
-
 .auth-error {
   color: var(--danger);
   background: var(--danger-surface);
 }
-
 .guided-field [aria-invalid='true'] {
   border-color: var(--danger);
 }
-
 .search-field,
 .name-input,
 .class-content input,
@@ -341,62 +320,57 @@ legend {
 .auth-recovery input,
 .experiment-steps button,
 .option-letter {
-  background: var(--canvas);
+  background: white;
   border-color: var(--control-border);
   color: var(--text);
 }
-
 input::placeholder,
 textarea::placeholder,
 .auth-field > input::placeholder,
 .auth-input-wrap input::placeholder {
-  color: var(--cloud);
+  color: var(--text-muted);
   opacity: 1;
 }
-
 input[type='radio'],
 input[type='checkbox'],
 .auth-remember input {
-  accent-color: var(--lamp);
+  accent-color: var(--accent);
 }
-
 .answer-option:hover {
   background: var(--surface-hover);
 }
-
 .answer-option.selected,
 .selected .option-letter,
 .experiment-steps button.active {
-  color: var(--lamp);
-  background: var(--surface-raised);
-  border-color: var(--lamp);
+  color: var(--accent);
+  background: var(--success-surface);
+  border-color: var(--accent);
 }
-
 .experiment-steps button:disabled,
 .badge-item.locked,
 .locked .badge-medal {
-  background: var(--surface-raised);
-  color: var(--cloud);
+  background: #edf3f5;
+  color: var(--text-muted);
 }
-
-/* Existing mission and badge variants use the same night palette. */
 .lavender,
 .mint,
 .yellow,
 .coral,
 .blue {
   --card-bg: var(--surface-raised);
-  --card-icon: var(--slate);
-  --card-ink: var(--water);
+  --card-icon: var(--sky-pale);
+  --card-ink: var(--focus);
   --card-border: var(--line);
 }
 .mint {
+  --card-bg: var(--success-surface);
   --card-ink: var(--success);
-  --card-icon: var(--deep-forest);
+  --card-icon: #d6e9bb;
 }
 .yellow,
 .coral {
-  --card-ink: var(--lamp);
+  --card-ink: var(--warning);
+  --card-icon: var(--warning-surface);
 }
 .final-tag {
   background: var(--surface);
@@ -404,87 +378,28 @@ input[type='checkbox'],
 .badge-check {
   fill: var(--surface);
 }
-
-/* Login: the warm lamp accent contrasts with the night sky and slate form. */
-.electric-login,
-.auth-card,
-.dashboard-circuit.circuit-animation {
-  --focus: var(--lamp);
+.app-footer {
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+  color: var(--text-secondary);
 }
-.electric-login,
-.onboarding {
-  color: var(--text);
-  background-color: var(--night);
-  background-image:
-    radial-gradient(
-      ellipse at 25% 58%,
-      rgb(160 201 233 / 10%),
-      transparent 60%
-    ),
-    linear-gradient(rgb(160 201 233 / 3%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(160 201 233 / 3%) 1px, transparent 1px);
-}
-.electric-login {
-  /* Vite bundles the original reference image with the app for reliable loading. */
-  background-image:
-    linear-gradient(
-      90deg,
-      rgb(5 17 69 / 65%),
-      rgb(5 17 69 / 55%) 45%,
-      rgb(5 17 69 / 18%) 65%,
-      rgb(5 17 69 / 22%)
-    ),
-    linear-gradient(0deg, rgb(5 17 69 / 65%), transparent 65%),
-    url('../LISTRIK DINAMIS.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-@media (max-width: 850px) {
-  .electric-login {
-    /* Keep the left street lamp visible when a portrait screen crops the image. */
-    background-position: center, center, 22% center;
-  }
-}
-.onboarding::before {
-  background-image: radial-gradient(
-    rgb(160 201 233 / 15%) 0.8px,
-    transparent 0.8px
-  );
-}
-.electric-login .brand-quest,
-.electric-login .brand-symbol,
-.electric-copy h1 span,
-.electric-footnote svg,
+.auth-demo strong,
 .electric-class span {
-  color: var(--lamp);
+  color: var(--focus);
 }
-.electric-login .brand-symbol {
-  background: var(--surface-raised);
-  border-color: var(--slate);
-}
-.electric-login .brand small,
-.electric-copy > p:last-child,
-.electric-eyebrow,
-.auth-demo strong {
-  color: var(--water);
-}
-.electric-eyebrow > span {
-  box-shadow: 0 0 15px rgb(251 233 131 / 30%);
-}
-.auth-card {
-  box-shadow: 0 22px 70px rgb(0 0 0 / 25%);
+.auth-input-wrap,
+.auth-eye {
+  color: var(--text-muted);
 }
 .auth-input-wrap input {
   color: var(--text);
 }
-.auth-input-wrap,
-.auth-eye {
-  color: var(--water);
-}
 .auth-input-wrap:focus-within {
-  border-color: var(--lamp);
-  box-shadow: 0 0 0 3px rgb(251 233 131 / 16%);
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgb(20 91 125 / 14%);
 }
 .auth-transition {
   color: var(--success);
@@ -492,48 +407,49 @@ input[type='checkbox'],
 .auth-demo {
   border-color: var(--line);
 }
-
-/* A common circuit finish on login and dashboard, with readable labels. */
-.circuit-animation,
-.dashboard-circuit.circuit-animation,
-.circuit-unavailable,
-.circuit-animation figcaption p,
-.circuit-animation figcaption small,
-.dashboard-circuit figcaption small {
+.dashboard-circuit.circuit-animation {
+  --focus: #145b7d;
+  color: var(--text);
+}
+.circuit-unavailable {
   color: var(--text-secondary);
 }
 .circuit-label,
 .dashboard-circuit .circuit-label {
-  background: rgb(5 17 69 / 92%);
+  background: rgb(255 255 255 / 96%);
   border-color: var(--control-border);
-  color: var(--water);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+  color: var(--text);
+  box-shadow: 0 3px 9px rgb(22 52 73 / 8%);
 }
 .circuit-toggle,
-.circuit-pause,
-.dashboard-circuit .circuit-toggle,
-.dashboard-circuit .circuit-pause {
+.dashboard-circuit .circuit-toggle {
   color: var(--text);
-  background: var(--surface-raised);
+  background: var(--surface);
   border-color: var(--control-border);
 }
 .circuit-toggle:not(:disabled):hover,
-.circuit-pause:not(:disabled):hover,
-.dashboard-circuit .circuit-toggle:not(:disabled):hover,
-.dashboard-circuit .circuit-pause:not(:disabled):hover {
+.dashboard-circuit .circuit-toggle:not(:disabled):hover {
   background: var(--surface-hover);
 }
 .circuit-toggle strong,
 .dashboard-circuit .circuit-toggle strong {
-  color: var(--lamp);
+  color: var(--accent);
 }
 .switch-track,
 .dashboard-circuit .switch-track {
-  background: var(--slate);
+  background: #788a93;
 }
 [aria-checked='true'] .switch-track,
 .dashboard-circuit [aria-checked='true'] .switch-track {
-  background: var(--forest);
+  background: var(--accent);
 }
-
-/* The embedded PhET simulation keeps the simulation provider's own colors. */
+@media (max-width: 700px) {
+  .app-footer {
+    margin-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  body::before {
+    background-position:
+      center,
+      55% center;
+  }
+}

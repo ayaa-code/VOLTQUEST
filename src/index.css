@@ -10,38 +10,35 @@
   -moz-osx-font-smoothing: grayscale;
   font-size: 100%;
   font-weight: 400;
-  color-scheme: dark;
-  /* Night palette sampled from the user's Listrik Dinamis illustration. */
-  --night: #051145;
-  --slate: #354e69;
-  --cloud: #b4b8c8;
-  --water: #a0c9e9;
+  color-scheme: light;
+  /* Day palette sampled from BG LISTRIK DINAMIS.png. Dark inks are accessible derivatives. */
+  --sky: #71c8f8;
+  --sky-soft: #a1daf9;
+  --sky-pale: #d0ebfb;
+  --hill: #b5d665;
+  --grass: #93c94d;
+  --leaf: #4e9e3b;
   --lamp: #fbe983;
-  --leaf: #5fab3d;
-  --forest: #44842f;
-  --deep-forest: #1e6022;
-  --moon: #9a8754;
-  /* Surface shades keep the night palette readable across forms and lessons. */
-  --canvas: var(--night);
-  --surface: #101f45;
-  --surface-raised: #192e50;
-  --surface-hover: #233e5c;
-  --text: #ffffff;
-  --text-secondary: #c6cedd;
-  --text-muted: var(--cloud);
-  --accent: var(--lamp);
-  --accent-hover: #fff2ab;
+  --canvas: #e3f2ff;
+  --surface: #ffffff;
+  --surface-raised: #e3f2ff;
+  --surface-hover: #d0ebfb;
+  --text: #163449;
+  --text-secondary: #40566a;
+  --text-muted: #526879;
+  --accent: #2e6a35;
+  --accent-hover: #24552a;
   /* Compatibility aliases for the existing shared controls. */
   --purple: var(--accent);
   --purple-hover: var(--accent-hover);
-  --focus: var(--lamp);
-  --control-border: #7088a0;
-  --success: #8ed46d;
-  --success-surface: #152f29;
-  --warning: var(--lamp);
-  --warning-surface: #333025;
-  --danger: #ffb4ab;
-  --danger-surface: #3b252c;
+  --focus: #145b7d;
+  --control-border: #648591;
+  --success: #2e6a35;
+  --success-surface: #eff7e4;
+  --warning: #735b05;
+  --warning-surface: #fff6d4;
+  --danger: #a52e37;
+  --danger-surface: #fff0f0;
   --muted: var(--text-secondary);
   --font-body: 1rem;
   --font-secondary: 0.875rem;
@@ -49,7 +46,7 @@
   --leading-body: 1.65;
   --leading-compact: 1.5;
   --touch-target: 2.75rem;
-  --line: var(--slate);
+  --line: #bddbe5;
   --heading: 'Plus Jakarta Sans', sans-serif;
   line-height: var(--leading-body);
 }
@@ -118,7 +115,7 @@ svg {
 }
 ::selection {
   background: var(--lamp);
-  color: var(--night);
+  color: var(--text);
 }
 button {
   transition:

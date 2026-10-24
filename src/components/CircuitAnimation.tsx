@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Pause, Play, Power } from 'lucide-react'
+import { Power } from 'lucide-react'
 import './CircuitAnimation.css'
 import type {
   CircuitLabelPositions,
@@ -17,7 +17,6 @@ export function CircuitAnimation({
   const host = useRef<HTMLDivElement>(null)
   const scene = useRef<ReturnType<typeof createCircuitScene> | null>(null)
   const [on, setOn] = useState(true)
-  const [paused, setPaused] = useState(false)
   const [reduced, setReduced] = useState(
     () => matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
@@ -26,12 +25,12 @@ export function CircuitAnimation({
   )
   const [labels, setLabels] = useState<CircuitLabelPositions | null>(null)
   const [inactive, setInactive] = useState(false)
-  const live = useRef<CircuitState>({ on, paused, reduced, phase })
+  const live = useRef<CircuitState>({ on, reduced, phase })
   const powered = phase === 'success' || on
   useEffect(() => {
-    live.current = { on: powered, paused, reduced, phase }
+    live.current = { on: powered, reduced, phase }
     scene.current?.refresh()
-  }, [powered, paused, reduced, phase])
+  }, [powered, reduced, phase])
   useEffect(() => {
     const query = matchMedia('(prefers-reduced-motion: reduce)')
     const change = () => setReduced(query.matches)
@@ -90,7 +89,7 @@ export function CircuitAnimation({
   }, [variant])
   return (
     <figure
-      className={`circuit-animation ${variant}-circuit ${paused || reduced || inactive ? 'is-paused' : ''}`}
+      className={`circuit-animation ${variant}-circuit ${reduced || inactive || !powered ? 'is-paused' : ''}`}
       data-variant={variant}
       aria-label={
         variant === 'dashboard'
@@ -152,26 +151,7 @@ export function CircuitAnimation({
               <i />
             </span>
           </button>
-          <button
-            type="button"
-            className="circuit-pause"
-            aria-label={paused ? 'Putar animasi' : 'Jeda animasi'}
-            disabled={reduced}
-            onClick={() => setPaused(!paused)}
-          >
-            {paused ? <Play size={16} /> : <Pause size={16} />}
-          </button>
         </div>
-        <p>
-          {powered
-            ? 'Satu jalur terhubung. Lampu pun menyala.'
-            : 'Jalur terputus. Arus berhenti, lampu mati.'}
-        </p>
-        <small>
-          {variant === 'dashboard'
-            ? 'Coba saklarnya. Apa yang terjadi pada lampu?'
-            : 'Ilustrasi arus konvensional · Coba klik saklarnya.'}
-        </small>
       </figcaption>
     </figure>
   )

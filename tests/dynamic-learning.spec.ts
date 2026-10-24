@@ -21,7 +21,7 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
 }) => {
   await page.goto('/')
   await expect(
-    page.getByRole('heading', { name: 'Petualangan Listrik Dinamis' }),
+    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
   ).toBeVisible()
   await expect(page.locator('.learning-path-card')).toHaveCount(3)
   await expect(page.locator('.dashboard-circuit')).toHaveAttribute(
@@ -67,7 +67,7 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
     page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }),
   ).toBeEnabled()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
-  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   await expect(
     page.getByText('KUIS FORMATIF 01', { exact: true }),
   ).toBeVisible()
@@ -96,7 +96,7 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
     page.getByRole('button', { name: 'Mulai simulasi di sini' }),
   ).toBeVisible()
   await page.getByRole('button', { name: 'Kembali ke progres' }).click()
-  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   await expect(
     page.getByRole('heading', { name: 'Hambatan Ohmik dan Non Ohmik' }),
   ).toBeVisible()
@@ -114,7 +114,7 @@ test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai p
 }) => {
   test.setTimeout(60000)
   await page.goto('/')
-  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   const answers = ['18000', '20', '0,85', '8', '4,5', '320']
   for (const [index, answer] of answers.entries()) {
     const number = String(index + 1).padStart(2, '0')
@@ -153,7 +153,7 @@ test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai p
     ),
   ).toBe(true)
   await page.reload()
-  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   await expect(page.getByText('ASESMEN SUMATIF', { exact: true })).toBeVisible()
 })
 
@@ -219,7 +219,7 @@ test('progres lama dan profil lain dipertahankan saat meninjau kembali materi', 
     ),
   ).toEqual(profile)
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
-  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   await expect(
     page.getByText('KUIS FORMATIF 01', { exact: true }),
   ).toBeVisible()
@@ -253,7 +253,7 @@ test('membuka sumatif hanya setelah enam kuis formatif tersimpan pada profil sis
     )
   })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   await expect(
     page.getByRole('heading', { name: 'Listrik Dinamis' }),
   ).toBeVisible()

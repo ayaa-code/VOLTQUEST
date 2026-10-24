@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('dashboard switch, object click and pause do not modify learning data', async ({
+test('dashboard switch and object click do not modify learning data', async ({
   page,
 }) => {
   await page.goto('/')
@@ -59,13 +59,9 @@ test('dashboard switch, object click and pause do not modify learning data', asy
     },
   })
   await expect(control).toHaveAttribute('aria-checked', 'false')
-  await circuit.getByRole('button', { name: 'Jeda animasi' }).click()
-  await expect(circuit).toHaveClass(/is-paused/)
-  await circuit.getByRole('button', { name: 'Putar animasi' }).click()
+  await expect(circuit.locator('.circuit-pause')).toHaveCount(0)
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await expect(
-    circuit.getByRole('button', { name: 'Jeda animasi' }),
-  ).toBeDisabled()
+  await expect(circuit).toHaveClass(/is-paused/)
   await control.click()
   await expect(control).toHaveAttribute('aria-checked', 'true')
   expect(await page.evaluate(() => localStorage.getItem('voltquest.v1'))).toBe(
@@ -75,9 +71,9 @@ test('dashboard switch, object click and pause do not modify learning data', asy
     await page.evaluate(() => localStorage.getItem('voltquest.experiments.v1')),
   ).toBe(null)
   await expect(page.locator('.header-xp')).toContainText('0')
-  await page.getByRole('button', { name: 'Mulai misi pertama' }).click()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   await expect(
-    page.getByRole('radio', { name: 'Belum yakin', exact: true }),
+    page.getByRole('heading', { name: 'Arus Listrik' }),
   ).toBeVisible()
 })
 
@@ -148,6 +144,8 @@ test('dashboard keeps learning controls available when 3D visualisation is unava
     circuit.getByRole('status').filter({ hasText: /belum didukung/i }),
   ).toBeVisible()
   await expect(page.locator('.header-xp')).toContainText('100')
-  await page.getByRole('button', { name: 'Lanjutkan petualangan' }).click()
-  await expect(page).toHaveURL(/#misi-2$/)
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Arus Listrik' }),
+  ).toBeVisible()
 })

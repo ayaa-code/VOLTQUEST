@@ -8,10 +8,8 @@ import {
   LoaderCircle,
   LockKeyhole,
   Mail,
-  Zap,
 } from 'lucide-react'
 import { Brand } from './LearningUI'
-import { LoginCircuit } from './LoginCircuit'
 import {
   authenticate,
   DEMO,
@@ -177,28 +175,11 @@ export function LoginPage({
   return (
     <main className="electric-login">
       <div className="electric-shell">
-        <section className="electric-visual" aria-labelledby="electric-title">
-          <Brand />
-          <div className="electric-copy">
-            <p className="electric-eyebrow">
-              <span /> Listrik Dinamis
-            </p>
-            <h1 id="electric-title">
-              Mulai dari
-              <br /> satu <span>koneksi.</span>
-            </h1>
-            <p>Jelajahi konsep listrik melalui pengalaman interaktif.</p>
-          </div>
-          <LoginCircuit phase={phase} />
-          <p className="electric-footnote">
-            <Zap size={15} /> Eksperimen kecil. Pemahaman besar.
-          </p>
-        </section>
         <section className="auth-column" aria-labelledby="auth-title">
           <div className="auth-card">
-            <span className="auth-symbol">
-              <Zap size={23} />
-            </span>
+            <div className="auth-brand">
+              <Brand small />
+            </div>
             <h2 id="auth-title">
               {recovery
                 ? 'Akunmu siap!'
@@ -458,13 +439,14 @@ export function LoginPage({
               Mode demo lokal · Akun dan progres tersimpan di browser ini.
               Gunakan kata sandi khusus demo.
             </p>
+            <button
+              className="electric-class"
+              disabled={busy}
+              onClick={onClass}
+            >
+              Sudah punya kelas? <span>Masukkan kode dari guru.</span>
+            </button>
           </div>
-          <button className="electric-class" onClick={onClass}>
-            Sudah punya kelas? <span>Masukkan kode dari guru.</span>
-          </button>
-          <p className="electric-level">
-            Fisika Fase F <span>·</span> SMA / MA
-          </p>
         </section>
       </div>
     </main>

@@ -6,9 +6,9 @@ Demo pendamping pembelajaran listrik dinamis untuk Fisika Fase F SMA / MA, berte
 
 ## Jalur belajar Listrik Dinamis
 
-Tampilan memakai palet malam dari ilustrasi Listrik Dinamis: navy, kuning lampu,
-biru muda, dan hijau. Login, dashboard, materi, asesmen, dialog, serta rangkaian
-3D memakai warna yang selaras. [Panduan palet](docs/night-palette.md).
+Tampilan memakai palet siang dan background `BG LISTRIK DINAMIS.png`: biru
+langit, putih, dan hijau. Login terpusat tanpa animasi; rangkaian 3D hanya hadir
+di banner dashboard. [Panduan tema terbaru](docs/day-theme.md).
 
 Materi selesai menawarkan kuis formatif untuk submateri yang sama. Kuis yang selesai membuka materi berikutnya; challenge tidak menjadi prasyarat kuis. Challenge meminta siswa membuka simulasi PhET dan menulis pengamatan serta refleksi mereka sendiri; VoltQuest tidak mengklaim membaca aktivitas di PhET. Jawaban angka formatif memberi kesempatan revisi dan pengingat konsep ketika belum tepat. Sumatif terdiri dari pilihan ganda yang dapat diperiksa serta uraian yang disimpan untuk ditinjau dengan rubrik, tanpa nilai uraian otomatis.
 
@@ -52,11 +52,11 @@ Lihat [audit, aturan pemilihan, bank soal, penyimpanan, pengujian, dan screensho
 
 ## Menjalankan aplikasi
 
-Banner dashboard sekarang memuat rangkaian 3D interaktif dari login, dengan varian warna lavender, kabel ungu, serta kontrol saklar dan jeda. Komponen dan mesin animasi dipakai bersama; interaksi ilustrasi tidak mengubah XP atau data pengamatan. [Implementasi dan bukti visual dashboard](docs/dashboard-circuit.md).
+Banner dashboard menyambut “Selamat datang, Ilmuwan Muda! ⚡” dengan rangkaian 3D bertema siang dan kontrol saklar ON/OFF. Tombol pause serta keterangan saklar dihapus. Reduced motion, penghentian saat keluar layar, dan pembersihan renderer tetap tersedia. Interaksi ilustrasi tidak mengubah XP atau data pengamatan. Informasi langkah berikutnya ada pada kartu progres.
 
-Login dan dashboard menyesuaikan lebar serta tinggi viewport. Login awal telah diukur muat tanpa scroll pada beberapa ukuran laptop, termasuk 1366×650 dan 1280×620. Pada layar kecil, teks besar, dan keyboard terbuka, konten tetap dapat digulir. [Bukti dan batas pengujian responsivitas](docs/responsive-layout.md).
+Login dan dashboard menyesuaikan lebar serta tinggi viewport. Kartu login berada di tengah ketika ruang mencukupi. Pada layar pendek, teks besar, validasi, dan keyboard terbuka, konten tetap dapat digulir tanpa memotong kontrol.
 
-Login memakai rangkaian 3D interaktif di sisi kiri dan kartu email/kata sandi di kanan. Pada ponsel, ilustrasi berada di atas form. Saklar mengatur arus dan lampu; tersedia pause serta reduced motion. Bila WebGL tidak tersedia, aplikasi menampilkan pesan dukungan perangkat. Akun demo, pendaftaran lokal, pemulihan dengan kode, dan profil nama lama dapat digunakan. Lihat [implementasi dan bukti terbaru](docs/login-3d.md).
+Login hanya memuat kartu autentikasi di atas background ilustrasi. Modul Three.js tidak dimuat sampai dashboard dibuka. Akun demo, pendaftaran lokal, pemulihan dengan kode, ingat email, serta profil nama lama tetap tersedia. Bila WebGL tidak tersedia, dashboard menjelaskan keterbatasan visualisasi dan jalur belajar tetap dapat digunakan.
 
 ```sh
 npm install

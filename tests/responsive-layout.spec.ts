@@ -6,10 +6,12 @@ test.beforeEach(async ({ page }) => {
   )
 })
 
-test('login fits laptop viewport heights and adapts immediately on resize', async ({
+test('login stays centered, has no 3D renderer, and adapts to viewport height', async ({
   page,
 }) => {
   await page.goto('/')
+  await expect(page.locator('canvas')).toHaveCount(0)
+  await expect(page.locator('.electric-visual')).toHaveCount(0)
   for (const [width, height] of [
     [1920, 900],
     [1536, 730],
@@ -22,14 +24,17 @@ test('login fits laptop viewport heights and adapts immediately on resize', asyn
   ]) {
     await page.setViewportSize({ width, height })
     await page.evaluate(() => scrollTo(0, 0))
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollHeight <= innerHeight + 1,
-      ),
-    ).toBe(true)
     const form = await page.locator('.auth-card').boundingBox()
     expect(form!.y).toBeGreaterThanOrEqual(0)
-    expect(form!.y + form!.height).toBeLessThanOrEqual(height)
+    expect(Math.abs(form!.x + form!.width / 2 - width / 2)).toBeLessThanOrEqual(
+      1,
+    )
+    if (form!.height + 32 <= height)
+      expect(
+        Math.abs(form!.y + form!.height / 2 - height / 2),
+      ).toBeLessThanOrEqual(1)
+    await page.locator('.electric-class').scrollIntoViewIfNeeded()
+    await expect(page.locator('.electric-class')).toBeInViewport()
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
@@ -78,7 +83,7 @@ test('short screens, larger text and validation keep all login controls reachabl
   ).toBe(true)
 })
 
-test('dashboard learning action fits laptop and the first material stays accessible', async ({
+test('dashboard keeps its three cards and next step accessible below the welcome banner', async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -107,10 +112,19 @@ test('dashboard learning action fits laptop and the first material stays accessi
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true)
+    await expect(page.locator('.learning-path-card')).toHaveCount(3)
     await expect(
-      page.getByRole('button', { name: 'Lanjutkan belajar' }),
+      page.locator('.learning-hero button.primary-button'),
+    ).toHaveCount(0)
+    await page
+      .getByRole('button', { name: 'Buka tahap berikutnya' })
+      .scrollIntoViewIfNeeded()
+    await expect(
+      page.getByRole('button', { name: 'Buka tahap berikutnya' }),
     ).toBeInViewport()
   }
-  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
-  await expect(page.getByRole('heading', { name: 'Arus Listrik' })).toBeVisible()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Arus Listrik' }),
+  ).toBeVisible()
 })

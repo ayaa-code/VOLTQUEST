@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { OrthographicCamera, Vector3 } from 'three'
 
 test.beforeEach(async ({ page }) => {
   // Keep external font availability out of lifecycle assertions.
@@ -115,30 +114,49 @@ async function expectStopped(page: Page) {
   expect(await page.evaluate(() => window.energyProbe.callbacks)).toBe(count)
 }
 
-test('3D switch, keyboard pause, visibility and unmount release animation resources', async ({
+async function seedStudent(page: Page) {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'voltquest.v1',
+      JSON.stringify({
+        active: 'student:nara',
+        profiles: {
+          'student:nara': { name: 'Nara', completed: [], visited: [] },
+        },
+      }),
+    ),
+  )
+}
+
+test('login loads no 3D scene; dashboard switch, visibility and navigation release resources', async ({
   page,
 }) => {
   await instrument(page)
+  const sceneRequests: string[] = []
+  page.on('request', (request) => {
+    if (/circuitScene|\/three[.]/.test(request.url()))
+      sceneRequests.push(request.url())
+  })
   await page.goto('/')
-  await expect(page.locator('.login-circuit')).toHaveAttribute(
-    'data-renderer',
-    '3d',
-  )
-  await expect
-    .poll(() => page.evaluate(() => window.energyProbe.callbacks))
-    .toBeGreaterThan(2)
+  await expect(page.locator('canvas')).toHaveCount(0)
+  expect(sceneRequests).toEqual([])
+  await expectStopped(page)
+  await page
+    .getByRole('button', { name: 'Buka profil lama tanpa email' })
+    .click()
+  await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
+  await page.getByRole('button', { name: 'Masuk', exact: true }).click()
+  const circuit = page.locator('.dashboard-circuit')
+  await expect(circuit).toHaveAttribute('data-renderer', '3d')
+  await expect(page.locator('canvas')).toHaveCount(1)
+  await expect(page.locator('.circuit-pause')).toHaveCount(0)
   const control = page.getByRole('switch', { name: 'Saklar rangkaian' })
   await control.focus()
   await page.keyboard.press('Space')
   await expect(control).toHaveAttribute('aria-checked', 'false')
-  await expect(
-    page.getByRole('img', { name: /Saklar terbuka, lampu mati/ }),
-  ).toBeVisible()
+  await expectStopped(page)
   await page.keyboard.press('Enter')
   await expect(control).toHaveAttribute('aria-checked', 'true')
-  await page.getByRole('button', { name: 'Jeda animasi' }).click()
-  await expectStopped(page)
-  await page.getByRole('button', { name: 'Putar animasi' }).click()
   await expect
     .poll(() => page.evaluate(() => window.energyProbe.pending))
     .toBe(1)
@@ -148,59 +166,41 @@ test('3D switch, keyboard pause, visibility and unmount release animation resour
   await expect
     .poll(() => page.evaluate(() => window.energyProbe.pending))
     .toBe(1)
-  await page
-    .getByRole('button', { name: 'Buka profil lama tanpa email' })
-    .click()
-  await page.getByLabel('Siapa nama panggilanmu?').fill('Nara')
-  await page.getByRole('button', { name: 'Masuk', exact: true }).click()
-  await expect(page.locator('.dashboard')).toBeVisible()
-  await expect(page.locator('.dashboard-circuit')).toHaveAttribute(
-    'data-renderer',
-    '3d',
-  )
-  await expect(page.locator('canvas')).toHaveCount(1)
-  await expect
-    .poll(() => page.evaluate(() => window.energyProbe.pending))
-    .toBe(1)
-  await page.getByRole('button', { name: 'Mulai misi pertama' }).click()
-  await expectStopped(page)
-  expect(
-    await page.evaluate(() => ({
-      observers: window.energyProbe.observers,
-      listeners: window.energyProbe.listeners,
-    })),
-  ).toEqual({ observers: 0, listeners: 0 })
-  for (let i = 0; i < 2; i++) {
-    await page.getByRole('button', { name: 'Beranda VoltQuest' }).click()
-    await expect(page.locator('.dashboard-circuit')).toHaveAttribute(
-      'data-renderer',
-      '3d',
-    )
-    await expect(page.locator('canvas')).toHaveCount(1)
-    await page.getByRole('button', { name: 'Mulai misi pertama' }).click()
-    await expectStopped(page)
+  for (let i = 0; i < 3; i++) {
+    await page
+      .getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' })
+      .click()
     await expect(page.locator('canvas')).toHaveCount(0)
+    await expectStopped(page)
+    expect(
+      await page.evaluate(() => ({
+        observers: window.energyProbe.observers,
+        listeners: window.energyProbe.listeners,
+      })),
+    ).toEqual({ observers: 0, listeners: 0 })
+    await page
+      .getByRole('button', { name: 'Kembali ke Listrik Dinamis' })
+      .click()
+    await expect(circuit).toHaveAttribute('data-renderer', '3d')
+    await expect(page.locator('canvas')).toHaveCount(1)
   }
   await page.getByLabel('Buka profil siswa').click()
   await page.getByRole('button', { name: 'Keluar dari profil' }).click()
-  await expect(page.locator('.login-circuit')).toHaveAttribute(
-    'data-renderer',
-    '3d',
-  )
-  await expect(page.locator('canvas')).toHaveCount(1)
+  await expect(page.locator('.auth-card')).toBeVisible()
+  await expect(page.locator('canvas')).toHaveCount(0)
+  await expectStopped(page)
   expect(await page.evaluate(() => window.energyProbe.maxPending)).toBe(1)
 })
 
-test('reduced motion and offscreen pause keep switch interactive', async ({
+test('reduced motion and offscreen suspension keep the dashboard switch usable', async ({
   page,
 }) => {
   await instrument(page)
+  await seedStudent(page)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await expect(page.locator('.login-circuit')).toHaveAttribute(
-    'data-renderer',
-    '3d',
-  )
+  const circuit = page.locator('.dashboard-circuit')
+  await expect(circuit).toHaveAttribute('data-renderer', '3d')
   await expectStopped(page)
   await page.getByRole('switch').click()
   await expect(page.getByRole('switch')).toHaveAttribute(
@@ -208,20 +208,21 @@ test('reduced motion and offscreen pause keep switch interactive', async ({
     'false',
   )
   await expectStopped(page)
+  await page.getByRole('switch').click()
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await expect
     .poll(() => page.evaluate(() => window.energyProbe.pending))
     .toBe(1)
   await page.setViewportSize({ width: 390, height: 250 })
-  await page.locator('.electric-level').scrollIntoViewIfNeeded()
+  await page.locator('.learning-progress').scrollIntoViewIfNeeded()
   await expectStopped(page)
-  await page.locator('.circuit-stage').scrollIntoViewIfNeeded()
+  await circuit.scrollIntoViewIfNeeded()
   await expect
     .poll(() => page.evaluate(() => window.energyProbe.pending))
     .toBe(1)
 })
 
-test('WebGL unavailability explains the missing visual while login remains available', async ({
+test('WebGL unavailability does not affect login or block learning', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -234,111 +235,37 @@ test('WebGL unavailability explains the missing visual while login remains avail
     } as typeof original
   })
   await page.goto('/')
-  await expect(
-    page.getByRole('status').filter({ hasText: /belum didukung/i }),
-  ).toBeVisible()
+  await expect(page.locator('canvas')).toHaveCount(0)
   await page.getByRole('button', { name: 'Coba dengan akun demo' }).click()
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(
-    page.getByRole('heading', { name: 'Halo, Penjelajah!' }),
+    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('status').filter({ hasText: /belum didukung/i }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Arus Listrik' }),
   ).toBeVisible()
 })
 
-test('responsive 320 to 1920 layout preserves form and touch targets', async ({
+test('GPU context loss removes the dashboard canvas and retains the switch', async ({
   page,
 }) => {
+  await seedStudent(page)
   await page.goto('/')
-  for (const [width, height] of [
-    [320, 740],
-    [390, 844],
-    [768, 1024],
-    [1024, 768],
-    [1440, 1000],
-    [1920, 1080],
-    [844, 390],
-  ]) {
-    await page.setViewportSize({ width, height })
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
+  const circuit = page.locator('.dashboard-circuit')
+  await expect(circuit).toHaveAttribute('data-renderer', '3d')
+  await circuit
+    .locator('canvas')
+    .evaluate((element) =>
+      element.dispatchEvent(
+        new Event('webglcontextlost', { cancelable: true }),
       ),
-    ).toBe(true)
-    const visual = await page.locator('.electric-visual').boundingBox()
-    const card = await page.locator('.auth-card').boundingBox()
-    if (width <= 850)
-      expect(visual!.y + visual!.height).toBeLessThanOrEqual(card!.y)
-    else expect(visual!.x + visual!.width).toBeLessThanOrEqual(card!.x)
-    for (const selector of [
-      '.auth-submit',
-      '.auth-eye',
-      '.circuit-toggle',
-      '.circuit-pause',
-    ]) {
-      const box = await page.locator(selector).boundingBox()
-      expect(box!.width).toBeGreaterThanOrEqual(44)
-      expect(box!.height).toBeGreaterThanOrEqual(44)
-    }
-  }
-})
-
-test('clicking the 3D switch and GPU context loss both retain usable controls', async ({
-  page,
-}) => {
-  await page.goto('/')
-  await expect(page.locator('.login-circuit')).toHaveAttribute(
-    'data-renderer',
-    '3d',
-  )
-  const canvas = page.locator('.circuit-webgl canvas')
-  const bounds = await canvas.boundingBox()
-  const aspect = bounds!.width / bounds!.height
-  const half = Math.max(3.5, 2.05 * aspect)
-  const camera = new OrthographicCamera(
-    -half,
-    half,
-    half / aspect,
-    -half / aspect,
-    0.1,
-    30,
-  )
-  camera.position.set(3.3, 6, 7.5)
-  camera.lookAt(0, 0.1, 0)
-  camera.updateMatrixWorld()
-  const position = new Vector3(-0.85, 0.4, -1.2).project(camera)
-  await canvas.click({
-    position: {
-      x: ((position.x + 1) / 2) * bounds!.width,
-      y: ((-position.y + 1) / 2) * bounds!.height,
-    },
-  })
-  await expect(page.getByRole('switch')).toHaveAttribute(
-    'aria-checked',
-    'false',
-  )
-  await canvas.evaluate((element) =>
-    element.dispatchEvent(new Event('webglcontextlost', { cancelable: true })),
-  )
-  await expect(page.locator('.login-circuit')).toHaveAttribute(
-    'data-renderer',
-    'unavailable',
-  )
-  await expect(canvas).toHaveCount(0)
-  await page.getByRole('switch').click()
-  await expect(page.getByRole('switch')).toHaveAttribute('aria-checked', 'true')
-})
-
-test('low resource reports still retain the 3D circuit', async ({ page }) => {
-  await page.addInitScript(() =>
-    Object.defineProperty(navigator, 'hardwareConcurrency', {
-      value: 2,
-      configurable: true,
-    }),
-  )
-  await page.goto('/')
-  await expect(page.locator('.login-circuit')).toHaveAttribute(
-    'data-renderer',
-    '3d',
-  )
+    )
+  await expect(circuit).toHaveAttribute('data-renderer', 'unavailable')
+  await expect(page.locator('canvas')).toHaveCount(0)
   await page.getByRole('switch').click()
   await expect(page.getByRole('switch')).toHaveAttribute(
     'aria-checked',

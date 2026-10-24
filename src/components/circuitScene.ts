@@ -2,7 +2,6 @@ import * as THREE from 'three'
 
 export type CircuitState = {
   on: boolean
-  paused: boolean
   reduced: boolean
   phase: 'idle' | 'loading' | 'success'
 }
@@ -36,20 +35,20 @@ export function createCircuitScene(
   const camera = new THREE.OrthographicCamera(-3.5, 3.5, 2.1, -2.1, 0.1, 30)
   camera.position.set(3.3, 6, 7.5)
   camera.lookAt(0, 0.1, 0)
-  scene.add(new THREE.HemisphereLight(0xa0c9e9, 0x051145, 3))
+  scene.add(new THREE.HemisphereLight(0xe3f2ff, 0x4e9e3b, 3))
   const keyLight = new THREE.DirectionalLight(0xffffff, 4)
   keyLight.position.set(-3, 6, 3)
   scene.add(keyLight)
-  const rim = new THREE.DirectionalLight(0xa0c9e9, 2)
+  const rim = new THREE.DirectionalLight(0xa1daf9, 2)
   rim.position.set(3, 2, -4)
   scene.add(rim)
   const mat = (color: number, metalness = 0.1, roughness = 0.45) =>
     new THREE.MeshStandardMaterial({ color, metalness, roughness })
   const navy = mat(0x293244),
-    wire = mat(0xa0c9e9, 0.5),
+    wire = mat(0x27749b, 0.5),
     metal = mat(0xb4b8c8, 0.8, 0.28),
     copper = mat(0x9a8754, 0.65)
-  const green = mat(0x5fab3d, 0.3),
+  const green = mat(0x4e9e3b, 0.3),
     cream = mat(0xfbe983),
     stripe = mat(0x606060)
   function mesh(
@@ -89,7 +88,7 @@ export function createCircuitScene(
       0,
     )
   }
-  box(5.7, 0.12, 3.5, mat(dashboard ? 0x354e69 : 0x1a273e), 0, -0.04, 0)
+  box(5.7, 0.12, 3.5, mat(dashboard ? 0xc4e8f5 : 0xa1daf9), 0, -0.04, 0)
   // Four disjoint wire runs: the components themselves close the circuit.
   tube([v(-2.05, -0.5), v(-2.05, -1.2), v(-1.25, -1.2)])
   tube([v(-0.5, -1.2), v(0.35, -1.2)])
@@ -128,7 +127,7 @@ export function createCircuitScene(
   // Short leads meet the actual terminals, not the battery housing.
   tube([v(-2.05, -0.5), v(-2.05, -0.59, 0.39)], metal)
   tube([v(-2.05, 0.5), v(-2.05, 0.5, 0.39)], metal)
-  box(1.04, 0.1, 0.55, mat(0x354e69), -0.88, 0.14, -1.2)
+  box(1.04, 0.1, 0.55, mat(0x93c94d), -0.88, 0.14, -1.2)
   for (const x of [-1.25, -0.5])
     mesh(
       new THREE.CylinderGeometry(0.075, 0.075, 0.12, 16),
@@ -230,10 +229,10 @@ export function createCircuitScene(
     .forEach((p, i) => path.add(new THREE.LineCurve3(points[i], p)))
   const particleGeo = new THREE.SphereGeometry(0.037, 6, 6)
   const particleMaterial = new THREE.MeshBasicMaterial({
-    color: 0xfbe983,
+    color: 0x2e6a35,
   })
   const tailMaterial = new THREE.MeshBasicMaterial({
-    color: 0xa0c9e9,
+    color: 0x27749b,
     transparent: true,
     opacity: 0.3,
   })
@@ -250,23 +249,21 @@ export function createCircuitScene(
   let slowFrames = 0
   function draw(dt: number) {
     const s = state()
-    lever.rotation.z =
-      s.reduced || s.paused
-        ? s.on
-          ? 0
-          : 0.65
-        : THREE.MathUtils.damp(
-            lever.rotation.z,
-            s.on ? 0 : 0.65,
-            14,
-            dt || 1 / 60,
-          )
+    lever.rotation.z = s.reduced
+      ? s.on
+        ? 0
+        : 0.65
+      : THREE.MathUtils.damp(
+          lever.rotation.z,
+          s.on ? 0 : 0.65,
+          14,
+          dt || 1 / 60,
+        )
     const conducting = s.on && lever.rotation.z < 0.025
     const target = conducting ? 1 : 0
-    brightness =
-      s.reduced || s.paused
-        ? target
-        : THREE.MathUtils.damp(brightness, target, 8, dt || 1 / 60)
+    brightness = s.reduced
+      ? target
+      : THREE.MathUtils.damp(brightness, target, 8, dt || 1 / 60)
     glass.color.setHex(conducting ? 0xfbe983 : 0x354e69)
     glass.emissiveIntensity = brightness * (s.phase === 'success' ? 2.5 : 0.8)
     glow.intensity = brightness * (s.phase === 'success' ? 7 : 3)
@@ -301,6 +298,10 @@ export function createCircuitScene(
       elapsed +=
         dt * (s.phase === 'idle' ? 1 : s.phase === 'loading' ? 1.8 : 2.5)
     draw(dt)
+    if (!s.on && lever.rotation.z > 0.649 && brightness < 0.001) {
+      previous = 0
+      return
+    }
     frame = requestAnimationFrame(tick)
   }
   function refresh() {
@@ -308,7 +309,7 @@ export function createCircuitScene(
     if (disposed) return
     draw(0)
     const s = state()
-    if (inView && !document.hidden && !s.paused && !s.reduced)
+    if (inView && !document.hidden && !s.reduced)
       frame = requestAnimationFrame(tick)
   }
   const labelAnchors = {

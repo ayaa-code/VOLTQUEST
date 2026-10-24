@@ -32,13 +32,7 @@ type LearningPath = 'material' | 'challenge' | 'quiz'
 const stateText = (done: boolean, ready: boolean) =>
   done ? 'Selesai' : ready ? 'Siap dikerjakan' : 'Terkunci'
 
-export function DynamicLearning({
-  profileId,
-  name,
-}: {
-  profileId: string
-  name: string
-}) {
+export function DynamicLearning({ profileId }: { profileId: string }) {
   const store = useDynamicLearning(profileId)
   const [view, setView] = useState<View>({ type: 'home' })
   useEffect(() => {
@@ -124,20 +118,8 @@ export function DynamicLearning({
           <span className="hero-tag">
             <span /> LISTRIK DINAMIS
           </span>
-          <h1>
-            Selamat datang, {name}! <span className="wave">✦</span>
-          </h1>
-          <h2>Petualangan Listrik Dinamis</h2>
-          <p>
-            Pelajari konsep, analisis rangkaian di PhET, lalu tunjukkan
-            pemahamanmu lewat asesmen bertahap.
-          </p>
-          <p className="hero-stage">
-            Tahapmu saat ini: <strong>{nextLabel}</strong>.
-          </p>
-          <button className="primary-button" onClick={() => setView(next)}>
-            Lanjutkan belajar <ArrowRight size={17} />
-          </button>
+          <h1>Selamat datang, Ilmuwan Muda! ⚡</h1>
+          <p>Setiap rasa ingin tahu adalah awal dari penemuan hebat.</p>
         </div>
         <div className="hero-art hero-interactive">
           <CircuitAnimation variant="dashboard" />
@@ -178,6 +160,9 @@ export function DynamicLearning({
           </span>
           <h2 id="learning-progress-title">Kamu sudah berada di mana?</h2>
           <p>Langkah berikutnya: {nextLabel}.</p>
+          <button className="text-button" onClick={() => setView(next)}>
+            Buka tahap berikutnya <ArrowRight size={16} />
+          </button>
         </div>
         <div
           className="learning-meter"

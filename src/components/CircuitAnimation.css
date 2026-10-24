@@ -74,8 +74,7 @@
   margin: 0 0 10px;
   position: relative;
 }
-.circuit-toggle,
-.circuit-pause {
+.circuit-toggle {
   border: 1px solid #527286;
   background: #193a50;
   min-height: 44px;
@@ -87,20 +86,12 @@
   padding: 8px 14px;
   font-size: 0.8125rem;
 }
-.circuit-toggle:not(:disabled):hover,
-.circuit-pause:not(:disabled):hover {
+.circuit-toggle:not(:disabled):hover {
   background: #215069;
 }
 .circuit-toggle strong {
   color: #7aead3;
   font-size: 0.75rem;
-}
-.circuit-pause {
-  width: 44px;
-  padding: 0;
-}
-.circuit-pause:disabled {
-  opacity: 0.5;
 }
 .switch-track {
   background: #42586a;
@@ -124,17 +115,7 @@
 [aria-checked='true'] .switch-track i {
   transform: translateX(12px);
 }
-.circuit-animation figcaption p {
-  color: #d4e6ed;
-  font-size: 0.8125rem;
-}
-.circuit-animation figcaption small {
-  display: block;
-  color: #9bbdcc;
-  font-size: 0.6875rem;
-  margin-top: 3px;
-}
-/* Dashboard variant shares the renderer and behavior with the login scene. */
+/* The circuit is mounted only in the dashboard welcome banner. */
 .dashboard .hero-art.hero-interactive {
   height: auto;
   min-width: 0;
@@ -161,14 +142,12 @@
   margin: 0 0 6px;
   flex-wrap: wrap;
 }
-.dashboard-circuit .circuit-toggle,
-.dashboard-circuit .circuit-pause {
+.dashboard-circuit .circuit-toggle {
   color: #61458c;
   background: #faf7ff;
   border-color: #ab94c6;
 }
-.dashboard-circuit .circuit-toggle:not(:disabled):hover,
-.dashboard-circuit .circuit-pause:not(:disabled):hover {
+.dashboard-circuit .circuit-toggle:not(:disabled):hover {
   background: #e4daf3;
 }
 .dashboard-circuit .circuit-toggle strong {
@@ -180,24 +159,12 @@
 .dashboard-circuit [aria-checked='true'] .switch-track {
   background: #07836e;
 }
-.dashboard-circuit figcaption p {
-  display: none;
-}
-.dashboard-circuit figcaption small {
-  color: #665277;
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
 @media (max-width: 700px) {
   .dashboard .hero-art.hero-interactive {
     padding: 0 14px 16px;
   }
   .dashboard-circuit .circuit-stage {
     height: clamp(145px, 42vw, 190px);
-  }
-  .dashboard-circuit figcaption small {
-    max-width: 260px;
-    margin: auto;
   }
   .circuit-label {
     border-radius: 7px;

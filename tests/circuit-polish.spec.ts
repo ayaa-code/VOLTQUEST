@@ -8,7 +8,8 @@ test('component labels follow the 3D circuit without overlapping controls', asyn
   )
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  for (const variant of ['login', 'dashboard']) {
+  await expect(page.locator('canvas')).toHaveCount(0)
+  for (const variant of ['dashboard']) {
     if (variant === 'dashboard') {
       await page.getByRole('button', { name: 'Coba dengan akun demo' }).click()
       await page.getByRole('button', { name: 'Masuk', exact: true }).click()

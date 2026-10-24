@@ -32,7 +32,7 @@ test('email validation, reveal, invalid credentials, remembered email and loadin
     page.getByRole('button', { name: 'Berhasil masuk' }),
   ).toBeVisible()
   await expect(
-    page.getByRole('heading', { name: 'Halo, Penjelajah!' }),
+    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
   ).toBeVisible()
   expect(
     await page.evaluate(
@@ -108,7 +108,9 @@ test('local registration, duplicate guard, recovery and separate email profiles'
   await expect(page.getByRole('alert')).toContainText('belum cocok')
   await page.getByLabel('Kata sandi', { exact: true }).fill('Ganti12345')
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Halo, Alya!' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+  ).toBeVisible()
   await expect(page.locator('.header-xp')).toContainText('0')
   expect(
     await page.evaluate(
@@ -119,7 +121,9 @@ test('local registration, duplicate guard, recovery and separate email profiles'
     ),
   ).toEqual([1])
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Halo, Alya!' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
+  ).toBeVisible()
 })
 
 test('corrupt account storage is retained and built-in demo still works', async ({
@@ -164,6 +168,6 @@ test('storage failure keeps demo usable and does not falsely register an account
   await page.getByRole('button', { name: 'Coba dengan akun demo' }).click()
   await page.getByRole('button', { name: 'Masuk', exact: true }).click()
   await expect(
-    page.getByRole('heading', { name: 'Halo, Penjelajah!' }),
+    page.getByRole('heading', { name: 'Selamat datang, Ilmuwan Muda! ⚡' }),
   ).toBeVisible()
 })

@@ -1,5 +1,7 @@
 # Palet Listrik Dinamis
 
+Catatan historis: tema malam ini sudah digantikan oleh [tema siang](day-theme.md).
+
 Palet VoltQuest mengikuti ilustrasi referensi pengguna `LISTRIK DINAMIS.png`.
 Komposisi malam diterapkan lewat warna, tanpa mengubah susunan halaman atau
 alur pembelajaran.
