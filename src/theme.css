@@ -1,4 +1,18 @@
-/* One shared color layer for login, learning, legacy missions, and dialogs. */
+/* Shared palette and surface hierarchy, matching the three mission path cards. */
+:root {
+  --card-ink: #163449;
+  --card-paper: #fffefa;
+  --card-blue: #e8f6ff;
+  --card-yellow: #fff5d8;
+  --card-purple: #f1ebff;
+  --card-green: #edf7e5;
+  --card-outline: 2px solid var(--card-ink);
+  --card-radius: 22px;
+  --panel-radius: 14px;
+  --card-shadow: 6px 7px 0 rgb(22 52 73 / 23%);
+  --control-shadow: 0 4px 0 #163449;
+  --card-space: clamp(18px, 2.5vw, 32px);
+}
 body {
   position: relative;
   isolation: isolate;
@@ -39,7 +53,9 @@ body::before {
   background: rgb(255 255 255 / 97%);
 }
 .dialog {
-  box-shadow: 0 20px 70px rgb(22 52 73 / 16%);
+  border: var(--card-outline);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
 }
 .dialog::backdrop {
   background: rgb(22 52 73 / 35%);
@@ -105,7 +121,7 @@ legend {
   background: var(--leaf);
 }
 .dashboard-hero {
-  background: linear-gradient(115deg, #fff 20%, #e3f2ff 100%);
+  background: #f4fbff;
   border-color: var(--line);
 }
 .learning-hero .hero-copy {
@@ -141,13 +157,15 @@ legend {
 .auth-submit {
   color: white;
   background: var(--accent);
-  box-shadow: 0 5px 14px rgb(46 106 53 / 12%);
+  border: var(--card-outline);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--control-shadow);
 }
 .primary-button:not(:disabled):hover,
 .auth-submit:not(:disabled):hover {
   color: white;
   background: var(--accent-hover);
-  box-shadow: 0 6px 18px rgb(46 106 53 / 20%);
+  box-shadow: 0 5px 0 var(--card-ink);
 }
 .auth-submit:not(:disabled):active {
   background: var(--accent-hover);
@@ -155,7 +173,9 @@ legend {
 .secondary-button {
   background: var(--surface-raised);
   color: var(--text);
-  border-color: var(--control-border);
+  border: var(--card-outline);
+  border-radius: var(--panel-radius);
+  box-shadow: 0 3px 0 rgb(22 52 73 / 25%);
 }
 .secondary-button:not(:disabled):hover {
   background: var(--surface-hover);
@@ -434,7 +454,204 @@ input[type='checkbox'],
 .dashboard-circuit [aria-checked='true'] .switch-track {
   background: var(--accent);
 }
+/* Main surfaces: substantial edges; nested learning panels stay quieter. */
+.app-shell
+  :is(
+    .content-card,
+    .dashboard-hero,
+    .progress-card,
+    .welcome-card,
+    .empty-state,
+    .mission-card
+  ),
+.electric-login .auth-card {
+  border: var(--card-outline);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  background-color: var(--card-paper);
+  color: var(--card-ink);
+  min-width: 0;
+}
+.app-shell .dashboard-hero {
+  background: #f4fbff;
+}
+.app-shell .content-card {
+  padding: var(--card-space);
+}
+.app-shell .quiz-detail {
+  border-top: 7px solid #9981c3;
+}
+.app-shell .worksheet-section {
+  border-top: 7px solid #e4b74d;
+}
+.app-shell .learning-detail:not(.quiz-detail) {
+  border-top: 7px solid #71b7cf;
+}
+.app-shell .lesson-resources {
+  border-top: 7px solid #71b7cf;
+}
+.app-shell .ai-panel {
+  border-top: 7px solid #7ca774;
+}
+
+.app-shell
+  :is(
+    .lesson-audio,
+    .lesson-formula,
+    .learning-summary,
+    .quiz-question,
+    .quiz-feedback,
+    .feedback,
+    .lesson-ebook,
+    .worksheet-row,
+    .ai-history,
+    .badge-item,
+    .phet-placeholder,
+    .learning-completion
+  ),
+.electric-login :is(.auth-recovery, .auth-notice) {
+  border: 1px solid #849aa7;
+  border-radius: var(--panel-radius);
+  box-shadow: none;
+  background-color: var(--card-blue);
+}
+.app-shell
+  :is(.lesson-formula, .learning-summary, .quiz-question, .quiz-feedback) {
+  padding: 18px;
+}
+.app-shell .lesson-formula {
+  border-left: 4px solid #4184a1;
+}
+.app-shell .quiz-question {
+  background: var(--card-purple);
+}
+.app-shell .worksheet-row {
+  background: var(--card-yellow);
+}
+.app-shell .worksheet-derived {
+  background: var(--card-green);
+  border: 1px dashed #547c4c;
+  border-radius: 10px;
+}
+.app-shell :is(.success-note, .feedback.success, .quiz-feedback.correct) {
+  background: var(--card-green);
+  border-color: #46783c;
+  color: #254b25;
+}
+.app-shell :is(.feedback.retry, .quiz-feedback:not(.correct)) {
+  background: #fff0e9;
+  border-color: #b66c48;
+  color: #713e24;
+}
+.app-shell .learning-completion {
+  background: var(--card-green);
+  padding: 16px;
+}
+.app-shell .learning-completion .success-note {
+  border: 0;
+  padding: 0;
+}
+.app-shell .path-row {
+  border-bottom: 1px solid #c5d4dc;
+  border-radius: 10px;
+  padding-inline: 12px;
+}
+.app-shell .path-row:not(:disabled):hover {
+  background: var(--card-blue);
+}
+.app-shell .badge-item {
+  padding: 18px;
+}
+.app-shell :is(.badge-item.locked, .locked-panel) {
+  background: #f2f4f5;
+}
+.app-shell :is(.lesson-video-preview, .lesson-video-frame, .phet-stage) {
+  border: var(--card-outline);
+  border-radius: var(--panel-radius);
+}
+.app-shell .lesson-video-preview {
+  background: var(--card-ink);
+}
+.app-shell .phet-toolbar {
+  background: var(--card-yellow);
+  color: var(--card-ink);
+}
+/* The integrated worksheet is a vertical page; a sticky full lab would cover its rows. */
+.app-shell .worksheet .phet-lab {
+  position: static;
+}
+.app-shell
+  :is(.guided-field input, .guided-field textarea, .lesson-audio select),
+.electric-login .auth-input-wrap {
+  border-color: #758d9c;
+  border-radius: 10px;
+  box-shadow: none;
+}
+.app-shell :is(.primary-button, .secondary-button),
+.electric-login .auth-submit {
+  min-height: 44px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+.app-shell :is(.primary-button, .secondary-button):not(:disabled):active,
+.electric-login .auth-submit:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--card-ink);
+}
+.app-shell :is(.primary-button, .secondary-button):disabled,
+.electric-login .auth-submit:disabled {
+  color: #536575;
+  background: #e4ecec;
+  border-color: #8296a2;
+  box-shadow: none;
+}
+.app-shell
+  :is(
+    .primary-button,
+    .secondary-button,
+    .text-button,
+    .path-row,
+    summary
+  ):focus-visible,
+.electric-login :is(button, input):focus-visible {
+  outline: 3px solid #175f98;
+  outline-offset: 4px;
+}
+.app-shell :is(.text-button, .back-button) {
+  min-height: 44px;
+}
+.app-shell :is(.content-card, .dialog) {
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell :is(.primary-button, .secondary-button),
+  .electric-login .auth-submit {
+    transition: none;
+  }
+}
 @media (max-width: 700px) {
+  :root {
+    --card-shadow: 4px 5px 0 rgb(22 52 73 / 23%);
+    --card-space: 18px;
+  }
+  .app-shell :is(.content-card, .dashboard-hero, .progress-card) {
+    border-radius: 18px;
+  }
+  .app-shell
+    :is(
+      .lesson-audio,
+      .learning-summary,
+      .quiz-question,
+      .quiz-feedback,
+      .worksheet-row
+    ) {
+    padding: 14px;
+  }
+  .electric-login .electric-shell {
+    max-width: calc(100% - 6px);
+  }
   .app-footer {
     margin-bottom: calc(84px + env(safe-area-inset-bottom));
   }
