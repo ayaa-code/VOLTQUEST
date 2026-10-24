@@ -14,6 +14,10 @@ import {
 } from '../data/challengeWorksheet'
 import type { useDynamicLearning } from '../hooks/useDynamicLearning'
 import './ChallengeWorksheet.css'
+import {
+  worksheetTemplateMode,
+  worksheetTemplateHeadings,
+} from '../data/worksheetTemplate'
 
 export function ChallengeWorksheet({
   store,
@@ -182,119 +186,138 @@ export function ChallengeWorksheet({
         visited={data.visited}
         onVisit={() => change({ ...latest.current, visited: true })}
       />
-      {worksheetSections.map((section, index) => (
-        <section className="content-card worksheet-section" key={section.title}>
-          <h2>{section.title}</h2>
-          <p>{section.instruction}</p>
-          {section.rows.length > 0 && (
-            <div
-              className="worksheet-table"
-              role="table"
-              aria-label={section.title}
-            >
-              {section.rows.map((row) => (
-                <div role="row" className="worksheet-row" key={row.title}>
-                  <h3 role="rowheader">{row.title}</h3>
-                  {row.fields.map((field) => (
-                    <label
-                      className="guided-field"
-                      role="cell"
-                      key={field.id}
-                      htmlFor={field.id}
-                    >
-                      {field.label}
-                      <input
-                        id={field.id}
-                        inputMode={field.numeric ? 'decimal' : 'text'}
-                        maxLength={1200}
-                        value={data.fields[field.id] ?? ''}
-                        onChange={(e) =>
-                          change({
-                            ...data,
-                            fields: {
-                              ...data.fields,
-                              [field.id]: e.target.value,
-                            },
-                          })
-                        }
-                        aria-invalid={
-                          showChecks &&
-                          checks.findings.some(
-                            (f) => f.field === field.id && f.kind === 'error',
-                          )
-                        }
-                      />
-                    </label>
-                  ))}
-                  {row.derived && (
-                    <output className="worksheet-derived" role="cell">
-                      {row.derived === 'branch' ? (
-                        <>
-                          Jumlah arus cabang:{' '}
-                          {displayNumber(checks.computed.branch)} A<br />
-                          Selisih bertanda (masuk − jumlah cabang):{' '}
-                          {displayNumber(checks.computed.difference)} A
-                        </>
-                      ) : row.derived === 'power' ? (
-                        <>P = VI: {displayNumber(checks.computed.power)} W</>
-                      ) : (
-                        <>
-                          R = V/I: {displayNumber(checks.computed[row.derived])}{' '}
-                          Ω
-                        </>
-                      )}
-                    </output>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          {section.analysis.map((field) => (
-            <label className="guided-field" key={field.id} htmlFor={field.id}>
-              {field.label}
-              {field.optional ? ' (opsional)' : ' *'}
-              <textarea
-                id={field.id}
-                maxLength={1200}
-                rows={3}
-                value={data.fields[field.id] ?? ''}
-                onChange={(e) =>
-                  change({
-                    ...data,
-                    fields: { ...data.fields, [field.id]: e.target.value },
-                  })
-                }
-                aria-invalid={
-                  showChecks &&
-                  checks.findings.some(
-                    (f) => f.field === field.id && f.kind === 'error',
-                  )
-                }
-              />
-            </label>
-          ))}
-          {index < 4 && (
-            <button
-              className="text-button"
-              onClick={() => onMaterial([1, 2, 4, 5][index])}
-            >
-              Kembali ke materi terkait
-            </button>
-          )}
-        </section>
-      ))}
+      {worksheetTemplateMode &&
+        worksheetTemplateHeadings.map((title) => (
+          <section
+            className="content-card worksheet-section worksheet-template"
+            key={title}
+          >
+            <h2>{title}</h2>
+          </section>
+        ))}
+      {!worksheetTemplateMode &&
+        worksheetSections.map((section, index) => (
+          <section
+            className="content-card worksheet-section"
+            key={section.title}
+          >
+            <h2>{section.title}</h2>
+            <p>{section.instruction}</p>
+            {section.rows.length > 0 && (
+              <div
+                className="worksheet-table"
+                role="table"
+                aria-label={section.title}
+              >
+                {section.rows.map((row) => (
+                  <div role="row" className="worksheet-row" key={row.title}>
+                    <h3 role="rowheader">{row.title}</h3>
+                    {row.fields.map((field) => (
+                      <label
+                        className="guided-field"
+                        role="cell"
+                        key={field.id}
+                        htmlFor={field.id}
+                      >
+                        {field.label}
+                        <input
+                          id={field.id}
+                          inputMode={field.numeric ? 'decimal' : 'text'}
+                          maxLength={1200}
+                          value={data.fields[field.id] ?? ''}
+                          onChange={(e) =>
+                            change({
+                              ...data,
+                              fields: {
+                                ...data.fields,
+                                [field.id]: e.target.value,
+                              },
+                            })
+                          }
+                          aria-invalid={
+                            showChecks &&
+                            checks.findings.some(
+                              (f) => f.field === field.id && f.kind === 'error',
+                            )
+                          }
+                        />
+                      </label>
+                    ))}
+                    {row.derived && (
+                      <output className="worksheet-derived" role="cell">
+                        {row.derived === 'branch' ? (
+                          <>
+                            Jumlah arus cabang:{' '}
+                            {displayNumber(checks.computed.branch)} A<br />
+                            Selisih bertanda (masuk − jumlah cabang):{' '}
+                            {displayNumber(checks.computed.difference)} A
+                          </>
+                        ) : row.derived === 'power' ? (
+                          <>P = VI: {displayNumber(checks.computed.power)} W</>
+                        ) : (
+                          <>
+                            R = V/I:{' '}
+                            {displayNumber(checks.computed[row.derived])} Ω
+                          </>
+                        )}
+                      </output>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {section.analysis.map((field) => (
+              <label className="guided-field" key={field.id} htmlFor={field.id}>
+                {field.label}
+                {field.optional ? ' (opsional)' : ' *'}
+                <textarea
+                  id={field.id}
+                  maxLength={1200}
+                  rows={3}
+                  value={data.fields[field.id] ?? ''}
+                  onChange={(e) =>
+                    change({
+                      ...data,
+                      fields: { ...data.fields, [field.id]: e.target.value },
+                    })
+                  }
+                  aria-invalid={
+                    showChecks &&
+                    checks.findings.some(
+                      (f) => f.field === field.id && f.kind === 'error',
+                    )
+                  }
+                />
+              </label>
+            ))}
+            {index < 4 && (
+              <button
+                className="text-button"
+                onClick={() => onMaterial([1, 2, 4, 5][index])}
+              >
+                Kembali ke materi terkait
+              </button>
+            )}
+          </section>
+        ))}
       <section className="content-card">
         <h2>Simpan dan tinjau</h2>
         <p>
-          {clean
-            ? `Tersimpan: ${new Date(saved.savedAt).toLocaleString('id-ID')}`
-            : 'Ada isian yang belum disimpan.'}
+          {worksheetTemplateMode
+            ? 'Template LKPD sedang disiapkan. Pertanyaan dan tabel akan ditambahkan.'
+            : clean
+              ? `Tersimpan: ${new Date(saved.savedAt).toLocaleString('id-ID')}`
+              : 'Ada isian yang belum disimpan.'}
         </p>
         <div className="learning-actions">
           <button className="secondary-button" onClick={save}>
             Simpan draf
           </button>
-          <button className="primary-button" disabled={busy} onClick={review}>
+          <button
+            className="primary-button"
+            disabled={busy || worksheetTemplateMode}
+            onClick={review}
+          >
             Simpan dan minta feedback
           </button>
           {busy && (
@@ -309,8 +332,10 @@ export function ChallengeWorksheet({
         <p role="status">
           {busy ? 'Sedang meninjau hasil eksplorasimu…' : message}
         </p>
-        <AIConsent service={ai} consent={consent} onConsent={setConsent} />
-        {(showChecks || clean) && (
+        {!worksheetTemplateMode && (
+          <AIConsent service={ai} consent={consent} onConsent={setConsent} />
+        )}
+        {!worksheetTemplateMode && (showChecks || clean) && (
           <section aria-label="Pemeriksaan lokal">
             <h3>Pemeriksaan lokal — bukan feedback AI</h3>
             <p>
@@ -355,7 +380,7 @@ export function ChallengeWorksheet({
             ))}
           </section>
         )}
-        {feedback && (
+        {!worksheetTemplateMode && feedback && (
           <section aria-label="Feedback AI">
             <h3>Feedback AI</h3>
             <p>{new Date(feedback.at).toLocaleString('id-ID')}</p>
@@ -399,20 +424,29 @@ export function ChallengeWorksheet({
             </p>
           </section>
         )}
-        <label className="worksheet-confirm">
-          <input
-            type="checkbox"
-            checked={confirmed}
-            disabled={!clean || !checks.valid || !(showChecks || feedback)}
-            onChange={(e) => setConfirmed(e.target.checked)}
-          />{' '}
-          Saya sudah meninjau data, analisis, dan saran perbaikan.
-        </label>
-        {!data.visited && <p>Buka simulasi sebelum menyelesaikan Challenge.</p>}
+        {!worksheetTemplateMode && (
+          <label className="worksheet-confirm">
+            <input
+              type="checkbox"
+              checked={confirmed}
+              disabled={!clean || !checks.valid || !(showChecks || feedback)}
+              onChange={(e) => setConfirmed(e.target.checked)}
+            />{' '}
+            Saya sudah meninjau data, analisis, dan saran perbaikan.
+          </label>
+        )}
+        {!worksheetTemplateMode && !data.visited && (
+          <p>Buka simulasi sebelum menyelesaikan Challenge.</p>
+        )}
         <button
           className="primary-button"
           disabled={
-            !clean || !checks.valid || !data.visited || !confirmed || busy
+            worksheetTemplateMode ||
+            !clean ||
+            !checks.valid ||
+            !data.visited ||
+            !confirmed ||
+            busy
           }
           onClick={complete}
         >
@@ -431,6 +465,20 @@ export function ChallengeWorksheet({
         <button className="text-button" onClick={onBack}>
           Kembali ke dashboard
         </button>
+        {Object.keys(store.learning.challengeDrafts).length > 0 && (
+          <details>
+            <summary>Catatan Challenge sebelumnya</summary>
+            {Object.entries(store.learning.challengeDrafts).map(
+              ([id, draft]) => (
+                <section key={id}>
+                  <h3>Challenge {id}</h3>
+                  <p>{draft.observation}</p>
+                  <p>{draft.reflection}</p>
+                </section>
+              ),
+            )}
+          </details>
+        )}
         {saved?.history.length ? (
           <details>
             <summary>Riwayat revisi tersimpan ({saved.history.length})</summary>

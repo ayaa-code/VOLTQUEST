@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test'
 import {
-  worksheetFields,
   emptyWorksheet,
   inspectWorksheet,
   numberOf,
@@ -37,7 +36,7 @@ test('numbers distinguish empty, zero and invalid units; calculations follow inp
     ),
   ).toBeTruthy()
 })
-test('single worksheet preserves legacy notes, saves and unlocks summative only on completion', async ({
+test('blank worksheet template preserves legacy notes without granting completion', async ({
   page,
 }) => {
   await page.route('https://fonts.googleapis.com/**', (r) =>
@@ -93,54 +92,31 @@ test('single worksheet preserves legacy notes, saves and unlocks summative only 
     page.getByRole('progressbar', { name: 'Progres Listrik Dinamis' }),
   ).toHaveAttribute('aria-valuemax', '10')
   await page.getByRole('button', { name: 'Start Challenge' }).click()
-  await expect(page.locator('.path-row')).toHaveCount(1)
+  await expect(page.locator('.path-catalog')).toHaveCount(0)
+  await expect(page.locator('.worksheet-template')).toHaveCount(5)
+  await expect(
+    page.locator('.worksheet-template :is(input,textarea,table,[role=table])'),
+  ).toHaveCount(0)
   await page.getByText('Catatan Challenge sebelumnya', { exact: true }).click()
   await expect(
     page.getByText('Arsip pengamatan', { exact: true }),
   ).toBeVisible()
-  await page.getByRole('button', { name: /^Challenge/ }).click()
-  await expect(page.locator('iframe')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Simpan dan minta feedback' }).click()
   await expect(
-    page.getByText(
-      'Draf tersimpan. Lengkapi atau perbaiki isian sebelum meminta feedback AI.',
-    ),
-  ).toBeVisible()
-  for (const field of worksheetFields.filter((f) => !f.optional))
-    await page
-      .locator(`#${field.id}`)
-      .fill(
-        field.numeric
-          ? '1'
-          : 'Pengamatan dan penjelasan berdasarkan percobaan saya.',
-      )
-  await page.locator('#a0i').fill('0')
+    page.getByRole('button', { name: 'Simpan dan minta feedback' }),
+  ).toBeDisabled()
+  await expect(
+    page.getByRole('button', { name: 'Selesaikan Challenge', exact: true }),
+  ).toBeDisabled()
   await page.getByRole('button', { name: /Mulai simulasi/ }).click()
   await expect(page.locator('iframe')).toHaveCount(1)
-  await page.getByRole('button', { name: 'Simpan dan minta feedback' }).click()
-  await expect(
-    page.getByText(
-      'Draf tersimpan. Asisten AI belum diaktifkan. Gunakan pemeriksaan lokal di bawah.',
-    ),
-  ).toBeVisible()
-  await page
-    .getByRole('checkbox', {
-      name: 'Saya sudah meninjau data, analisis, dan saran perbaikan.',
-    })
-    .check()
-  await page
-    .getByRole('button', { name: 'Selesaikan Challenge', exact: true })
-    .click()
-  await expect(
-    page.getByRole('button', { name: 'Kerjakan Asesmen Sumatif' }),
-  ).toBeVisible()
+  await page.getByRole('button', { name: 'Simpan draf', exact: true }).click()
   const state = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!),
   )
   expect(state.profiles['student:nara'].challengeDrafts[1].observation).toBe(
     'Arsip pengamatan',
   )
-  expect(state.profiles['student:nara'].worksheet.completedAt).toBeTruthy()
+  expect(state.profiles['student:nara'].worksheet.completedAt).toBeUndefined()
   expect(state.profiles['student:bima'].worksheet).toBeUndefined()
   for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 900 })

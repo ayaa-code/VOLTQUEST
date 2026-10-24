@@ -159,7 +159,7 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
               ready: challengeReady(1),
             },
           ]}
-          onOpen={() => setView({ type: 'catalog', path: 'challenge' })}
+          onOpen={() => setView({ type: 'challenge', id: 1 })}
         />
         <PathCard
           icon="📝"

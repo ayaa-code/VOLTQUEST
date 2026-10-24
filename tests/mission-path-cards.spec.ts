@@ -109,7 +109,7 @@ test('mission cards fit five viewport widths and support full-card clicks and ke
   await challenge.focus()
   await challenge.press('Enter')
   await expect(
-    page.getByRole('heading', { name: 'Challenge Analisis PhET', exact: true }),
+    page.getByRole('heading', { name: 'Tahap ini belum terbuka', exact: true }),
   ).toBeVisible()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
   await page

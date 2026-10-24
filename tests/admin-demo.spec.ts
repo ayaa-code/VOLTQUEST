@@ -116,8 +116,9 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
   await page
     .getByRole('button', { name: 'Start Challenge', exact: true })
     .click()
-  await page.getByRole('button', { name: 'Challenge', exact: true }).click()
-  await page.locator('#a0lamp').fill('Lampu padam pada rangkaian terbuka')
+  await expect(
+    page.getByRole('heading', { name: 'Challenge', exact: true }),
+  ).toBeVisible()
   await page.getByRole('button', { name: 'Simpan draf', exact: true }).click()
   await home(page)
   await page

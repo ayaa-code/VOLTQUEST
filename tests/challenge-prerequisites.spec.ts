@@ -51,8 +51,6 @@ test('failed storage never unlocks summative or claims saved draft', async ({
   }, base)
   await page.goto('/')
   await page.getByRole('button', { name: 'Start Challenge' }).click()
-  await page.getByRole('button', { name: 'Challenge', exact: false }).click()
-  await page.locator('#a0lamp').fill('Lampu padam')
   await page.getByRole('button', { name: 'Simpan draf', exact: true }).click()
   await expect(
     page.getByText(

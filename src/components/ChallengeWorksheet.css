@@ -11,6 +11,12 @@
   max-width: 80ch;
   line-height: 1.8;
 }
+.worksheet .worksheet-template {
+  min-height: 112px;
+}
+.worksheet .worksheet-template h2 {
+  margin: 0;
+}
 .worksheet-table {
   display: grid;
   gap: 18px;
