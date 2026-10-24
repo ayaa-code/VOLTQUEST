@@ -28,5 +28,12 @@ Token warna ada di `src/index.css`. Lapisan warna lintas komponen berada di
 ada di `src/components/circuitScene.ts`. Formulir memakai skema warna gelap.
 Simulasi PhET di iframe mempertahankan tampilan milik penyedia simulasi.
 
+Login memakai gambar referensi `LISTRIK DINAMIS.png` sebagai background `cover`,
+dengan lapisan navy transparan untuk menjaga keterbacaan. Gambar disertakan
+dalam hasil build Vite, sehingga tidak bergantung pada halaman atau koneksi
+GitHub ketika login dibuka. Pada layar potret, posisi gambar diarahkan ke
+lampu jalan sebelah kiri agar ilustrasi tetap terlihat. Formulir dan animasi
+rangkaian tetap berada di depan latar gambar.
+
 Perubahan warna tidak mengubah skema penyimpanan, isi materi, kunci jawaban,
 akun, XP, badge, urutan belajar, atau penghitungan progres.
