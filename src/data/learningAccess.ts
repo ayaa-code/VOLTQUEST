@@ -5,7 +5,7 @@ export function learningAccess(learning: ProfileLearning) {
   const basicsDone = ids.every(
     (id) => learning.materials.includes(id) && learning.quizzes[id]?.complete,
   )
-  const challengesDone = ids.every((id) => learning.challenges.includes(id))
+  const challengesDone = Boolean(learning.worksheet?.completedAt)
   return {
     basicsDone,
     materialReady: (id: number) =>
@@ -18,16 +18,13 @@ export function learningAccess(learning: ProfileLearning) {
       (Boolean(learning.quizzes[id]?.complete) ||
         (learning.materials.includes(id) &&
           (id === 1 || Boolean(learning.quizzes[id - 1]?.complete)))),
-    challengeReady: (id: number) =>
-      ids.includes(id) &&
-      (learning.challenges.includes(id) ||
-        (basicsDone && (id === 1 || learning.challenges.includes(id - 1)))),
+    challengeReady: (id: number) => id === 1 && basicsDone,
     summativeReady:
       learning.summative.submitted || (basicsDone && challengesDone),
   }
 }
 
 export const challengePrerequisite =
-  'Selesaikan seluruh materi dan tes formatif untuk membuka Challenge PhET. Setelah itu, selesaikan Challenge sebelumnya untuk melanjutkan.'
+  'Selesaikan enam materi dan enam tes formatif untuk membuka satu Challenge eksplorasi PhET.'
 export const summativePrerequisite =
-  'Selesaikan seluruh materi, tes formatif, dan enam Challenge PhET untuk membuka asesmen sumatif.'
+  'Selesaikan enam materi, enam tes formatif, dan satu Challenge untuk membuka asesmen sumatif.'

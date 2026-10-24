@@ -1,0 +1,156 @@
+import { test, expect } from '@playwright/test'
+import {
+  worksheetFields,
+  emptyWorksheet,
+  inspectWorksheet,
+  numberOf,
+  snapshotOf,
+} from '../src/data/challengeWorksheet'
+
+test('numbers distinguish empty, zero and invalid units; calculations follow inputs', () => {
+  expect(numberOf('')).toBeNull()
+  expect(numberOf('0')).toBe(0)
+  expect(numberOf('0,25')).toBe(0.25)
+  expect(numberOf('3 A')).toBeNull()
+  expect(numberOf('Infinity')).toBeNull()
+  const data = emptyWorksheet()
+  data.fields = {
+    b0v: '6',
+    b0i: '0,5',
+    d1: '1',
+    d2: '2',
+    dIn: '3',
+    dV: '4',
+    dI: '2',
+  }
+  expect(inspectWorksheet(data).computed).toMatchObject({
+    b0r: 12,
+    branch: 3,
+    difference: 0,
+    power: 8,
+  })
+  data.fields.b0i = '0'
+  expect(inspectWorksheet(data).computed.b0r).toBeNull()
+  expect(
+    inspectWorksheet(data).findings.some(
+      (f) => f.field === 'b0i' && f.kind === 'error',
+    ),
+  ).toBeTruthy()
+})
+test('single worksheet preserves legacy notes, saves and unlocks summative only on completion', async ({
+  page,
+}) => {
+  await page.route('https://fonts.googleapis.com/**', (r) =>
+    r.fulfill({ body: '' }),
+  )
+  await page.route('**/api/ai', (r) => r.fulfill({ json: { enabled: false } }))
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'voltquest.v1',
+      JSON.stringify({
+        active: 'student:nara',
+        profiles: {
+          'student:nara': { name: 'Nara', completed: [], visited: [] },
+        },
+      }),
+    )
+    localStorage.setItem(
+      'voltquest.dynamic-electricity.v1',
+      JSON.stringify({
+        version: 1,
+        profiles: {
+          'student:nara': {
+            materials: [1, 2, 3, 4, 5, 6],
+            quizzes: Object.fromEntries(
+              [1, 2, 3, 4, 5, 6].map((id) => [
+                id,
+                { complete: true, attempts: 1, answer: 'x' },
+              ]),
+            ),
+            challenges: [1, 2, 3, 4, 5, 6],
+            challengeDrafts: {
+              1: {
+                visited: true,
+                observation: 'Arsip pengamatan',
+                reflection: 'Arsip analisis',
+              },
+            },
+            summative: { answers: {}, essays: ['', ''], submitted: false },
+          },
+          'student:bima': {
+            materials: [],
+            challenges: [],
+            challengeDrafts: {},
+            quizzes: {},
+            summative: { answers: {}, essays: [], submitted: false },
+          },
+        },
+      }),
+    )
+  })
+  await page.goto('/')
+  await expect(
+    page.getByRole('progressbar', { name: 'Progres Listrik Dinamis' }),
+  ).toHaveAttribute('aria-valuemax', '14')
+  await page.getByRole('button', { name: 'Start Challenge' }).click()
+  await expect(page.locator('.path-row')).toHaveCount(1)
+  await page.getByText('Catatan Challenge sebelumnya', { exact: true }).click()
+  await expect(
+    page.getByText('Arsip pengamatan', { exact: true }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: /^Challenge/ }).click()
+  await expect(page.locator('iframe')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Simpan dan minta feedback' }).click()
+  await expect(
+    page.getByText(
+      'Draf tersimpan. Lengkapi atau perbaiki isian sebelum meminta feedback AI.',
+    ),
+  ).toBeVisible()
+  for (const field of worksheetFields.filter((f) => !f.optional))
+    await page
+      .locator(`#${field.id}`)
+      .fill(
+        field.numeric
+          ? '1'
+          : 'Pengamatan dan penjelasan berdasarkan percobaan saya.',
+      )
+  await page.locator('#a0i').fill('0')
+  await page.getByRole('button', { name: /Mulai simulasi/ }).click()
+  await expect(page.locator('iframe')).toHaveCount(1)
+  await page.getByRole('button', { name: 'Simpan dan minta feedback' }).click()
+  await expect(
+    page.getByText(
+      'Draf tersimpan. Asisten AI belum diaktifkan. Gunakan pemeriksaan lokal di bawah.',
+    ),
+  ).toBeVisible()
+  await page
+    .getByRole('checkbox', {
+      name: 'Saya sudah meninjau data, analisis, dan saran perbaikan.',
+    })
+    .check()
+  await page
+    .getByRole('button', { name: 'Selesaikan Challenge', exact: true })
+    .click()
+  await expect(
+    page.getByRole('button', { name: 'Kerjakan Asesmen Sumatif' }),
+  ).toBeVisible()
+  const state = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!),
+  )
+  expect(state.profiles['student:nara'].challengeDrafts[1].observation).toBe(
+    'Arsip pengamatan',
+  )
+  expect(state.profiles['student:nara'].worksheet.completedAt).toBeTruthy()
+  expect(state.profiles['student:bima'].worksheet).toBeUndefined()
+  for (const width of [1440, 1024, 768, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 })
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth + 1,
+      ),
+    ).toBeTruthy()
+  }
+  expect(snapshotOf(state.profiles['student:nara'].worksheet.data)).toBe(
+    state.profiles['student:nara'].worksheet.snapshot,
+  )
+})

@@ -1,5 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
 import { learningAccess } from '../data/learningAccess'
+import {
+  inspectWorksheet,
+  snapshotOf,
+  type WorksheetRecord,
+} from '../data/challengeWorksheet'
 
 type ChallengeDraft = {
   visited: boolean
@@ -13,6 +18,7 @@ type QuizAttempt = {
   draft?: string
 }
 export type ProfileLearning = {
+  worksheet?: WorksheetRecord
   materials: number[]
   challenges: number[]
   challengeDrafts: Record<string, ChallengeDraft>
@@ -52,53 +58,72 @@ function read(): Saved {
 export function useDynamicLearning(profileId: string | null) {
   const [saved, setSaved] = useState<Saved>(read)
   const [storageError, setStorageError] = useState(false)
-  useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(saved))
-      // Persisting is an intentional side effect of a state change.
-      // oxlint-disable-next-line react/set-state-in-effect
-      setStorageError(false)
-    } catch {
-      // oxlint-disable-next-line react/set-state-in-effect
-      setStorageError(true)
-    }
-  }, [saved])
+  const latest = useRef(saved)
   const learning = profileId ? (saved.profiles[profileId] ?? blank()) : blank()
   function update(change: (current: ProfileLearning) => ProfileLearning) {
-    if (!profileId) return
-    setSaved((state) => ({
+    if (!profileId) return false
+    const state = latest.current
+    const current = state.profiles[profileId] ?? blank()
+    const changed = change(current)
+    if (changed === current) return false
+    const next: Saved = {
       ...state,
       profiles: {
         ...state.profiles,
-        [profileId]: change(state.profiles[profileId] ?? blank()),
+        [profileId]: changed,
       },
-    }))
+    }
+    try {
+      localStorage.setItem(KEY, JSON.stringify(next))
+      latest.current = next
+      setSaved(next)
+      setStorageError(false)
+      return true
+    } catch {
+      setStorageError(true)
+      return false
+    }
   }
   return {
     learning,
     storageError,
+    profileId,
+    saveWorksheet: (record: WorksheetRecord) =>
+      update((current) => {
+        if (!learningAccess(current).challengeReady(1)) return current
+        // Completion can only be granted by completeWorksheet, never arbitrary saves.
+        return {
+          ...current,
+          worksheet: { ...record, completedAt: current.worksheet?.completedAt },
+        }
+      }),
+    completeWorksheet: (snapshot: string) =>
+      update((current) => {
+        const record = current.worksheet
+        if (
+          !record ||
+          !learningAccess(current).basicsDone ||
+          !record.data.visited ||
+          record.snapshot !== snapshot ||
+          snapshotOf(record.data) !== snapshot ||
+          record.reviewed !== snapshot ||
+          !inspectWorksheet(record.data).valid
+        )
+          return current
+        return {
+          ...current,
+          worksheet: {
+            ...record,
+            completedAt: record.completedAt ?? new Date().toISOString(),
+          },
+        }
+      }),
     markMaterial: (id: number) =>
       update((current) =>
         current.materials.includes(id) ||
         !learningAccess(current).materialReady(id)
           ? current
           : { ...current, materials: [...current.materials, id] },
-      ),
-    saveChallenge: (id: number, draft: ChallengeDraft) =>
-      update((current) =>
-        !learningAccess(current).challengeReady(id)
-          ? current
-          : {
-              ...current,
-              challengeDrafts: { ...current.challengeDrafts, [id]: draft },
-            },
-      ),
-    completeChallenge: (id: number) =>
-      update((current) =>
-        current.challenges.includes(id) ||
-        !learningAccess(current).challengeReady(id)
-          ? current
-          : { ...current, challenges: [...current.challenges, id] },
       ),
     saveQuizDraft: (id: number, draft: string) =>
       update((current) =>

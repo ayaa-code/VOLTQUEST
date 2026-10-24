@@ -8,7 +8,8 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { CircuitAnimation } from './CircuitAnimation'
-import { PhetLab } from './PhetLab'
+import { ChallengeWorksheet } from './ChallengeWorksheet'
+import { AssistantChat } from './AssistantChat'
 import {
   dynamicTopics,
   summativeEssays,
@@ -52,11 +53,8 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
       if (!learning.quizzes[topic.id]?.complete)
         return { type: 'quiz', id: topic.id }
     }
-    const nextChallenge = dynamicTopics.find(
-      (topic) => !learning.challenges.includes(topic.id),
-    )
-    return nextChallenge
-      ? { type: 'challenge', id: nextChallenge.id }
+    return !learning.worksheet?.completedAt
+      ? { type: 'challenge', id: 1 }
       : { type: 'summative' }
   })()
   if (view.type === 'catalog')
@@ -88,11 +86,11 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
     )
 
   const materialCount = learning.materials.length
-  const challengeCount = learning.challenges.length
+  const challengeCount = learning.worksheet?.completedAt ? 1 : 0
   const quizCount = Object.values(learning.quizzes).filter(
     (quiz) => quiz.complete,
   ).length
-  const units = 6 * 3 + 1
+  const units = 14
   const done =
     materialCount +
     challengeCount +
@@ -149,11 +147,13 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           variant="challenge"
           number="02"
           action="Start Challenge"
-          steps={dynamicTopics.map((topic) => ({
-            title: topic.title,
-            done: learning.challenges.includes(topic.id),
-            ready: challengeReady(topic.id),
-          }))}
+          steps={[
+            {
+              title: 'Challenge',
+              done: Boolean(challengeCount),
+              ready: challengeReady(1),
+            },
+          ]}
           onOpen={() => setView({ type: 'catalog', path: 'challenge' })}
         />
         <PathCard
@@ -207,8 +207,8 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           <li className={materialCount === 6 ? 'done' : ''}>
             Materi <small>{materialCount}/6</small>
           </li>
-          <li className={challengeCount === 6 ? 'done' : ''}>
-            Challenge <small>{challengeCount}/6</small>
+          <li className={challengeCount === 1 ? 'done' : ''}>
+            Challenge <small>{challengeCount}/1</small>
           </li>
           <li className={quizCount === 6 ? 'done' : ''}>
             Formatif <small>{quizCount}/6</small>
@@ -383,12 +383,15 @@ function PathCatalog({
           <p className="learning-summary">{summativePrerequisite}</p>
         )}
         <div className="path-rows">
-          {dynamicTopics.map((topic) => {
+          {(path === 'challenge'
+            ? dynamicTopics.slice(0, 1)
+            : dynamicTopics
+          ).map((topic) => {
             const done =
               path === 'material'
                 ? learning.materials.includes(topic.id)
                 : path === 'challenge'
-                  ? learning.challenges.includes(topic.id)
+                  ? Boolean(learning.worksheet?.completedAt)
                   : Boolean(learning.quizzes[topic.id]?.complete)
             const ready =
               path === 'material'
@@ -400,7 +403,7 @@ function PathCatalog({
               path === 'material'
                 ? topic.title
                 : path === 'challenge'
-                  ? `Challenge ${topic.id}: ${topic.title}`
+                  ? 'Challenge'
                   : `Formatif ${topic.id}: ${topic.title}`
             return (
               <PathRow
@@ -419,6 +422,24 @@ function PathCatalog({
             />
           )}
         </div>
+        {path === 'challenge' &&
+          Object.keys(learning.challengeDrafts).length > 0 && (
+            <details>
+              <summary>Catatan Challenge sebelumnya</summary>
+              {Object.entries(learning.challengeDrafts).map(([id, draft]) => (
+                <section key={id}>
+                  <h2>{dynamicTopics[Number(id) - 1]?.title ?? id}</h2>
+                  <p>{draft.observation}</p>
+                  <p>{draft.reflection}</p>
+                  <small>
+                    {learning.challenges.includes(Number(id))
+                      ? 'Selesai pada alur sebelumnya'
+                      : 'Draf lama'}
+                  </small>
+                </section>
+              ))}
+            </details>
+          )}
       </section>
       {path === 'material' && <LessonResources />}
     </main>
@@ -467,7 +488,12 @@ function LearningPanel({
           onBack={() => onOpen({ type: 'catalog', path: 'material' })}
         />
       ) : view.type === 'challenge' ? (
-        <Challenge topic={topic!} store={store} onBack={onBack} />
+        <ChallengeWorksheet
+          store={store}
+          onBack={onBack}
+          onSum={() => onOpen({ type: 'summative' })}
+          onMaterial={(id) => onOpen({ type: 'material', id })}
+        />
       ) : view.type === 'quiz' ? (
         <Formative
           topic={topic!}
@@ -490,6 +516,9 @@ function LearningPanel({
           <h1>Asesmen sumatif masih terkunci</h1>
           <p>{summativePrerequisite}</p>
         </section>
+      )}
+      {view.type === 'material' && !blocked && (
+        <AssistantChat profileId={store.profileId!} topicId={topic!.id} />
       )}
     </main>
   )
@@ -570,85 +599,6 @@ function Material({
       <button className="text-button" onClick={onBack}>
         Kembali ke daftar materi <ArrowRight size={16} />
       </button>
-    </section>
-  )
-}
-function Challenge({
-  topic,
-  store,
-  onBack,
-}: {
-  topic: (typeof dynamicTopics)[number]
-  store: ReturnType<typeof useDynamicLearning>
-  onBack: () => void
-}) {
-  const current = store.learning.challengeDrafts[topic.id] ?? {
-    visited: false,
-    observation: '',
-    reflection: '',
-  }
-  const [draft, setDraft] = useState(current)
-  const complete = store.learning.challenges.includes(topic.id)
-  const save = (next: typeof draft) => {
-    setDraft(next)
-    store.saveChallenge(topic.id, next)
-  }
-  const canComplete =
-    draft.visited &&
-    draft.observation.trim().length >= 8 &&
-    draft.reflection.trim().length >= 8
-  return (
-    <section className="learning-challenge">
-      <section className="content-card learning-detail">
-        <span className="section-kicker">
-          CHALLENGE {String(topic.id).padStart(2, '0')}
-        </span>
-        <h1>{topic.title}</h1>
-        <p>{topic.challenge}</p>
-      </section>
-      <PhetLab
-        visited={draft.visited}
-        onVisit={() => save({ ...draft, visited: true })}
-      />
-      <section className="content-card">
-        <h2>Catatan analisismu</h2>
-        <label className="guided-field">
-          {topic.observationPrompt}
-          <textarea
-            value={draft.observation}
-            onChange={(e) => save({ ...draft, observation: e.target.value })}
-            placeholder="Tulis hasil yang benar-benar kamu amati."
-          />
-        </label>
-        <label className="guided-field">
-          {topic.reflectionPrompt}
-          <textarea
-            value={draft.reflection}
-            onChange={(e) => save({ ...draft, reflection: e.target.value })}
-            placeholder="Hubungkan pengamatanmu dengan konsep."
-          />
-        </label>
-        {complete ? (
-          <p className="success-note">
-            <CheckCircle2 size={18} /> Challenge selesai. Catatanmu tersimpan.
-          </p>
-        ) : (
-          <button
-            disabled={!canComplete}
-            className="primary-button"
-            onClick={() => store.completeChallenge(topic.id)}
-          >
-            Selesaikan challenge <CheckCircle2 size={17} />
-          </button>
-        )}
-        <p className="guided-help">
-          VoltQuest tidak membaca hasil PhET otomatis; kamu mengisi pengamatan
-          sendiri.
-        </p>
-        <button className="text-button" onClick={onBack}>
-          Kembali ke progres
-        </button>
-      </section>
     </section>
   )
 }

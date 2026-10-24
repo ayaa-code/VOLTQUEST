@@ -162,9 +162,9 @@ test('rails reflect saved profile progress and keep summative locked until all s
   const quiz = page.locator('.mission-path-assessment')
   await expect(lessons.locator('.mission-step.done')).toHaveCount(3)
   await expect(lessons.locator('.mission-step.locked')).toHaveCount(3)
-  await expect(challenge.locator('.mission-step.done')).toHaveCount(1)
+  await expect(challenge.locator('.mission-step.done')).toHaveCount(0)
   await expect(challenge.locator('.mission-step.active')).toHaveCount(0)
-  await expect(challenge.locator('.mission-step.locked')).toHaveCount(5)
+  await expect(challenge.locator('.mission-step.locked')).toHaveCount(1)
   await expect(quiz.locator('.mission-step.done')).toHaveCount(2)
   await expect(quiz.locator('.mission-step.active')).toHaveCount(1)
   await expect(quiz.locator('.mission-step').last()).toHaveAttribute(

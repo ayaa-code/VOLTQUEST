@@ -1,46 +1,34 @@
-import { expect, test } from '@playwright/test'
-
-test('six sequential challenges are required for summative and saved analyses remain intact', async ({
+﻿import { test, expect } from '@playwright/test'
+import { learningAccess } from '../src/data/learningAccess'
+import type { ProfileLearning } from '../src/hooks/useDynamicLearning'
+const base: ProfileLearning = {
+  materials: [1, 2, 3, 4, 5, 6],
+  quizzes: Object.fromEntries(
+    [1, 2, 3, 4, 5, 6].map((id) => [
+      id,
+      { answer: 'x', complete: true, attempts: 1 },
+    ]),
+  ),
+  challenges: [1, 2, 3, 4, 5, 6],
+  challengeDrafts: {},
+  summative: { answers: {}, essays: [], submitted: false },
+}
+test('old challenges never auto-complete new worksheet and old summative remains reviewable', () => {
+  expect(learningAccess(base).challengeReady(1)).toBeTruthy()
+  expect(learningAccess(base).challengeReady(2)).toBeFalsy()
+  expect(learningAccess(base).summativeReady).toBeFalsy()
+  expect(
+    learningAccess({
+      ...base,
+      summative: { ...base.summative, submitted: true },
+    }).summativeReady,
+  ).toBeTruthy()
+  expect(learningAccess({ ...base, quizzes: {} }).challengeReady(1)).toBeFalsy()
+})
+test('failed storage never unlocks summative or claims saved draft', async ({
   page,
 }) => {
-  test.setTimeout(60000)
-  await page.route('https://fonts.googleapis.com/**', (route) =>
-    route.fulfill({ contentType: 'text/css', body: '' }),
-  )
-  const original = {
-    version: 1,
-    profiles: {
-      'student:nara': {
-        materials: [1, 2, 3, 4, 5, 6],
-        quizzes: Object.fromEntries(
-          [1, 2, 3, 4, 5, 6].map((id) => [
-            id,
-            { answer: 'benar', attempts: 1, complete: true },
-          ]),
-        ),
-        challenges: [],
-        challengeDrafts: Object.fromEntries(
-          [1, 2, 3, 4, 5, 6].map((id) => [
-            id,
-            {
-              visited: true,
-              observation: `Pengamatan sebelumnya ${id}`,
-              reflection: `Analisis sebelumnya ${id}`,
-            },
-          ]),
-        ),
-        summative: { answers: {}, essays: ['', ''], submitted: false },
-      },
-      'student:bima': {
-        materials: [1],
-        challenges: [],
-        challengeDrafts: {},
-        quizzes: {},
-        summative: { answers: {}, essays: ['', ''], submitted: false },
-      },
-    },
-  }
-  await page.addInitScript((saved) => {
+  await page.addInitScript((value) => {
     localStorage.setItem(
       'voltquest.v1',
       JSON.stringify({
@@ -52,100 +40,33 @@ test('six sequential challenges are required for summative and saved analyses re
     )
     localStorage.setItem(
       'voltquest.dynamic-electricity.v1',
-      JSON.stringify(saved),
+      JSON.stringify({ version: 1, profiles: { 'student:nara': value } }),
     )
-  }, original)
+    const original = Storage.prototype.setItem
+    Storage.prototype.setItem = function (key, value) {
+      if (key === 'voltquest.dynamic-electricity.v1')
+        throw new DOMException('Full', 'QuotaExceededError')
+      return original.call(this, key, value)
+    }
+  }, base)
   await page.goto('/')
-  for (let id = 1; id <= 6; id++) {
-    await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
-    await expect(
-      page.getByRole('button', { name: 'Sumatif Listrik Dinamis' }),
-    ).toBeDisabled()
-    await page
-      .getByRole('button', { name: 'Kembali ke Listrik Dinamis' })
-      .click()
-    await page.getByRole('button', { name: 'Start Challenge' }).click()
-    const row = page.getByRole('button', {
-      name: new RegExp(`^Challenge ${id}:`),
-    })
-    await expect(row).toBeEnabled()
-    if (id < 6)
-      await expect(
-        page.getByRole('button', { name: new RegExp(`^Challenge ${id + 1}:`) }),
-      ).toBeDisabled()
-    await row.click()
-    await expect(page.getByRole('textbox').first()).toHaveValue(
-      `Pengamatan sebelumnya ${id}`,
-    )
-    await page.getByRole('button', { name: 'Selesaikan challenge' }).click()
-    await expect(
-      page.getByText('Challenge selesai. Catatanmu tersimpan.'),
-    ).toBeVisible()
-    await page.getByRole('button', { name: 'Kembali ke progres' }).click()
-  }
+  await page.getByRole('button', { name: 'Start Challenge' }).click()
+  await page.getByRole('button', { name: 'Challenge', exact: false }).click()
+  await page.locator('#a0lamp').fill('Lampu padam')
+  await page.getByRole('button', { name: 'Simpan draf', exact: true }).click()
   await expect(
-    page.locator('.mission-path-challenge .mission-step.done'),
-  ).toHaveCount(6)
+    page.getByText(
+      'Draf gagal disimpan. Ruang penyimpanan mungkin penuh; jangan tutup halaman.',
+    ),
+  ).toBeVisible()
   await expect(
-    page.locator('.mission-path-assessment .mission-step').last(),
-  ).toHaveAttribute('aria-label', /Sumatif.*Ready to continue/)
-  await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
-  await page.getByRole('button', { name: 'Sumatif Listrik Dinamis' }).click()
-  await expect(page.getByText('ASESMEN SUMATIF', { exact: true })).toBeVisible()
-  const saved = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!),
-  )
-  expect(saved.profiles['student:nara'].challenges).toEqual([1, 2, 3, 4, 5, 6])
-  expect(saved.profiles['student:nara'].challengeDrafts).toEqual(
-    original.profiles['student:nara'].challengeDrafts,
-  )
-  expect(saved.profiles['student:bima']).toEqual(
-    original.profiles['student:bima'],
-  )
-})
-
-test('legacy completed summative remains reviewable without inventing missing prerequisites', async ({
-  page,
-}) => {
-  await page.addInitScript(() => {
-    localStorage.setItem(
-      'voltquest.v1',
-      JSON.stringify({
-        active: 'student:old',
-        profiles: {
-          'student:old': { name: 'Old', completed: [], visited: [] },
-        },
-      }),
-    )
-    localStorage.setItem(
-      'voltquest.dynamic-electricity.v1',
-      JSON.stringify({
-        version: 1,
-        profiles: {
-          'student:old': {
-            materials: [],
-            quizzes: {},
-            challenges: [],
-            challengeDrafts: {},
-            summative: {
-              answers: {},
-              essays: ['Catatan lama', 'Jawaban lama'],
-              submitted: true,
-            },
-          },
-        },
-      }),
-    )
-  })
-  await page.goto('/')
-  await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
-  await page.getByRole('button', { name: 'Sumatif Listrik Dinamis' }).click()
-  await expect(page.getByText('ASESMEN SUMATIF', { exact: true })).toBeVisible()
+    page.getByRole('button', { name: 'Selesaikan Challenge', exact: true }),
+  ).toBeDisabled()
   expect(
     await page.evaluate(
       () =>
         JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!)
-          .profiles['student:old'].materials,
+          .profiles['student:nara'].worksheet,
     ),
-  ).toEqual([])
+  ).toBeUndefined()
 })

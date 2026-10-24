@@ -57,9 +57,7 @@ test('materi menawarkan formatif yang sama, revisi membuka materi berikutnya, da
   await expect(secondMaterial).toBeDisabled()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
   await page.getByRole('button', { name: 'Start Challenge' }).click()
-  await expect(
-    page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }),
-  ).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Challenge' })).toBeDisabled()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
   await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
   await expect(
@@ -134,12 +132,10 @@ test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai p
   ).toBeDisabled()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
   await page.getByRole('button', { name: 'Start Challenge' }).click()
-  await expect(
-    page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }),
-  ).toBeEnabled()
-  await expect(
-    page.getByRole('button', { name: /Challenge 2:/ }),
-  ).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Challenge' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: /Challenge 2:/ })).toHaveCount(
+    0,
+  )
   const progress = await page.evaluate(
     () =>
       JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!)
@@ -154,7 +150,9 @@ test('enam pasangan materi dan kuis dapat diselesaikan tanpa challenge sebagai p
   ).toBe(true)
   await page.reload()
   await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
-  await expect(page.getByText('CHALLENGE 01', { exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Challenge', exact: true }),
+  ).toBeVisible()
 })
 
 test('progres lama dan profil lain dipertahankan saat meninjau kembali materi', async ({
@@ -244,6 +242,7 @@ test('membuka sumatif hanya setelah enam kuis formatif tersimpan pada profil sis
             challenges: [1, 2, 3, 4, 5, 6],
             challengeDrafts: {},
             quizzes,
+            worksheet: { completedAt: '2026-10-24' },
             summative: { answers: {}, essays: ['', ''], submitted: false },
           },
         },

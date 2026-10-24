@@ -5,9 +5,11 @@ import { PHET_URL } from '../data/missions'
 export function PhetLab({
   onVisit,
   visited,
+  startLabel = 'Mulai simulasi di sini',
 }: {
   onVisit: () => void
   visited: boolean
+  startLabel?: string
 }) {
   const [opened, setOpened] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -101,7 +103,7 @@ export function PhetLab({
                 onVisit()
               }}
             >
-              <Play size={17} /> Mulai simulasi di sini
+              <Play size={17} /> {startLabel}
             </button>
           </div>
         )}
