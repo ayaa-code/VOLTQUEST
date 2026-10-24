@@ -101,11 +101,13 @@ test('full journey, reflection, persistence, no duplicate XP, and profiles', asy
   await expect(page.locator('.header-xp')).toContainText('500')
   await expect(page.locator('.mission-card .is-complete')).toHaveCount(5)
   await page
-    .getByRole('button', { name: /Badge saya/i })
+    .getByRole('button', { name: /Panduan Belajar/i })
     .filter({ visible: true })
     .click()
-  await expect(page.getByRole('dialog')).toContainText('5 dari 5 badge')
-  await expect(page.locator('.badge-check')).toHaveCount(5)
+  await expect(page.getByRole('dialog')).toContainText(
+    'Capaian Pembelajaran (CP)',
+  )
+  await expect(page.locator('.learning-guide li')).toHaveCount(4)
   await page.getByRole('button', { name: 'Tutup', exact: true }).click()
   await page.getByRole('button', { name: 'Jelajahi misi lagi' }).click()
   await expect(

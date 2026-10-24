@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
 import {
   ArrowRight,
-  Award,
   BookOpen,
   Check,
-  CheckCircle2,
   ChevronRight,
   CircleHelp,
   ExternalLink,
@@ -32,8 +30,10 @@ import { Dialog } from './components/Dialog'
 import { useProgress } from './hooks/useProgress'
 import './App.css'
 import './theme.css'
+import { LearningGuide } from './components/LearningGuide'
+import './components/LearningRefinements.css'
 
-type Modal = 'badges' | 'profile' | 'progress' | 'help' | 'class' | null
+type Modal = 'guide' | 'profile' | 'progress' | 'help' | 'class' | null
 // The former mission dashboard remains in the source while legacy mission URLs
 // are supported, but the Listrik Dinamis journey is the active dashboard.
 const legacyDashboardVisible = false
@@ -135,10 +135,10 @@ function App() {
                   <Home size={17} /> Jelajah misi
                 </button>
                 <button
-                  className={modal === 'badges' ? 'active' : ''}
-                  onClick={() => setModal('badges')}
+                  className={modal === 'guide' ? 'active' : ''}
+                  onClick={() => setModal('guide')}
                 >
-                  <Award size={18} /> Badge saya
+                  <BookOpen size={18} /> Panduan Belajar
                 </button>
               </nav>
               <div className="header-right">
@@ -455,11 +455,11 @@ function App() {
               Jelajah
             </button>
             <button
-              className={modal === 'badges' ? 'active' : ''}
-              onClick={() => setModal('badges')}
+              className={modal === 'guide' ? 'active' : ''}
+              onClick={() => setModal('guide')}
             >
-              <Award size={21} />
-              Badge saya
+              <BookOpen size={21} />
+              Panduan Belajar
             </button>
             <button
               className={modal === 'progress' ? 'active' : ''}
@@ -478,52 +478,9 @@ function App() {
           </nav>
         </div>
       )}
-      {modal === 'badges' && profile && (
-        <Dialog title="Badge Saya" onClose={() => setModal(null)}>
-          <div className="modal-intro">
-            <span className="modal-hero-icon">
-              <Award size={34} />
-            </span>
-            <p>
-              Setiap badge punya cerita penemuanmu.
-              <br />
-              <strong>{count} dari 5 badge berhasil dikumpulkan.</strong>
-            </p>
-          </div>
-          <div className="badge-grid">
-            {missions.map((m) => {
-              const earned = profile.completed.includes(m.id)
-              const Icon = m.icon
-              return (
-                <div
-                  key={m.id}
-                  className={`badge-item ${earned ? m.theme : 'locked'}`}
-                >
-                  <span className="badge-medal">
-                    <Icon size={29} />
-                    {earned && (
-                      <CheckCircle2 size={15} className="badge-check" />
-                    )}
-                  </span>
-                  <strong>{m.badge}</strong>
-                  <small>
-                    {earned ? 'Berhasil diraih' : `Selesaikan misi 0${m.id}`}
-                  </small>
-                </div>
-              )
-            })}
-          </div>
-          <button
-            className="primary-button"
-            onClick={() => {
-              setModal(null)
-              setPracticeRecommendation(null)
-              setPracticeOpen(false)
-              setSelected(null)
-            }}
-          >
-            Jelajahi misi <ArrowRight size={17} />
-          </button>
+      {modal === 'guide' && profile && (
+        <Dialog title="Panduan Belajar" onClose={() => setModal(null)}>
+          <LearningGuide />
         </Dialog>
       )}
       {modal === 'progress' && profile && (
