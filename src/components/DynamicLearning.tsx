@@ -5,6 +5,7 @@ import {
   BookOpen,
   CheckCircle2,
   ClipboardCheck,
+  Leaf,
   FlaskConical,
   LockKeyhole,
   Play,
@@ -18,6 +19,7 @@ import {
   summativeQuestions,
 } from '../data/dynamicElectricity'
 import { useDynamicLearning } from '../hooks/useDynamicLearning'
+import './MissionPathCards.css'
 
 type View =
   | { type: 'home' }
@@ -132,20 +134,48 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
       >
         <PathCard
           icon={<BookOpen />}
-          title="Materi Listrik Dinamis"
-          count={`${materialCount}/6 selesai`}
+          title="Learning Path"
+          variant="lessons"
+          number="01"
+          action="Explore Lessons"
+          steps={dynamicTopics.map((topic) => ({
+            title: topic.title,
+            done: learning.materials.includes(topic.id),
+            ready: materialReady(topic.id),
+          }))}
           onOpen={() => setView({ type: 'catalog', path: 'material' })}
         />
         <PathCard
           icon={<FlaskConical />}
-          title="Challenge Analisis PhET"
-          count={`${challengeCount}/6 selesai`}
+          title="PhET Challenge"
+          variant="challenge"
+          number="02"
+          action="Start Challenge"
+          steps={dynamicTopics.map((topic) => ({
+            title: topic.title,
+            done: learning.challenges.includes(topic.id),
+            ready: challengeReady(topic.id),
+          }))}
           onOpen={() => setView({ type: 'catalog', path: 'challenge' })}
         />
         <PathCard
           icon={<ClipboardCheck />}
-          title="Kuis dan Asesmen"
-          count={`${quizCount}/6 formatif`}
+          title="Quizzes & Assessment"
+          variant="assessment"
+          number="03"
+          action="Test Your Knowledge"
+          steps={[
+            ...dynamicTopics.map((topic) => ({
+              title: topic.title,
+              done: Boolean(learning.quizzes[topic.id]?.complete),
+              ready: Boolean(quizReady(topic.id)),
+            })),
+            {
+              title: 'Sumatif Listrik Dinamis',
+              done: learning.summative.submitted,
+              ready: allQuizDone,
+            },
+          ]}
           onOpen={() => setView({ type: 'catalog', path: 'quiz' })}
         />
       </section>
@@ -204,30 +234,94 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
 function PathCard({
   icon,
   title,
-  count,
+  variant,
+  number,
+  action,
+  steps,
   onOpen,
 }: {
   icon: React.ReactNode
   title: string
-  count: string
+  variant: 'lessons' | 'challenge' | 'assessment'
+  number: string
+  action: string
+  steps: { title: string; done: boolean; ready: boolean }[]
   onOpen: () => void
 }) {
+  const completed = steps.filter((step) => step.done).length
+  const active = steps.findIndex((step) => !step.done && step.ready)
+  const summaryId = `path-${variant}-progress`
   return (
-    <button
-      type="button"
-      className="learning-path-card"
-      onClick={onOpen}
-      aria-label={`Buka daftar ${title}`}
+    <article
+      className={`learning-path-card mission-path-card mission-path-${variant}`}
     >
-      <div className="path-card-icon">{icon}</div>
-      <div>
-        <h2>{title}</h2>
-        <p>{count}</p>
+      <div className="mission-card-header" aria-hidden="true">
+        <span className="mission-card-number">{number}</span>
+        <svg className="mission-card-circuit" viewBox="0 0 320 100" fill="none">
+          <path d="M0 36h56l24 24h36M320 24h-58l-30 30h-40M320 80h-38l-18-18h-30" />
+          <circle cx="116" cy="60" r="4" />
+          <circle cx="192" cy="54" r="4" />
+          <circle cx="234" cy="62" r="4" />
+          <circle cx="45" cy="36" r="3" />
+        </svg>
+        <span className="mission-card-medallion">{icon}</span>
       </div>
-      <span className="path-card-open">
-        Lihat daftar <ArrowRight size={16} />
-      </span>
-    </button>
+      <div className="mission-card-body">
+        <h2>{title}</h2>
+        <div className="mission-card-progress">
+          <p id={summaryId} className="mission-card-count">
+            <span className="sr-only">Completed: </span>
+            {completed}
+            <span> / {steps.length}</span>
+          </p>
+          <ol className="mission-card-steps" aria-label={`${title} progress`}>
+            {steps.map((step, index) => {
+              const state = step.done
+                ? 'done'
+                : index === active
+                  ? 'active'
+                  : step.ready
+                    ? 'next'
+                    : 'locked'
+              const label = `${index + 1}. ${step.title}: ${state === 'done' ? 'Completed' : state === 'active' ? 'Ready to continue' : state === 'next' ? 'Available' : 'Locked'}`
+              return (
+                <li
+                  key={step.title}
+                  className={`mission-step ${state}`}
+                  aria-label={label}
+                  title={label}
+                >
+                  <span aria-hidden="true">
+                    {state === 'done' ? (
+                      <CheckCircle2 />
+                    ) : state === 'locked' ? (
+                      <LockKeyhole />
+                    ) : (
+                      <i />
+                    )}
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+        </div>
+        <button
+          type="button"
+          className="mission-card-action"
+          onClick={onOpen}
+          aria-label={action}
+          aria-describedby={summaryId}
+        >
+          {action}
+          <ArrowRight size={19} aria-hidden="true" />
+        </button>
+      </div>
+      <div className="mission-card-garden" aria-hidden="true">
+        <Leaf />
+        <Leaf />
+        <Leaf />
+      </div>
+    </article>
   )
 }
 function PathRow({

@@ -165,9 +165,7 @@ test('login loads no 3D scene; dashboard switch, visibility and navigation relea
     .poll(() => page.evaluate(() => window.energyProbe.pending))
     .toBe(1)
   for (let i = 0; i < 3; i++) {
-    await page
-      .getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' })
-      .click()
+    await page.getByRole('button', { name: 'Explore Lessons' }).click()
     await expect(page.locator('canvas')).toHaveCount(0)
     await expectStopped(page)
     expect(

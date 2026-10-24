@@ -29,12 +29,10 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
     '3d',
   )
   await expect(
-    page.getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' }),
+    page.getByRole('button', { name: 'Explore Lessons' }),
   ).toBeVisible()
 
-  await page
-    .getByRole('button', { name: 'Buka daftar Kuis dan Asesmen' })
-    .click()
+  await page.getByRole('button', { name: 'Test Your Knowledge' }).click()
   await expect(
     page.getByRole('button', { name: 'Formatif 1: Arus Listrik' }),
   ).toBeDisabled()
@@ -42,9 +40,7 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
     page.getByRole('button', { name: 'Sumatif Listrik Dinamis' }),
   ).toBeDisabled()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
-  await page
-    .getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' })
-    .click()
+  await page.getByRole('button', { name: 'Explore Lessons' }).click()
   const secondMaterial = page.getByRole('button', {
     name: 'Hambatan Ohmik dan Non Ohmik',
   })
@@ -60,9 +56,7 @@ test('materi menawarkan kuis yang sama, revisi membuka materi berikutnya, dan ch
   await page.getByRole('button', { name: 'Kembali ke daftar materi' }).click()
   await expect(secondMaterial).toBeDisabled()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
-  await page
-    .getByRole('button', { name: 'Buka daftar Challenge Analisis PhET' })
-    .click()
+  await page.getByRole('button', { name: 'Start Challenge' }).click()
   await expect(
     page.getByRole('button', { name: 'Challenge 1: Arus Listrik' }),
   ).toBeEnabled()
@@ -194,9 +188,7 @@ test('progres lama dan profil lain dipertahankan saat meninjau kembali materi', 
     legacy,
   )
   await page.goto('/')
-  await page
-    .getByRole('button', { name: 'Buka daftar Materi Listrik Dinamis' })
-    .click()
+  await page.getByRole('button', { name: 'Explore Lessons' }).click()
   await page
     .getByRole('button', { name: 'Hambatan Ohmik dan Non Ohmik' })
     .click()
