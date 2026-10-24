@@ -575,8 +575,6 @@ function Material({
         MATERI {String(topic.id).padStart(2, '0')}
       </span>
       <h1>{topic.title}</h1>
-      <h2>Tujuan belajar</h2>
-      <p>{topic.objective}</p>
       <LessonContent topicId={topic.id} />
       <div className="learning-summary">
         <strong>Ringkasan</strong>

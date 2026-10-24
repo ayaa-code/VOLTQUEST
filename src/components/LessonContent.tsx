@@ -135,7 +135,7 @@ export function LessonContent({ topicId }: { topicId: number }) {
     <div className="lesson-content">
       <section className="lesson-audio" aria-label="Pembacaan materi">
         <h2>
-          <Volume2 size={20} aria-hidden="true" /> Dengarkan materi
+          <Volume2 size={18} aria-hidden="true" /> Dengarkan materi
         </h2>
         {!speech.supported ? (
           <p>

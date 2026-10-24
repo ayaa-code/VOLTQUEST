@@ -109,6 +109,27 @@ test('all six complete manuscripts have the mapped lazy video, accessible contro
     await expect(
       page.getByRole('heading', { name: lesson.title, exact: true }),
     ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Tujuan belajar', exact: true }),
+    ).toHaveCount(0)
+    await expect(
+      page.getByText(
+        /Tekan Dengarkan materi untuk memulai|Suara otomatis dari perangkat|Suara bahasa Indonesia belum tersedia/,
+      ),
+    ).toHaveCount(0)
+    const audio = page.locator('.lesson-audio')
+    expect(
+      await audio
+        .locator('h2')
+        .evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+    ).toBe(16)
+    for (const control of await audio.locator('button,label,select').all()) {
+      const size = await control.evaluate((el) =>
+        parseFloat(getComputedStyle(el).fontSize),
+      )
+      expect(size).toBeGreaterThanOrEqual(13)
+      expect(size).toBeLessThanOrEqual(14)
+    }
     expect(await page.locator('.lesson-manuscript p').count()).toBeGreaterThan(
       5,
     )
@@ -125,7 +146,7 @@ test('all six complete manuscripts have the mapped lazy video, accessible contro
       'href',
       `https://www.youtube.com/watch?v=${lesson.videoId}`,
     )
-    if (id === '1' || id === '4') {
+    {
       for (const width of [1440, 1024, 768, 390, 320]) {
         await page.setViewportSize({ width, height: 900 })
         await expect
@@ -135,6 +156,14 @@ test('all six complete manuscripts have the mapped lazy video, accessible contro
             ),
           )
           .toBe(true)
+        for (const button of await audio.locator('button').all())
+          expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(
+            44,
+          )
+        if (id === '1' && [1440, 390].includes(width))
+          await audio.screenshot({
+            path: `tmp/compact-lesson-audio-${info.project.name}-${width}.png`,
+          })
         await page
           .getByRole('button', { name: `Putar video ${lesson.title}` })
           .scrollIntoViewIfNeeded()

@@ -2,8 +2,8 @@
   min-width: 0;
 }
 .lesson-audio {
-  margin-block: 24px;
-  padding: 20px;
+  margin-block: 16px;
+  padding: 14px 16px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--surface-raised);
