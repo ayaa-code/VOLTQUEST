@@ -26,6 +26,7 @@ import {
 } from '../data/learningAccess'
 import { LessonContent, LessonResources } from './LessonContent'
 import './MissionPathCards.css'
+import './PathCatalog.css'
 
 type View =
   | { type: 'home' }
@@ -318,22 +319,26 @@ function PathRow({
   label,
   state,
   onOpen,
+  number,
 }: {
   label: string
   state: string
   onOpen?: () => void
+  number?: number
 }) {
   const done = state === 'Selesai'
   return (
     <button
       type="button"
-      className={`path-row ${state === 'Terkunci' ? 'locked' : ''}`}
+      className={`path-row ${state === 'Terkunci' ? 'locked' : done ? 'done' : 'ready'}`}
       disabled={state === 'Terkunci'}
       onClick={onOpen}
       aria-label={label}
     >
-      <span>
-        {done ? (
+      <span className="path-row-number">
+        {number ? (
+          String(number).padStart(2, '0')
+        ) : done ? (
           <CheckCircle2 size={16} />
         ) : state === 'Terkunci' ? (
           <LockKeyhole size={15} />
@@ -341,8 +346,20 @@ function PathRow({
           <Play size={15} />
         )}
       </span>
-      <span>{label}</span>
-      <small>{state}</small>
+      <span className="path-row-copy">
+        <strong>{label}</strong>
+        <small>
+          {done ? (
+            <CheckCircle2 size={13} />
+          ) : state === 'Terkunci' ? (
+            <LockKeyhole size={13} />
+          ) : (
+            <Play size={13} />
+          )}{' '}
+          {state}
+        </small>
+      </span>
+      <ArrowRight className="path-row-arrow" size={18} aria-hidden="true" />
     </button>
   )
 }
@@ -377,10 +394,12 @@ function PathCatalog({
       <button className="text-button back-button" onClick={onBack}>
         <ArrowLeft size={17} /> Kembali ke Listrik Dinamis
       </button>
-      <section className="content-card path-catalog">
-        <span className="section-kicker">DAFTAR TAHAP</span>
-        <h1>{heading}</h1>
-        <p>Pilih tahap yang sudah terbuka untuk melanjutkan pembelajaranmu.</p>
+      <section className={`content-card path-catalog path-catalog-${path}`}>
+        <header className="path-catalog-heading">
+          <span className="section-kicker">DAFTAR TAHAP</span>
+          <h1>{heading}</h1>
+          <p>Pilih tahap yang tersedia untuk melanjutkan belajarmu.</p>
+        </header>
         {path === 'challenge' && (
           <p className="learning-summary">{challengePrerequisite}</p>
         )}
@@ -415,6 +434,7 @@ function PathCatalog({
             return (
               <PathRow
                 key={topic.id}
+                number={topic.id}
                 label={label}
                 state={stateText(done, ready)}
                 onOpen={() => onOpen({ type: path, id: topic.id })}
@@ -424,6 +444,7 @@ function PathCatalog({
           {path === 'quiz' && (
             <PathRow
               label="Sumatif Listrik Dinamis"
+              number={3}
               state={stateText(learning.summative.submitted, summativeReady)}
               onOpen={() => onOpen({ type: 'summative' })}
             />
