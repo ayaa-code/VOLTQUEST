@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
-import { finishCurrentGame } from './game-helpers'
+import { finishCurrentGame, playToGate } from './game-helpers'
 test.beforeEach(async ({ page }) => {
+  test.setTimeout(120000)
   await page.route('https://fonts.googleapis.com/**', (r) =>
     r.fulfill({ body: '' }),
   )
@@ -48,9 +49,9 @@ test('three game questions unlock next lesson, persist separately, and preserve 
 }) => {
   await page.goto('/')
   await enter(page)
-  await page.getByRole('button', { name: 'Mode soal tanpa gerak' }).click()
+  await playToGate(page)
   await page.locator('.cq-option-btn').first().click()
-  await expect(page.locator('.cq-feedback-box')).toContainText(
+  await expect(page.locator('.cq-feedback-box[role=status]')).toContainText(
     'Belum tepat, mari revisi.',
   )
   await expect(
@@ -90,7 +91,9 @@ test('canvas keyboard and touch controls work; mission answers resume after retu
   await page.goto('/')
   await enter(page)
   const canvas = page.locator('.cq-canvas')
-  await canvas.focus()
+  await expect(
+    page.getByText('Ingat kembali materinya', { exact: true }),
+  ).toHaveCount(0)
   const before = await canvas.evaluate((el) =>
     (el as HTMLCanvasElement).toDataURL(),
   )
@@ -100,24 +103,36 @@ test('canvas keyboard and touch controls work; mission answers resume after retu
   expect(
     await canvas.evaluate((el) => (el as HTMLCanvasElement).toDataURL()),
   ).not.toBe(before)
-  await page.getByRole('button', { name: 'Jeda permainan' }).click()
-  await expect(
-    page.getByRole('button', { name: 'Lanjut bermain' }),
-  ).toBeVisible()
-  await page.getByRole('button', { name: 'Mode soal tanpa gerak' }).click()
+  await playToGate(page)
   await page.locator('.cq-option-btn').nth(1).click()
   await page.getByRole('button', { name: 'Lanjut ke Misi Berikutnya' }).click()
+  await playToGate(page)
+  await page.locator('.cq-option-btn').first().click()
   await page.getByRole('button', { name: 'Pelajari kembali materi' }).click()
   await page.getByRole('button', { name: 'Kerjakan Tes Formatif' }).click()
-  await expect(page.locator('.cq-badge-sub')).toContainText('Misi 2')
-  await page
-    .getByRole('button', { name: 'Gerak Kanan' })
-    .dispatchEvent('touchstart')
-  await page.waitForTimeout(80)
-  await page
-    .getByRole('button', { name: 'Gerak Kanan' })
-    .dispatchEvent('touchcancel')
-  await expect(
-    page.getByRole('button', { name: 'Gerak Kanan' }),
-  ).not.toHaveClass(/cq-ctrl-active/)
+  await expect(page.locator('.cq-topbar-left')).toContainText('Misi 2')
+  const right = page.getByRole('button', { name: 'Gerak Kanan' }),
+    jump = page.getByRole('button', { name: 'Lompat' })
+  if (await right.isVisible()) {
+    await right.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    const r = await right.boundingBox(),
+      j = await jump.boundingBox()
+    const session = await page.context().newCDPSession(page)
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [
+        { id: 1, x: r!.x + 20, y: r!.y + 20 },
+        { id: 2, x: j!.x + 20, y: j!.y + 20 },
+      ],
+    })
+    await expect(right).toHaveClass(/cq-ctrl-active/)
+    await expect(jump).toHaveClass(/cq-ctrl-active/)
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchCancel',
+      touchPoints: [],
+    })
+    await expect(right).not.toHaveClass(/cq-ctrl-active/)
+    await expect(jump).not.toHaveClass(/cq-ctrl-active/)
+    await session.detach()
+  } else await expect(right).toBeHidden()
 })

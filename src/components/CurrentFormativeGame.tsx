@@ -21,11 +21,6 @@ export function CurrentFormativeGame({
       <span className="section-kicker">KUIS FORMATIF 01</span>
       <h1>Arus Listrik</h1>
       <h2>Circuit Quest — Petualangan Piko</h2>
-      <p>
-        Selesaikan tiga misi dan revisi jawaban yang belum tepat. Skor game
-        bukan XP. Jawaban dan misi yang selesai disimpan per profil; posisi Piko
-        kembali ke awal misi saat halaman dibuka ulang.
-      </p>
       <Suspense fallback={<p role="status">Menyiapkan permainan Piko…</p>}>
         <CircuitQuestGame
           initialMission={next === -1 ? 3 : next}
@@ -33,6 +28,7 @@ export function CurrentFormativeGame({
           onAnswer={store.answerCurrentGame}
           onFinish={store.completeCurrentGame}
           onComplete={onReview}
+          onReview={onReview}
         />
       </Suspense>
       {solved.length === 3 && !saved?.complete && (
@@ -67,17 +63,6 @@ export function CurrentFormativeGame({
           </button>
         </div>
       )}
-      <aside className="learning-summary">
-        <strong>Ingat kembali materinya</strong>
-        <p>
-          Elektron bergerak dari negatif ke positif pada rangkaian luar sumber
-          DC; arus konvensional berlawanan arah. Gunakan Q = It, waktu dalam
-          sekon, dan n = Q/e dengan e = 1,6 × 10⁻¹⁹ C.
-        </p>
-        <button className="text-button" onClick={onReview}>
-          Pelajari kembali materi
-        </button>
-      </aside>
       <button className="text-button" onClick={onBack}>
         Kembali ke daftar belajar
       </button>

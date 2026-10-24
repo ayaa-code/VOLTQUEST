@@ -38,11 +38,6 @@
   outline: 3px solid #175f98;
   outline-offset: 3px;
 }
-.cq-container .cq-access-help {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  user-select: text;
-}
 @media (prefers-reduced-motion: reduce) {
   .cq-container * {
     transition: none;
@@ -165,23 +160,6 @@
 }
 
 /* Banner Petunjuk Singkat */
-.cq-mission-hint {
-  background-color: #fffefa;
-  border: 1.5px solid #bddbe5;
-  border-radius: 12px;
-  padding: 8px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.92rem;
-  color: #40566a;
-}
-
-.cq-mission-hint strong {
-  color: #163449;
-}
-
 .cq-item-progress {
   background-color: #e3f2ff;
   color: #145b7d;
@@ -197,7 +175,8 @@
 .cq-stage-wrapper {
   position: relative;
   width: 100%;
-  height: 540px;
+  aspect-ratio: 900/520;
+  height: auto;
   background-color: #e3f2ff;
   border: 2px solid #bddbe5;
   border-radius: 16px;
@@ -410,7 +389,7 @@
 
 /* BAGIAN BAWAH: KONTROL SENTUH BULAT */
 .cq-controls-bar {
-  display: flex;
+  display: none;
   justify-content: space-between;
   align-items: center;
   background-color: #fffefa;
@@ -469,42 +448,56 @@
 }
 
 @media (max-width: 680px) {
-  /* Let questions use the page scroll instead of a tiny nested scroll window. */
-  .cq-stage-wrapper:has(.cq-overlay) {
-    height: auto;
-    min-height: 0;
-    overflow: visible;
-  }
-  .cq-stage-wrapper:has(.cq-overlay) .cq-canvas {
-    display: none;
-  }
-  .cq-stage-wrapper .cq-overlay {
-    position: relative;
-    padding: 10px;
-    width: 100%;
-    border-radius: 14px;
-  }
-  .cq-stage-wrapper .cq-card {
-    max-height: none;
-    overflow: visible;
-  }
   .cq-container {
     padding: 10px;
     gap: 8px;
   }
   .cq-stage-wrapper {
-    height: 390px;
+    height: auto;
+    aspect-ratio: 1;
   }
   .cq-ctrl-hint {
     display: none;
   }
-  .cq-mission-hint {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    font-size: 0.84rem;
-  }
   .cq-card {
     padding: 16px;
   }
+}
+@media (any-pointer: coarse) {
+  .cq-controls-bar {
+    display: flex;
+    padding: 10px;
+    gap: 10px;
+  }
+}
+.cq-stage-wrapper:has(.cq-overlay) {
+  aspect-ratio: auto;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+.cq-stage-wrapper:has(.cq-overlay) .cq-canvas {
+  display: none;
+}
+.cq-stage-wrapper .cq-overlay {
+  position: relative;
+  padding: 10px;
+  width: 100%;
+  border-radius: 14px;
+}
+.cq-stage-wrapper .cq-card {
+  max-height: none;
+  overflow: visible;
+}
+@media (max-width: 680px) {
+  .cq-stage-wrapper:has(.cq-overlay) {
+    min-height: 0;
+  }
+}
+.cq-topbar {
+  padding: 10px;
+  gap: 8px;
+}
+.cq-container .cq-badge {
+  font-size: 0.8rem;
 }

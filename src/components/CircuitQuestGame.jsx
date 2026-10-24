@@ -2,9 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { MISSIONS_DATA } from '../data/currentGame'
 import './CircuitQuestGame.css'
 
-/** @param {{onComplete:()=>void,onFinish:()=>boolean,onAnswer:(id:number,key:string)=>boolean,initialMission?:number,initialScore?:number}} props */
+/** @param {{onComplete:()=>void,onReview:()=>void,onFinish:()=>boolean,onAnswer:(id:number,key:string)=>boolean,initialMission?:number,initialScore?:number}} props */
 export function CircuitQuestGame({
   onComplete,
+  onReview,
   onFinish,
   onAnswer,
   initialMission = 0,
@@ -29,10 +30,16 @@ export function CircuitQuestGame({
   const [uiStatus, setUiStatus] = useState(
     initialMission >= 3 ? 'COMPLETED' : 'PLAYING',
   )
-  const [paused, setPaused] = useState(false)
   const [saveError, setSaveError] = useState('')
   const livesRef = useRef(3)
   const rootRef = useRef(null)
+  useEffect(() => {
+    if (!window.matchMedia('(any-pointer: coarse)').matches) return
+    const frame = requestAnimationFrame(() =>
+      rootRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' }),
+    )
+    return () => cancelAnimationFrame(frame)
+  }, [])
   const [wrongKeys, setWrongKeys] = useState([])
   const [feedback, setFeedback] = useState(null)
   const [questionSolved, setQuestionSolved] = useState(false)
@@ -100,9 +107,9 @@ export function CircuitQuestGame({
     const handleKeyDown = (e) => {
       if (
         uiStatus !== 'PLAYING' ||
-        paused ||
-        !rootRef.current?.contains(document.activeElement) ||
-        e.target.closest('input,textarea,select') ||
+        (!rootRef.current?.contains(document.activeElement) &&
+          document.activeElement !== document.body) ||
+        e.target.closest('input,textarea,select,button,dialog,a') ||
         (e.code === 'Space' && e.target.tagName === 'BUTTON')
       )
         return
@@ -152,7 +159,7 @@ export function CircuitQuestGame({
       window.removeEventListener('blur', clear)
       document.removeEventListener('visibilitychange', clear)
     }
-  }, [uiStatus, paused])
+  }, [uiStatus])
 
   // Helper pengurangan nyawa saat terkena genangan listrik kecil atau salah jawab
   const reduceLife = useCallback(() => {
@@ -214,6 +221,7 @@ export function CircuitQuestGame({
       if (g.keys.jump && piko.onGround) {
         piko.vy = -11.6
         piko.onGround = false
+        g.keys.jump = false
       }
 
       // Gravitasi
@@ -289,108 +297,52 @@ export function CircuitQuestGame({
      */
     const drawScene = () => {
       const g = gameRef.current
+      const compact = window.matchMedia('(max-width: 680px)').matches
+      const decorativeTime = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+        ? 0
+        : g.time
+      const sceneWidth = compact ? 520 : 900
+      if (canvas.width !== sceneWidth) canvas.width = sceneWidth
+      const camera = Math.max(
+        0,
+        Math.min(900 - sceneWidth, g.piko.x + g.piko.w / 2 - sceneWidth / 2),
+      )
+      ctx.setTransform(1, 0, 0, 1, -camera, 0)
+      canvas.dataset.playerX = String(g.piko.x)
+      canvas.dataset.playerY = String(g.piko.y)
+      canvas.dataset.grounded = String(g.piko.onGround)
       const mission = MISSIONS_DATA[missionIndex]
       const isAllComplete = accuPercent >= 100 || uiStatus === 'COMPLETED'
 
-      // 1. Background Utama Papan Rangkaian (#E3F2FF)
-      ctx.fillStyle = '#E3F2FF'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-      // Grid Buku Pelajaran Halus (#BDDBE5)
-      ctx.strokeStyle = '#BDDBE5'
-      ctx.lineWidth = 1
-      for (let x = 0; x < canvas.width; x += 45) {
-        ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x, canvas.height)
-        ctx.stroke()
-      }
-      for (let y = 0; y < canvas.height; y += 45) {
-        ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.lineTo(canvas.width, y)
-        ctx.stroke()
-      }
-
-      // 2. Jalur Kabel Dekoratif Hijau (#2E6A35) dan Biru (#145B7D)
-      ctx.lineCap = 'round'
-      ctx.lineJoin = 'round'
-
-      // Jalur Kabel Biru
-      ctx.strokeStyle = '#145B7D'
-      ctx.lineWidth = 5
-      ctx.beginPath()
-      ctx.moveTo(40, 120)
-      ctx.lineTo(220, 120)
-      ctx.lineTo(260, 165)
-      ctx.lineTo(480, 165)
-      ctx.stroke()
-
-      // Jalur Kabel Hijau
-      ctx.strokeStyle = '#2E6A35'
-      ctx.lineWidth = 5
-      ctx.beginPath()
-      ctx.moveTo(520, 110)
-      ctx.lineTo(680, 110)
-      ctx.lineTo(725, 165)
-      ctx.lineTo(855, 165)
-      ctx.stroke()
-
-      // Titik Terminal Rangkaian (#FFFEFA dengan outline #163449)
-      const nodes = [
-        [40, 120],
-        [220, 120],
-        [480, 165],
-        [520, 110],
-        [855, 165],
-      ]
-      nodes.forEach(([nx, ny]) => {
-        ctx.fillStyle = '#FFFEFA'
-        ctx.strokeStyle = '#163449'
-        ctx.lineWidth = 3
-        ctx.beginPath()
-        ctx.arc(nx, ny, 6, 0, Math.PI * 2)
-        ctx.fill()
-        ctx.stroke()
-      })
-
-      // Petunjuk Arah Elektron di Misi 1
-      if (mission.id === 1) {
-        ctx.fillStyle = '#FFFEFA'
-        ctx.strokeStyle = '#BDDBE5'
-        ctx.lineWidth = 2
-        ctx.beginPath()
-        ctx.roundRect(275, 42, 350, 54, 12)
-        ctx.fill()
-        ctx.stroke()
-
-        ctx.fillStyle = '#145B7D'
-        ctx.font = 'bold 13px sans-serif'
-        ctx.textAlign = 'center'
-        ctx.fillText('(-) Elektron bergerak ke (+)  ➔', 450, 63)
-        ctx.fillStyle = '#2E6A35'
-        ctx.fillText('⬅  Arus konvensional dari (+) ke (-)', 450, 83)
-      }
-
+      drawNature(ctx)
       // 3. Ilustrasi Baterai Accu & Lampu Kecil di Papan Rangkaian
-      drawIllustrativeBatteryAndLamp(ctx, accuPercent, isAllComplete, g.time)
+      drawIllustrativeBatteryAndLamp(
+        ctx,
+        accuPercent,
+        isAllComplete,
+        decorativeTime,
+      )
 
       // 4. Gambar Platform (Board, Resistor, Jalur Kabel)
       mission.platforms.forEach((plat) => drawPlatform(ctx, plat))
 
       // 5. Gambar Hambatan Genangan Listrik Kecil
-      mission.puddles.forEach((pud) => drawElectricPuddle(ctx, pud, g.time))
+      mission.puddles.forEach((pud) =>
+        drawElectricPuddle(ctx, pud, decorativeTime),
+      )
 
       // 6. Gambar Item (Elektron Biru Lucu / Energy Cell Hijau / Kaca Pembesar Listrik)
       g.items.forEach((item) => {
         if (!item.collected) {
-          drawCollectibleItem(ctx, item, mission.itemType, g.time)
+          drawCollectibleItem(ctx, item, mission.itemType, decorativeTime)
         }
       })
 
       // 7. Gambar Gerbang Pertanyaan
       const allItemsReady = g.items.every((i) => i.collected)
-      drawQuestionGate(ctx, mission.gateX, allItemsReady, g.time)
+      drawQuestionGate(ctx, mission.gateX, allItemsReady, decorativeTime)
 
       // 8. Gambar Karakter Utama: PIKO
       drawPikoMascot(ctx, g.piko, g.time, uiStatus === 'COMPLETED')
@@ -398,7 +350,7 @@ export function CircuitQuestGame({
 
     let previous = 0
     const loop = (timestamp) => {
-      if (document.hidden || paused) {
+      if (document.hidden) {
         previous = timestamp
         animId = requestAnimationFrame(loop)
         return
@@ -415,7 +367,7 @@ export function CircuitQuestGame({
 
     animId = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(animId)
-  }, [missionIndex, uiStatus, accuPercent, reduceLife, paused])
+  }, [missionIndex, uiStatus, accuPercent, reduceLife])
 
   // Handler saat menjawab pilihan ganda di Panel Soal
   const handleSelectOption = (optionKey) => {
@@ -471,7 +423,8 @@ export function CircuitQuestGame({
   // Handler Tombol Kontrol Sentuh
   const bindTouchKey = (keyName, isDown) => (e) => {
     e.preventDefault()
-    if (isDown && (uiStatus !== 'PLAYING' || paused)) return
+    if (isDown && uiStatus !== 'PLAYING') return
+    if (isDown) e.currentTarget.setPointerCapture(e.pointerId)
     gameRef.current.keys[keyName] = isDown
     setActiveKeys((p) => ({ ...p, [keyName]: isDown }))
   }
@@ -485,43 +438,17 @@ export function CircuitQuestGame({
           gameRef.current.keys = { left: false, right: false, jump: false }
       }}
     >
-      <p className="cq-access-help">
-        Klik area permainan untuk memakai keyboard. Gerakkan Piko, kumpulkan
-        item, lalu jawab soal di gerbang. Rintangan ini hanya ilustrasi
-        permainan, bukan model aliran elektron nyata.
-      </p>
-      <div className="cq-btn-row">
-        <button
-          className="cq-btn cq-btn-secondary"
-          onClick={() => {
-            gameRef.current.keys = { left: false, right: false, jump: false }
-            setPaused((p) => !p)
-          }}
-        >
-          {paused ? 'Lanjut bermain' : 'Jeda permainan'}
-        </button>
-        {uiStatus === 'PLAYING' && (
-          <button
-            className="cq-btn cq-btn-secondary"
-            onClick={() => {
-              gameRef.current.keys = { left: false, right: false, jump: false }
-              setPaused(false)
-              setUiStatus('QUESTION')
-            }}
-          >
-            Mode soal tanpa gerak
-          </button>
-        )}
-      </div>
       {saveError && <p role="alert">{saveError}</p>}
 
       {/* BAGIAN ATAS: PROGRESS, BATERAI ACCU, SKOR, & 3 HATI */}
       <div className="cq-topbar">
         <div className="cq-topbar-left">
           <div className="cq-badge">
-            <span>⚡ {currentMission.title}</span>
+            <span>⚡ {currentMission.subtitle}</span>
           </div>
-          <span className="cq-badge-sub">{currentMission.subtitle}</span>
+          <span className="cq-item-progress">
+            {collectedCount}/{currentMission.targetCount} item
+          </span>
         </div>
 
         <div className="cq-topbar-right">
@@ -559,16 +486,6 @@ export function CircuitQuestGame({
               </svg>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* PETUNJUK MISI SINGKAT */}
-      <div className="cq-mission-hint">
-        <div>
-          <strong>Petunjuk Piko:</strong> {currentMission.instruction}
-        </div>
-        <div className="cq-item-progress">
-          Terkumpul: {collectedCount} / {currentMission.targetCount}
         </div>
       </div>
 
@@ -636,6 +553,26 @@ export function CircuitQuestGame({
                 </div>
               )}
 
+              {feedback?.type === 'wrong' && (
+                <aside className="cq-feedback-box">
+                  <strong>Ingat kembali materinya</strong>
+                  <p>
+                    {
+                      [
+                        'Arah elektron berlawanan dengan arus konvensional pada rangkaian luar sumber DC.',
+                        'Gunakan Q = It. Ubah waktu dari jam menjadi sekon sebelum menghitung.',
+                        'Hitung Q = It terlebih dahulu, kemudian n = Q/e dengan e = 1,6 × 10⁻¹⁹ C.',
+                      ][missionIndex]
+                    }
+                  </p>
+                  <button
+                    className="cq-btn cq-btn-secondary"
+                    onClick={onReview}
+                  >
+                    Pelajari kembali materi
+                  </button>
+                </aside>
+              )}
               {questionSolved && (
                 <div className="cq-btn-row">
                   <button
@@ -729,12 +666,10 @@ export function CircuitQuestGame({
             type="button"
             aria-label="Gerak Kiri"
             className={`cq-ctrl-circle cq-ctrl-move ${activeKeys.left ? 'cq-ctrl-active' : ''}`}
-            onMouseDown={bindTouchKey('left', true)}
-            onMouseUp={bindTouchKey('left', false)}
-            onMouseLeave={bindTouchKey('left', false)}
-            onTouchStart={bindTouchKey('left', true)}
-            onTouchEnd={bindTouchKey('left', false)}
-            onTouchCancel={bindTouchKey('left', false)}
+            onPointerDown={bindTouchKey('left', true)}
+            onPointerUp={bindTouchKey('left', false)}
+            onPointerCancel={bindTouchKey('left', false)}
+            onLostPointerCapture={bindTouchKey('left', false)}
           >
             ◀<span style={{ fontSize: '0.68rem', fontWeight: 600 }}>Kiri</span>
           </button>
@@ -743,12 +678,10 @@ export function CircuitQuestGame({
             type="button"
             aria-label="Gerak Kanan"
             className={`cq-ctrl-circle cq-ctrl-move ${activeKeys.right ? 'cq-ctrl-active' : ''}`}
-            onMouseDown={bindTouchKey('right', true)}
-            onMouseUp={bindTouchKey('right', false)}
-            onMouseLeave={bindTouchKey('right', false)}
-            onTouchStart={bindTouchKey('right', true)}
-            onTouchEnd={bindTouchKey('right', false)}
-            onTouchCancel={bindTouchKey('right', false)}
+            onPointerDown={bindTouchKey('right', true)}
+            onPointerUp={bindTouchKey('right', false)}
+            onPointerCancel={bindTouchKey('right', false)}
+            onLostPointerCapture={bindTouchKey('right', false)}
           >
             ▶<span style={{ fontSize: '0.68rem', fontWeight: 600 }}>Kanan</span>
           </button>
@@ -763,12 +696,10 @@ export function CircuitQuestGame({
           type="button"
           aria-label="Lompat"
           className={`cq-ctrl-circle cq-ctrl-jump ${activeKeys.jump ? 'cq-ctrl-active' : ''}`}
-          onMouseDown={bindTouchKey('jump', true)}
-          onMouseUp={bindTouchKey('jump', false)}
-          onMouseLeave={bindTouchKey('jump', false)}
-          onTouchStart={bindTouchKey('jump', true)}
-          onTouchEnd={bindTouchKey('jump', false)}
-          onTouchCancel={bindTouchKey('jump', false)}
+          onPointerDown={bindTouchKey('jump', true)}
+          onPointerUp={bindTouchKey('jump', false)}
+          onPointerCancel={bindTouchKey('jump', false)}
+          onLostPointerCapture={bindTouchKey('jump', false)}
         >
           ▲<span style={{ fontSize: '0.72rem', fontWeight: 700 }}>Lompat</span>
         </button>
@@ -783,6 +714,46 @@ export function CircuitQuestGame({
  * ============================================================================
  */
 
+function drawNature(ctx) {
+  ctx.fillStyle = '#bce8ff'
+  ctx.fillRect(0, 0, 900, 520)
+  ctx.fillStyle = '#fffefa'
+  for (const [x, y] of [
+    [150, 65],
+    [420, 90],
+    [730, 55],
+  ]) {
+    ctx.beginPath()
+    ctx.ellipse(x, y, 60, 18, 0, 0, Math.PI * 2)
+    ctx.ellipse(x - 20, y - 10, 25, 20, 0, 0, Math.PI * 2)
+    ctx.ellipse(x + 14, y - 16, 30, 24, 0, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.fillStyle = '#afd779'
+  ctx.beginPath()
+  ctx.moveTo(0, 460)
+  ctx.quadraticCurveTo(130, 170, 370, 460)
+  ctx.quadraticCurveTo(650, 180, 900, 460)
+  ctx.closePath()
+  ctx.fill()
+  ctx.fillStyle = '#86bd71'
+  ctx.beginPath()
+  ctx.moveTo(0, 460)
+  ctx.quadraticCurveTo(400, 260, 900, 460)
+  ctx.closePath()
+  ctx.fill()
+  for (const [x, y] of [
+    [65, 400],
+    [850, 380],
+  ]) {
+    ctx.fillStyle = '#92744f'
+    ctx.fillRect(x - 5, y - 62, 10, 62)
+    ctx.fillStyle = '#4d9656'
+    ctx.beginPath()
+    ctx.arc(x, y - 90, 33, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
 function drawIllustrativeBatteryAndLamp(ctx, accuPercent, isLampLit, time) {
   ctx.save()
 
@@ -872,7 +843,6 @@ function drawIllustrativeBatteryAndLamp(ctx, accuPercent, isLampLit, time) {
   ctx.fillStyle = '#40566A'
   ctx.font = 'bold 11px sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText(isLampLit ? 'LAMPU MENYALA!' : 'LAMPU RANGKAIAN', lx, ly + 32)
 
   ctx.restore()
 }
@@ -881,7 +851,7 @@ function drawPlatform(ctx, plat) {
   ctx.save()
   if (plat.type === 'board') {
     // Lantai Papan Rangkaian Utama
-    ctx.fillStyle = '#FFFEFA'
+    ctx.fillStyle = '#a58257'
     ctx.strokeStyle = '#163449'
     ctx.lineWidth = 3
     ctx.fillRect(plat.x, plat.y, plat.w, plat.h)
@@ -891,8 +861,8 @@ function drawPlatform(ctx, plat) {
     ctx.stroke()
 
     // Garis Jalur Kabel Hijau & Biru di Sepanjang Papan Bawah
-    ctx.strokeStyle = '#2E6A35'
-    ctx.lineWidth = 4
+    ctx.strokeStyle = '#4d8f3b'
+    ctx.lineWidth = 8
     ctx.beginPath()
     ctx.moveTo(20, plat.y + 18)
     ctx.lineTo(plat.w - 20, plat.y + 18)

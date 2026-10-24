@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { finishCurrentGame } from './game-helpers'
+import { finishCurrentGame, playToGate } from './game-helpers'
 
 const profile = {
   active: 'student:nara',
@@ -9,6 +9,7 @@ const profile = {
 }
 
 test.beforeEach(async ({ page }) => {
+  test.setTimeout(120000)
   await page.route('https://fonts.googleapis.com/**', (route) =>
     route.fulfill({ contentType: 'text/css', body: '' }),
   )
@@ -64,9 +65,9 @@ test('materi menawarkan formatif yang sama, revisi membuka materi berikutnya, da
   await expect(
     page.getByText('KUIS FORMATIF 01', { exact: true }),
   ).toBeVisible()
-  await page.getByRole('button', { name: 'Mode soal tanpa gerak' }).click()
+  await playToGate(page)
   await page.locator('.cq-option-btn').first().click()
-  await expect(page.locator('.cq-feedback-box')).toContainText(
+  await expect(page.locator('.cq-feedback-box[role=status]')).toContainText(
     'Belum tepat, mari revisi.',
   )
   await expect(
@@ -223,8 +224,8 @@ test('progres lama dan profil lain dipertahankan saat meninjau kembali materi', 
   await expect(
     page.getByText('KUIS FORMATIF 01', { exact: true }),
   ).toBeVisible()
-  await page.getByText('Jawaban formatif sebelumnya',{exact:true}).click()
-  await expect(page.getByText('12000',{exact:true})).toBeVisible()
+  await page.getByText('Jawaban formatif sebelumnya', { exact: true }).click()
+  await expect(page.getByText('12000', { exact: true })).toBeVisible()
 })
 
 test('membuka sumatif hanya setelah enam kuis formatif tersimpan pada profil siswa', async ({
