@@ -192,22 +192,19 @@ export function LessonContent({ topicId }: { topicId: number }) {
                 </select>
               </label>
             </div>
-            <p className="lesson-audio-status">
-              {speech.status === 'reading'
-                ? `Sedang membaca bagian ${speech.part} dari ${speech.total}.`
-                : speech.status === 'paused'
-                  ? `Dijeda pada bagian ${speech.part} dari ${speech.total}.`
-                  : speech.status === 'finished'
-                    ? 'Pembacaan materi selesai.'
-                    : speech.status === 'error'
-                      ? 'Pembacaan terhenti. Coba mulai kembali atau baca teks di bawah.'
-                      : 'Tekan Dengarkan materi untuk memulai.'}
-            </p>
-            <p className="lesson-audio-note">
-              Suara otomatis dari perangkat.{' '}
-              {!speech.indonesianVoice &&
-                'Suara bahasa Indonesia belum tersedia; pelafalan mengikuti dukungan browser dan perangkat.'}
-            </p>
+            {speech.status !== 'idle' && (
+              <p className="lesson-audio-status" role="status">
+                {speech.status === 'reading'
+                  ? `Sedang membaca bagian ${speech.part} dari ${speech.total}.`
+                  : speech.status === 'paused'
+                    ? `Dijeda pada bagian ${speech.part} dari ${speech.total}.`
+                    : speech.status === 'finished'
+                      ? 'Pembacaan materi selesai.'
+                      : speech.status === 'error'
+                        ? 'Pembacaan terhenti. Coba mulai kembali atau baca teks di bawah.'
+                        : ''}
+              </p>
+            )}
           </>
         )}
       </section>

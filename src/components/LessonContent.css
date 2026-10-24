@@ -8,7 +8,9 @@
   border-radius: 16px;
   background: var(--surface-raised);
 }
-.lesson-audio h2 {
+.learning-detail .lesson-audio h2 {
+  font-size: 1rem;
+  margin-block: 0 10px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -17,8 +19,14 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-block: 16px;
+  gap: 10px;
+  margin-block: 10px 0;
+}
+.lesson-audio-controls :is(button, label, select) {
+  font-size: 0.8125rem;
+}
+.lesson-audio-controls button {
+  padding: 8px 12px;
 }
 .lesson-audio-controls label {
   display: flex;
@@ -35,7 +43,6 @@
   color: var(--text);
   font: inherit;
 }
-.lesson-audio-note,
 .lesson-video-note {
   font-size: 0.85rem;
   color: var(--text-secondary);
