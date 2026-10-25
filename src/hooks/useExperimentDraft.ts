@@ -104,7 +104,13 @@ function read(): { store: Store; notice: string; blocked: boolean } {
     if (!object(value) || !object(value.profiles))
       throw new Error('Invalid draft store')
     for (const [profile, drafts] of Object.entries(value.profiles)) {
-      if (!profile.startsWith('student:') || !object(drafts)) continue
+      if (
+        (!profile.startsWith('student:') &&
+          !profile.startsWith('account:') &&
+          profile !== 'demo:admin') ||
+        !object(drafts)
+      )
+        continue
       const safe: Record<string, Draft> = {}
       for (const id of [1, 2, 3, 4, 5])
         if (Object.hasOwn(drafts, String(id)))

@@ -24,8 +24,8 @@ export const energyMissions = [
     prompt:
       'R1 = 6 Ω dan R2 = 12 Ω dipasang paralel, kemudian diserikan dengan R3 = 4 Ω pada sumber 12 V.',
     labels: ['Arus utama (A)', 'Tegangan R3 (V)', 'Arus R1 (A)'],
-    expected: [1.5, 6, 1],
-    help: 'R paralel = 4 Ω; R total = 8 Ω. I = 12/8 = 1,5 A. V R3 = 6 V, sehingga I R1 = 1 A.',
+    reminder:
+      'Hitung hambatan pengganti paralel, lalu jumlahkan dengan hambatan seri. Gunakan V = IR.',
   },
   {
     title: 'Junction Balance',
@@ -33,8 +33,8 @@ export const energyMissions = [
     prompt:
       'Arus masuk I1 = 3 A dan I2 = 5 A. Arus keluar I3 = 2 A, I4 = 1,5 A, dan I5. Tentukan besar dan arah I5.',
     labels: ['Arus I5 (A)'],
-    expected: [4.5],
-    help: 'ΣI masuk = ΣI keluar. 3 + 5 = 2 + 1,5 + I5, sehingga I5 = 4,5 A keluar.',
+    reminder:
+      'Pada titik percabangan, jumlah arus masuk sama dengan jumlah arus keluar.',
   },
   {
     title: 'Home Energy Monitor',
@@ -42,18 +42,7 @@ export const energyMissions = [
     prompt:
       'Lima lampu 20 W menyala 10 jam/hari, TV 100 W selama 5 jam/hari, dan kulkas 150 W selama 24 jam/hari. Hitung energi selama 30 hari.',
     labels: ['Energi selama 30 hari (kWh)'],
-    expected: [153],
-    help: 'E = P × t. Lampu 1 kWh/hari, TV 0,5 kWh/hari, kulkas 3,6 kWh/hari. Total 5,1 × 30 = 153 kWh.',
+    reminder:
+      'Gunakan E = P × t. Ubah watt menjadi kilowatt dan jumlahkan energi semua perangkat.',
   },
 ]
-export function checkEnergyAnswer(id: number, values: string[]) {
-  const mission = energyMissions[id - 1]
-  return Boolean(
-    mission &&
-    mission.expected.every(
-      (value, index) =>
-        Math.abs(numericAnswer(values[index] ?? '') - value) < 0.001,
-    ) &&
-    (id !== 2 || values[1] === 'keluar'),
-  )
-}

@@ -33,8 +33,7 @@ export function getConfirmation(mission: Mission) {
     config.answers.length !== mission.options.length ||
     !config.answers.every(
       (answer, index) => answer.label === mission.options[index],
-    ) ||
-    config.answers[mission.correct]?.id !== config.correctAnswerId
+    )
   )
     return null
   return config

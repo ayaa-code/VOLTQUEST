@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import {
   ArrowRight,
   BookOpen,
-  Check,
   ChevronRight,
   CircleHelp,
   ExternalLink,
@@ -19,8 +18,11 @@ import {
 } from 'lucide-react'
 import { missions } from './data/missions'
 import { isAdminDemo } from './data/demoAccess'
-import { MissionView } from './components/MissionView'
-import { PracticeHub } from './components/PracticeHub'
+const PracticeHub = lazy(() =>
+  import('./components/PracticeHub').then((module) => ({
+    default: module.PracticeHub,
+  })),
+)
 import type { RecommendationRef } from './data/feedbackRules'
 import { Brand, ProgressBar, MissionCard } from './components/LearningUI'
 import { CircuitAnimation } from './components/CircuitAnimation'
@@ -33,12 +35,12 @@ import './theme.css'
 import { LearningGuide } from './components/LearningGuide'
 import './components/LearningRefinements.css'
 
-type Modal = 'guide' | 'profile' | 'progress' | 'help' | 'class' | null
+type Modal = 'guide' | 'profile' | 'help' | 'class' | null
 // The former mission dashboard remains in the source while legacy mission URLs
 // are supported, but the Listrik Dinamis journey is the active dashboard.
 const legacyDashboardVisible = false
 function App() {
-  const { profile, profileId, storageError, login, logout, complete, visit } =
+  const { profile, profileId, storageError, login, logout, complete } =
     useProgress()
   const [loginForm, setLoginForm] = useState(false)
   const [name, setName] = useState('')
@@ -50,6 +52,16 @@ function App() {
     )
     return match ? Number(match[1]) : null
   })
+  const [progressOpen, setProgressOpen] = useState(false)
+  const [homeRevision, setHomeRevision] = useState(0)
+  function resetHome() {
+    setPracticeRecommendation(null)
+    setPracticeOpen(false)
+    setSelected(null)
+    setModal(null)
+    setProgressOpen(false)
+    setHomeRevision((v) => v + 1)
+  }
   const [modal, setModal] = useState<Modal>(null)
   const [practiceOpen, setPracticeOpen] = useState(() =>
     /^#latihan(?:-misi-[1-5])?$/.test(window.location.hash),
@@ -76,6 +88,7 @@ function App() {
     setPracticeOpen(false)
     setSelected(id)
     setModal(null)
+    setProgressOpen(false)
   }
   const visibleMissions = missions.filter(
     (m) =>
@@ -113,32 +126,34 @@ function App() {
               <button
                 className="brand-home"
                 aria-label="Beranda VoltQuest"
-                onClick={() => {
-                  setPracticeRecommendation(null)
-                  setPracticeOpen(false)
-                  setSelected(null)
-                  setModal(null)
-                }}
+                onClick={resetHome}
               >
                 <Brand small />
               </button>
               <nav className="desktop-nav" aria-label="Navigasi utama">
                 <button
-                  className={!modal ? 'active' : ''}
-                  onClick={() => {
-                    setPracticeRecommendation(null)
-                    setPracticeOpen(false)
-                    setSelected(null)
-                    setModal(null)
-                  }}
+                  className={!modal && !progressOpen ? 'active' : ''}
+                  onClick={resetHome}
                 >
-                  <Home size={17} /> Jelajah misi
+                  <Home size={17} /> Jelajah
                 </button>
                 <button
                   className={modal === 'guide' ? 'active' : ''}
                   onClick={() => setModal('guide')}
                 >
                   <BookOpen size={18} /> Panduan Belajar
+                </button>
+                <button
+                  className={progressOpen && !modal ? 'active' : ''}
+                  onClick={() => {
+                    setPracticeOpen(false)
+                    setSelected(null)
+                    setModal(null)
+                    setProgressOpen(true)
+                  }}
+                  aria-current={progressOpen && !modal ? 'page' : undefined}
+                >
+                  <Trophy size={18} /> Progres
                 </button>
               </nav>
               <div className="header-right">
@@ -156,61 +171,54 @@ function App() {
             </div>
           </header>
           {practiceOpen ? (
-            <PracticeHub
-              key={profileId!}
-              profileId={profileId!}
-              sourceMissionId={selected}
-              initialRecommendation={
-                practiceRecommendation?.profileId === profileId
-                  ? practiceRecommendation
-                  : null
-              }
-              onReturn={() => {
-                setPracticeRecommendation(null)
-                setPracticeOpen(false)
-              }}
-              onDashboard={() => {
-                setPracticeRecommendation(null)
-                setPracticeOpen(false)
-                setSelected(null)
-              }}
-              onNextMission={() => {
-                setPracticeRecommendation(null)
-                setPracticeOpen(false)
-                setSelected(
-                  selected && selected < 5
-                    ? selected + 1
-                    : (nextMission?.id ?? 1),
-                )
-              }}
-            />
+            <Suspense fallback={<p role="status">Menyiapkan latihan…</p>}>
+              <PracticeHub
+                key={profileId!}
+                profileId={profileId!}
+                sourceMissionId={selected}
+                initialRecommendation={
+                  practiceRecommendation?.profileId === profileId
+                    ? practiceRecommendation
+                    : null
+                }
+                onReturn={() => {
+                  setPracticeRecommendation(null)
+                  setPracticeOpen(false)
+                }}
+                onDashboard={() => {
+                  setPracticeRecommendation(null)
+                  setPracticeOpen(false)
+                  setSelected(null)
+                }}
+                onNextMission={() => {
+                  setPracticeRecommendation(null)
+                  setPracticeOpen(false)
+                  setSelected(
+                    selected && selected < 5
+                      ? selected + 1
+                      : (nextMission?.id ?? 1),
+                  )
+                }}
+              />
+            </Suspense>
           ) : currentMission ? (
-            <MissionView
-              key={`${profileId}:${currentMission.id}`}
+            <DynamicLearning
+              key={`${profileId}:${homeRevision}`}
               profileId={profileId!}
-              mission={currentMission}
-              completed={profile.completed.includes(currentMission.id)}
-              visited={profile.visited.includes(currentMission.id)}
-              onComplete={() => complete(currentMission.id)}
-              onVisit={() => visit(currentMission.id)}
-              onPractice={() => {
-                setPracticeRecommendation(null)
-                setPracticeOpen(true)
-              }}
-              onRecommended={(ref) => {
-                setPracticeRecommendation(ref)
-                setPracticeOpen(true)
-              }}
-              onBack={() => setSelected(null)}
-              onNext={() =>
-                setSelected(
-                  currentMission.id < 5 ? currentMission.id + 1 : null,
-                )
-              }
+              initialMissionId={currentMission.id}
+              onReward={complete}
+              progressOnly={progressOpen}
+              onLeaveProgress={() => setProgressOpen(false)}
             />
           ) : (
             <>
-              <DynamicLearning profileId={profileId!} />
+              <DynamicLearning
+                key={`${profileId}:${homeRevision}`}
+                profileId={profileId!}
+                onReward={complete}
+                progressOnly={progressOpen}
+                onLeaveProgress={() => setProgressOpen(false)}
+              />
               {legacyDashboardVisible && (
                 <main className="dashboard page-enter">
                   <section className="greeting">
@@ -409,7 +417,13 @@ function App() {
                     <button
                       className="progress-arrow icon-button"
                       aria-label="Lihat detail progres"
-                      onClick={() => setModal('progress')}
+                      onClick={() => {
+                        setPracticeOpen(false)
+                        setSelected(null)
+                        setModal(null)
+                        setProgressOpen(true)
+                      }}
+                      aria-current={progressOpen && !modal ? 'page' : undefined}
                     >
                       <ChevronRight size={21} />
                     </button>
@@ -439,13 +453,8 @@ function App() {
           </footer>
           <nav className="mobile-nav" aria-label="Navigasi mobile">
             <button
-              className={!modal ? 'active' : ''}
-              onClick={() => {
-                setPracticeRecommendation(null)
-                setPracticeOpen(false)
-                setSelected(null)
-                setModal(null)
-              }}
+              className={!modal && !progressOpen ? 'active' : ''}
+              onClick={resetHome}
             >
               <Home size={20} />
               Jelajah
@@ -458,8 +467,14 @@ function App() {
               Panduan Belajar
             </button>
             <button
-              className={modal === 'progress' ? 'active' : ''}
-              onClick={() => setModal('progress')}
+              className={progressOpen && !modal ? 'active' : ''}
+              aria-current={progressOpen && !modal ? 'page' : undefined}
+              onClick={() => {
+                setPracticeOpen(false)
+                setSelected(null)
+                setModal(null)
+                setProgressOpen(true)
+              }}
             >
               <Trophy size={20} />
               Progres
@@ -477,46 +492,6 @@ function App() {
       {modal === 'guide' && profile && (
         <Dialog title="Panduan Belajar" onClose={() => setModal(null)}>
           <LearningGuide />
-        </Dialog>
-      )}
-      {modal === 'progress' && profile && (
-        <Dialog title="Progres belajarmu" onClose={() => setModal(null)}>
-          <div className="progress-summary">
-            <Trophy size={36} />
-            <h3>
-              {count === 5
-                ? 'Pahlawan energi sekolah!'
-                : 'Lihat langkah belajarmu.'}
-            </h3>
-            <p>
-              {count} misi selesai · {count * 100} XP terkumpul
-            </p>
-            <ProgressBar count={count} />
-          </div>
-          <div className="progress-list">
-            {missions.map((m) => (
-              <button key={m.id} onClick={() => openMission(m.id)}>
-                <span
-                  className={
-                    profile.completed.includes(m.id)
-                      ? 'step-done'
-                      : 'step-number'
-                  }
-                >
-                  {profile.completed.includes(m.id) ? (
-                    <Check size={15} />
-                  ) : (
-                    m.id
-                  )}
-                </span>
-                <span>{m.title}</span>
-                <small>
-                  {profile.completed.includes(m.id) ? '100 XP' : 'Mulai'}
-                </small>
-                <ChevronRight size={15} />
-              </button>
-            ))}
-          </div>
         </Dialog>
       )}
       {modal === 'profile' && profile && (
@@ -546,6 +521,7 @@ function App() {
               setPracticeOpen(false)
               setSelected(null)
               setModal(null)
+              setProgressOpen(false)
               setName(profile.name)
               setLoginForm(profileId?.startsWith('student:') ?? false)
               setQuery('')
@@ -637,6 +613,7 @@ function App() {
               className="primary-button"
               onClick={() => {
                 setModal(null)
+                setProgressOpen(false)
                 setLoginForm(true)
               }}
             >

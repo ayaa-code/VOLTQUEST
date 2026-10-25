@@ -27,6 +27,10 @@ import {
 import { LessonContent, LessonResources } from './LessonContent'
 import './MissionPathCards.css'
 import './PathCatalog.css'
+import './JourneyProgress.css'
+import { missions } from '../data/missions'
+import { MissionView } from './MissionView'
+import { passedQuestion } from '../data/attempts'
 
 type View =
   | { type: 'home' }
@@ -35,15 +39,36 @@ type View =
   | { type: 'challenge'; id: number }
   | { type: 'quiz'; id: number }
   | { type: 'summative' }
+  | { type: 'mission'; id: number }
 
 type LearningPath = 'material' | 'challenge' | 'quiz'
 
 const stateText = (done: boolean, ready: boolean) =>
   done ? 'Selesai' : ready ? 'Siap dikerjakan' : 'Terkunci'
 
-export function DynamicLearning({ profileId }: { profileId: string }) {
+export function DynamicLearning({
+  profileId,
+  progressOnly = false,
+  initialMissionId,
+  onLeaveProgress = () => {},
+  onReward = () => {},
+}: {
+  profileId: string
+  progressOnly?: boolean
+  initialMissionId?: number
+  onLeaveProgress?: () => void
+  onReward?: (id: number) => void
+}) {
   const store = useDynamicLearning(profileId)
-  const [view, setView] = useState<View>({ type: 'home' })
+  const [view, setView] = useState<View>(
+    initialMissionId
+      ? { type: 'mission', id: initialMissionId }
+      : { type: 'home' },
+  )
+  const open = (next: View) => {
+    onLeaveProgress()
+    setView(next)
+  }
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [view])
@@ -58,13 +83,78 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
         (topic.id === 3 || topic.id === 6) &&
         !checkpointDone(learning, topic.id / 3)
       )
-        return { type: 'quiz', id: topic.id / 3 }
+        return topic.id === 3 &&
+          !learningAccess(learning, profileId).missionsDone
+          ? { type: 'challenge', id: 1 }
+          : { type: 'quiz', id: topic.id / 3 }
     }
-    return !learning.worksheet?.completedAt
-      ? { type: 'challenge', id: 1 }
-      : { type: 'summative' }
+    return { type: 'summative' }
   })()
-  if (view.type === 'catalog')
+  if (!progressOnly && view.type === 'mission') {
+    const mission = missions.find((m) => m.id === view.id)!
+    const access = learningAccess(learning, profileId)
+    if (!access.missionReady(mission.id))
+      return (
+        <main className="mission-page">
+          <button
+            className="text-button"
+            onClick={() => open({ type: 'challenge', id: 1 })}
+          >
+            Kembali ke Challenge
+          </button>
+          <section className="content-card">
+            <h1>Misi terkunci</h1>
+            <p>Pelajari materi terkait terlebih dahulu.</p>
+          </section>
+        </main>
+      )
+    const record = learning.questions?.[`phet:${mission.id}`]
+    return (
+      <MissionView
+        key={`${profileId}:phet:${mission.id}`}
+        profileId={profileId}
+        mission={mission}
+        completed={record?.status === 'correct'}
+        visited={learning.phetVisited?.includes(mission.id) ?? false}
+        onComplete={() => {}}
+        onVisit={() => store.visitPhet(mission.id)}
+        onPractice={() => {}}
+        onRecommended={() => {}}
+        onBack={() => open({ type: 'challenge', id: 1 })}
+        onNext={() =>
+          open(
+            mission.id === 1
+              ? { type: 'mission', id: 3 }
+              : mission.id === 3
+                ? { type: 'quiz', id: 1 }
+                : { type: 'challenge', id: 1 },
+          )
+        }
+        assessment={{
+          progress: record,
+          onSubmit: async (answer) => {
+            const result = await store.answerPhet(mission.id, answer)
+            if (result.saved && result.correct) onReward(mission.id)
+            return result
+          },
+          onSkip: () => store.continueWithSupport('phet', mission.id),
+          onReview: () =>
+            open({
+              type: 'material',
+              id:
+                mission.id === 1
+                  ? 1
+                  : mission.id === 3
+                    ? 2
+                    : mission.id === 2
+                      ? 4
+                      : 6,
+            }),
+        }}
+      />
+    )
+  }
+  if (!progressOnly && view.type === 'catalog')
     return (
       <PathCatalog
         path={view.path}
@@ -77,13 +167,18 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
         onOpen={(nextView) => setView(nextView)}
       />
     )
-  if (view.type !== 'home')
+  if (
+    !progressOnly &&
+    view.type !== 'home' &&
+    view.type !== 'catalog' &&
+    view.type !== 'mission'
+  )
     return (
       <LearningPanel
         key={`${view.type}:${'id' in view ? view.id : ''}`}
         view={view}
         onBack={() => setView({ type: 'home' })}
-        onOpen={setView}
+        onOpen={open}
         store={store}
         materialReady={materialReady}
         challengeReady={challengeReady}
@@ -93,19 +188,25 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
     )
 
   const materialCount = learning.materials.length
-  const challengeCount = learning.worksheet?.completedAt ? 1 : 0
+  const challengeCount = missions.filter((m) =>
+    passedQuestion(learning.questions?.[`phet:${m.id}`]),
+  ).length
   const quizCount = [1, 2].filter((id) => checkpointDone(learning, id)).length
-  const units = 10
+  const units = 11
   const done =
     materialCount +
-    challengeCount +
+    (learningAccess(learning, profileId).missionsDone
+      ? 2
+      : [1, 3].filter((id) =>
+          passedQuestion(learning.questions?.[`phet:${id}`]),
+        ).length) +
     quizCount +
     (learning.summative.submitted ? 1 : 0)
   const nextLabel =
     next.type === 'material'
       ? `pelajari ${dynamicTopics[next.id - 1].title}`
       : next.type === 'challenge'
-        ? `selesaikan Challenge ${next.id}`
+        ? 'jalani misi PhET'
         : next.type === 'quiz'
           ? `kerjakan Kuis Formatif ${next.id}`
           : 'kerjakan asesmen sumatif'
@@ -116,73 +217,74 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           Progres Listrik Dinamis belum dapat disimpan di browser ini.
         </p>
       )}
-      <section className="dashboard-hero learning-hero">
-        <div className="hero-copy">
-          <span className="hero-tag">
-            <span /> DYNAMIC ELECTRICITY
-          </span>
-          <h1>Welcome, Young Scientist! ⚡</h1>
-          <p>Every great discovery begins with curiosity.</p>
-        </div>
-        <div className="hero-art hero-interactive">
-          <CircuitAnimation variant="dashboard" />
-        </div>
-      </section>
+      {!progressOnly && (
+        <>
+          <section className="dashboard-hero learning-hero">
+            <div className="hero-copy">
+              <span className="hero-tag">
+                <span /> DYNAMIC ELECTRICITY
+              </span>
+              <h1>Welcome, Young Scientist! ⚡</h1>
+              <p>Every great discovery begins with curiosity.</p>
+            </div>
+            <div className="hero-art hero-interactive">
+              <CircuitAnimation variant="dashboard" />
+            </div>
+          </section>
 
-      <section
-        className="learning-path-grid"
-        aria-label="Jalur belajar Listrik Dinamis"
-      >
-        <PathCard
-          icon="📚"
-          title="Learning Path"
-          variant="lessons"
-          number="01"
-          action="Explore Lessons"
-          steps={dynamicTopics.map((topic) => ({
-            title: topic.title,
-            done: learning.materials.includes(topic.id),
-            ready: materialReady(topic.id),
-          }))}
-          onOpen={() => setView({ type: 'catalog', path: 'material' })}
-        />
-        <PathCard
-          icon="🔬"
-          title="PhET Challenge"
-          variant="challenge"
-          number="02"
-          action="Start Challenge"
-          steps={[
-            {
-              title: 'Challenge',
-              done: Boolean(challengeCount),
-              ready: challengeReady(1),
-            },
-          ]}
-          onOpen={() => setView({ type: 'challenge', id: 1 })}
-        />
-        <PathCard
-          icon="📝"
-          title="Quizzes & Assessment"
-          variant="assessment"
-          number="03"
-          action="Test Your Knowledge"
-          steps={[
-            ...[1, 2].map((id) => ({
-              title: `Formative Checkpoint ${id}`,
-              done: checkpointDone(learning, id),
-              ready: Boolean(quizReady(id)),
-            })),
-            {
-              title: 'Sumatif Listrik Dinamis',
-              done: learning.summative.submitted,
-              ready: summativeReady,
-            },
-          ]}
-          onOpen={() => setView({ type: 'catalog', path: 'quiz' })}
-        />
-      </section>
-
+          <section
+            className="learning-path-grid"
+            aria-label="Jalur belajar Listrik Dinamis"
+          >
+            <PathCard
+              icon="📚"
+              title="Learning Path"
+              variant="lessons"
+              number="01"
+              action="Explore Lessons"
+              steps={dynamicTopics.map((topic) => ({
+                title: topic.title,
+                done: learning.materials.includes(topic.id),
+                ready: materialReady(topic.id),
+              }))}
+              onOpen={() => setView({ type: 'catalog', path: 'material' })}
+            />
+            <PathCard
+              icon="🔬"
+              title="PhET Challenge"
+              variant="challenge"
+              number="02"
+              action="Start Challenge"
+              steps={missions.map((m) => ({
+                title: m.title,
+                done: passedQuestion(learning.questions?.[`phet:${m.id}`]),
+                ready: learningAccess(learning, profileId).missionReady(m.id),
+              }))}
+              onOpen={() => setView({ type: 'challenge', id: 1 })}
+            />
+            <PathCard
+              icon="📝"
+              title="Quizzes & Assessment"
+              variant="assessment"
+              number="03"
+              action="Test Your Knowledge"
+              steps={[
+                ...[1, 2].map((id) => ({
+                  title: `Formative Checkpoint ${id}`,
+                  done: checkpointDone(learning, id),
+                  ready: Boolean(quizReady(id)),
+                })),
+                {
+                  title: 'Sumatif Listrik Dinamis',
+                  done: learning.summative.submitted,
+                  ready: summativeReady,
+                },
+              ]}
+              onOpen={() => setView({ type: 'catalog', path: 'quiz' })}
+            />
+          </section>
+        </>
+      )}
       <section
         className="content-card learning-progress"
         aria-labelledby="learning-progress-title"
@@ -193,8 +295,8 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           </span>
           <h2 id="learning-progress-title">Kamu sudah berada di mana?</h2>
           <p>Langkah berikutnya: {nextLabel}.</p>
-          <button className="text-button" onClick={() => setView(next)}>
-            Buka tahap berikutnya <ArrowRight size={16} />
+          <button className="text-button" onClick={() => open(next)}>
+            Lanjutkan belajar <ArrowRight size={16} />
           </button>
         </div>
         <div
@@ -212,8 +314,8 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
           <li className={materialCount === 6 ? 'done' : ''}>
             Materi <small>{materialCount}/6</small>
           </li>
-          <li className={challengeCount === 1 ? 'done' : ''}>
-            Challenge <small>{challengeCount}/1</small>
+          <li className={challengeCount === 5 ? 'done' : ''}>
+            Misi PhET <small>{challengeCount}/5</small>
           </li>
           <li className={quizCount === 2 ? 'done' : ''}>
             Formatif <small>{quizCount}/2</small>
@@ -229,6 +331,49 @@ export function DynamicLearning({ profileId }: { profileId: string }) {
             </small>
           </li>
         </ol>
+        <div
+          className="progress-checkpoints"
+          aria-label="Status asesmen dan misi"
+        >
+          {[1, 2].map((id) => (
+            <p key={id}>
+              <strong>Formatif {id}</strong> ·{' '}
+              {Object.entries(learning.questions ?? {}).some(
+                ([key, q]) =>
+                  key.startsWith(id === 1 ? 'piko:' : 'energy:') &&
+                  q.status === 'reinforcement',
+              )
+                ? '⚑ Perlu penguatan'
+                : checkpointDone(learning, id)
+                  ? '✓ Selesai'
+                  : quizReady(id)
+                    ? '○ Terbuka'
+                    : '🔒 Terkunci'}
+            </p>
+          ))}
+          {missions.map((m) => {
+            const q = learning.questions?.[`phet:${m.id}`]
+            return (
+              <p key={m.id}>
+                {m.title} ·{' '}
+                {q?.status === 'reinforcement'
+                  ? '⚑ Perlu penguatan'
+                  : q?.status === 'correct'
+                    ? '✓ Jawaban benar'
+                    : learningAccess(learning, profileId).missionReady(m.id)
+                      ? '○ Terbuka'
+                      : '🔒 Terkunci'}
+              </p>
+            )
+          })}
+          <small>
+            Persentase menunjukkan perjalanan tahap, bukan nilai penguasaan.
+          </small>
+          {checkpointDone(learning, 1) &&
+            ![1, 3].every((id) =>
+              passedQuestion(learning.questions?.[`phet:${id}`]),
+            ) && <small>Prasyarat misi diakui dari progres sebelumnya.</small>}
+        </div>
       </section>
     </main>
   )
@@ -330,7 +475,7 @@ function PathRow({
   return (
     <button
       type="button"
-      className={`path-row ${state === 'Terkunci' ? 'locked' : done ? 'done' : 'ready'}`}
+      className={`path-row ${state === 'Terkunci' ? 'locked' : state === 'Perlu penguatan' ? 'reinforcement' : done ? 'done' : 'ready'}`}
       disabled={state === 'Terkunci'}
       onClick={onOpen}
       aria-label={label}
@@ -484,7 +629,10 @@ function LearningPanel({
   quizReady,
   summativeReady,
 }: {
-  view: Exclude<View, { type: 'home' } | { type: 'catalog' }>
+  view: Exclude<
+    View,
+    { type: 'home' } | { type: 'catalog' } | { type: 'mission' }
+  >
   onBack: () => void
   onOpen: (view: View) => void
   store: ReturnType<typeof useDynamicLearning>
@@ -512,26 +660,65 @@ function LearningPanel({
           done={store.learning.materials.includes(topic!.id)}
           onDone={() => store.markMaterial(topic!.id)}
           quizAvailable={
-            topic!.id % 3 === 0
-              ? quizReady(topic!.id / 3)
-              : materialReady(topic!.id + 1)
+            topic!.id === 3
+              ? challengeReady(1)
+              : topic!.id % 3 === 0
+                ? quizReady(topic!.id / 3)
+                : materialReady(topic!.id + 1)
           }
           onQuiz={() =>
             onOpen(
-              topic!.id % 3 === 0
-                ? { type: 'quiz', id: topic!.id / 3 }
-                : { type: 'material', id: topic!.id + 1 },
+              topic!.id === 3
+                ? { type: 'challenge', id: 1 }
+                : topic!.id % 3 === 0
+                  ? { type: 'quiz', id: topic!.id / 3 }
+                  : { type: 'material', id: topic!.id + 1 },
             )
           }
           onBack={() => onOpen({ type: 'catalog', path: 'material' })}
         />
       ) : view.type === 'challenge' ? (
-        <ChallengeWorksheet
-          store={store}
-          onBack={onBack}
-          onSum={() => onOpen({ type: 'summative' })}
-          onMaterial={(id) => onOpen({ type: 'material', id })}
-        />
+        <>
+          <section className="content-card path-catalog">
+            <span className="section-kicker">MISI PHET CHALLENGE</span>
+            <h1>Eksplorasi listrik sekolah</h1>
+            <p>
+              Komponen Rangkaian dan Hukum Ohm wajib sebelum Formatif 1. Misi
+              lain adalah penguatan setelah materi terkait.
+            </p>
+            <div className="path-rows">
+              {[1, 3, 2, 4, 5].map((id) => {
+                const mission = missions.find((m) => m.id === id)!,
+                  q = store.learning.questions?.[`phet:${id}`]
+                return (
+                  <PathRow
+                    key={id}
+                    number={id}
+                    label={mission.title}
+                    state={
+                      q?.status === 'reinforcement'
+                        ? 'Perlu penguatan'
+                        : stateText(
+                            q?.status === 'correct',
+                            learningAccess(
+                              store.learning,
+                              store.profileId,
+                            ).missionReady(id),
+                          )
+                    }
+                    onOpen={() => onOpen({ type: 'mission', id })}
+                  />
+                )
+              })}
+            </div>
+          </section>
+          <ChallengeWorksheet
+            store={store}
+            onBack={onBack}
+            onSum={() => onOpen({ type: 'summative' })}
+            onMaterial={(id) => onOpen({ type: 'material', id })}
+          />
+        </>
       ) : view.type === 'quiz' ? (
         topic!.id === 1 ? (
           <CurrentFormativeGame
@@ -545,7 +732,7 @@ function LearningPanel({
             store={store}
             onBack={() => onOpen({ type: 'catalog', path: 'quiz' })}
             onReview={(id) => onOpen({ type: 'material', id })}
-            onNext={() => onOpen({ type: 'challenge', id: 1 })}
+            onNext={() => onOpen({ type: 'summative' })}
           />
         )
       ) : summativeReady ? (
@@ -614,9 +801,11 @@ function Material({
         <div className="learning-completion">
           <p className="success-note" role="status">
             <CheckCircle2 size={20} aria-hidden="true" /> Materi selesai.
-            {topic.id % 3 === 0
-              ? 'Sekarang cek pemahamanmu melalui Formative Checkpoint.'
-              : 'Lanjutkan ke submateri berikutnya.'}
+            {topic.id === 3
+              ? 'Lanjutkan eksplorasi melalui misi PhET.'
+              : topic.id % 3 === 0
+                ? 'Sekarang cek pemahamanmu melalui Formative Checkpoint.'
+                : 'Lanjutkan ke submateri berikutnya.'}
           </p>
           {!quizAvailable && (
             <p>Selesaikan kuis formatif sebelumnya untuk membuka kuis ini.</p>
@@ -627,9 +816,11 @@ function Material({
               disabled={!quizAvailable}
               onClick={onQuiz}
             >
-              {topic.id % 3 === 0
-                ? `Kerjakan Formative Checkpoint ${topic.id / 3}`
-                : 'Lanjut ke materi berikutnya'}{' '}
+              {topic.id === 3
+                ? 'Mulai Misi PhET'
+                : topic.id % 3 === 0
+                  ? `Kerjakan Formative Checkpoint ${topic.id / 3}`
+                  : 'Lanjut ke materi berikutnya'}{' '}
               <ArrowRight size={17} />
             </button>
           </div>

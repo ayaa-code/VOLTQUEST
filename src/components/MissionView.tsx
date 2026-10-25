@@ -17,9 +17,9 @@ import { PhetLab } from './PhetLab'
 import { experiments, observationErrors } from '../data/experiments'
 import { useExperimentDraft } from '../hooks/useExperimentDraft'
 import { ObservationForm } from './ObservationForm'
-import { ConceptConfirmation } from './ConceptConfirmation'
-import { useConceptFeedback } from '../hooks/useConceptFeedback'
 import type { RecommendationRef } from '../data/feedbackRules'
+import type { QuestionProgress } from '../data/attempts'
+import { gradeAnswer } from '../data/assessmentClient'
 export function MissionView({
   mission,
   profileId,
@@ -28,9 +28,9 @@ export function MissionView({
   onComplete,
   onVisit,
   onPractice,
-  onRecommended,
   onBack,
   onNext,
+  assessment,
 }: {
   mission: Mission
   profileId: string
@@ -42,13 +42,20 @@ export function MissionView({
   onRecommended: (ref: RecommendationRef) => void
   onBack: () => void
   onNext: () => void
+  assessment?: {
+    progress?: QuestionProgress
+    onSubmit: (
+      answer: number,
+    ) => Promise<{ saved: boolean; correct: boolean; explanation?: string }>
+    onSkip: () => boolean
+    onReview: () => void
+  }
 }) {
   const { draft, update, saved, notice, error } = useExperimentDraft(
     profileId,
     mission.id,
   )
   const answer = draft.answer
-  const conceptFeedback = useConceptFeedback(profileId, mission, answer)
   const config = experiments[mission.id]
   const observationReady =
     draft.observationStatus === 'recorded' &&
@@ -78,16 +85,48 @@ export function MissionView({
     draft.initialPrediction &&
     (draft.initialPrediction.choice !== draft.prediction ||
       draft.initialPrediction.reason !== draft.predictionReason)
-  const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
+  const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(
+    assessment?.progress?.status === 'correct' ? 'correct' : null,
+  )
   const [newReward, setNewReward] = useState(false)
+  const [answerExplanation, setAnswerExplanation] = useState('')
+  const [answerError, setAnswerError] = useState('')
+  const submitting = useRef(false)
+  const [pending, setPending] = useState(false)
   const Icon = mission.icon
   const success = feedback === 'correct'
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    if (answer === null || !observationReady) return
+    if (answer === null || !observationReady || submitting.current) return
+    submitting.current = true
+    setPending(true)
+    setAnswerError('')
     update({ answer })
-    conceptFeedback.begin(answer)
-    if (answer === mission.correct) {
+    if (assessment) {
+      const result = await assessment.onSubmit(answer)
+      submitting.current = false
+      setPending(false)
+      if (!result.saved) {
+        setAnswerError(
+          'Jawaban belum tersimpan. Periksa koneksi dan coba lagi.',
+        )
+        return
+      }
+      setAnswerExplanation(result.explanation ?? '')
+      setFeedback(result.correct ? 'correct' : 'incorrect')
+      return
+    }
+    const result = await gradeAnswer('phet', mission.id, answer).catch(
+      () => null,
+    )
+    submitting.current = false
+    setPending(false)
+    if (!result) {
+      setAnswerError('Jawaban belum dapat diperiksa. Coba lagi.')
+      return
+    }
+    setAnswerExplanation(result.explanation ?? '')
+    if (result.correct) {
       setNewReward(!completed)
       setFeedback('correct')
       onComplete()
@@ -110,9 +149,11 @@ export function MissionView({
           <h1>{mission.title}</h1>
           <p>{mission.subtitle}</p>
         </div>
-        <span className="xp-chip">
-          <Zap size={15} /> {completed ? '100 XP diraih' : '+100 XP'}
-        </span>
+        {!assessment && (
+          <span className="xp-chip">
+            <Zap size={15} /> {completed ? '100 XP diraih' : '+100 XP'}
+          </span>
+        )}
       </div>
       <div className="guided-briefing">
         <section className="content-card briefing">
@@ -379,7 +420,6 @@ export function MissionView({
                         value={index}
                         checked={answer === index}
                         onChange={() => {
-                          conceptFeedback.invalidate()
                           update({ answer: index })
                           setFeedback(null)
                         }}
@@ -418,14 +458,35 @@ export function MissionView({
                   role="status"
                 >
                   <strong>
-                    {success
-                      ? newReward
-                        ? 'Kerja bagus, penjelajah! +100 XP'
-                        : 'Tepat lagi! Coba jelaskan alasannya.'
-                      : 'Hampir! Coba pikirkan lagi.'}
+                    {success && assessment
+                      ? 'Jawaban benar.'
+                      : success
+                        ? newReward
+                          ? 'Kerja bagus, penjelajah! +100 XP'
+                          : 'Tepat lagi! Coba jelaskan alasannya.'
+                        : 'Belum tepat. Coba periksa kembali konsepnya.'}
                   </strong>
-                  <p>{success ? mission.explanation : mission.hint}</p>
-                  {success && (
+                  <p>
+                    {success
+                      ? answerExplanation
+                      : [
+                          'Tinjau fungsi sumber tegangan, penghantar, beban, dan sakelar.',
+                          'Tinjau jalur arus pada rangkaian seri dan paralel.',
+                          'Gunakan R = V/I dan periksa satuannya.',
+                          'Gunakan E = P × t.',
+                          'Tinjau fungsi cabang dan sakelar dalam rangkaian.',
+                        ][mission.id - 1]}
+                  </p>
+                  {!success && assessment && (
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={assessment.onReview}
+                    >
+                      Pelajari kembali materi
+                    </button>
+                  )}
+                  {success && !assessment && (
                     <span>
                       <Award size={17} /> Badge {mission.badge}{' '}
                       {newReward ? 'diraih' : 'sudah dimiliki'}
@@ -447,7 +508,7 @@ export function MissionView({
               ) : (
                 <button
                   className="primary-button submit-button"
-                  disabled={answer === null}
+                  disabled={answer === null || pending}
                   type="submit"
                 >
                   {feedback === 'incorrect'
@@ -457,24 +518,42 @@ export function MissionView({
                 </button>
               )}
             </form>
-            <ConceptConfirmation
-              controller={conceptFeedback}
-              onRecommended={onRecommended}
-            />
-            <aside className="practice-reflection-invite">
-              <h3>Ingin menguatkan konsep?</h3>
-              <p>
-                Pilih fokus dan coba latihan lain. Kamu boleh berlatih atau
-                melanjutkan misi; latihan tidak menambah XP.
-              </p>
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={onPractice}
-              >
-                Pilih latihan penguatan <ArrowRight size={17} />
-              </button>
-            </aside>
+            {answerError && <p role="alert">{answerError}</p>}
+            {assessment &&
+              assessment.progress?.status === 'open' &&
+              assessment.progress.wrong >= 4 && (
+                <button
+                  className="secondary-button"
+                  onClick={assessment.onSkip}
+                >
+                  Lanjut dengan penguatan
+                </button>
+              )}
+            {assessment?.progress?.status === 'reinforcement' && (
+              <div className="learning-summary">
+                <strong>Perlu penguatan</strong>
+                <p>Kamu boleh melanjutkan atau mencoba lagi.</p>
+                <button className="primary-button" onClick={onNext}>
+                  Lanjut ke tahap berikutnya
+                </button>
+              </div>
+            )}
+            {!assessment && (
+              <aside className="practice-reflection-invite">
+                <h3>Ingin menguatkan konsep?</h3>
+                <p>
+                  Pilih fokus dan coba latihan lain. Kamu boleh berlatih atau
+                  melanjutkan misi; latihan tidak menambah XP.
+                </p>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={onPractice}
+                >
+                  Pilih latihan penguatan <ArrowRight size={17} />
+                </button>
+              </aside>
+            )}
             <div className="reflection-note">
               <Leaf size={15} /> Belajar itu proses. Kamu boleh mencoba lagi.
             </div>

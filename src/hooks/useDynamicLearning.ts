@@ -1,7 +1,19 @@
 import { useRef, useState } from 'react'
 import { learningAccess } from '../data/learningAccess'
+import {
+  passedQuestion,
+  recordAnswer,
+  questionKey,
+  type QuestionProgress,
+} from '../data/attempts'
+import { gradeAnswer } from '../data/assessmentClient'
+import { missions } from '../data/missions'
 import { MISSIONS_DATA } from '../data/currentGame'
-import { checkEnergyAnswer, type CheckpointProgress } from '../data/checkpoints'
+import {
+  energyMissions,
+  numericAnswer,
+  type CheckpointProgress,
+} from '../data/checkpoints'
 import {
   inspectWorksheet,
   snapshotOf,
@@ -21,6 +33,8 @@ type QuizAttempt = {
   draft?: string
 }
 export type ProfileLearning = {
+  questions?: Record<string, QuestionProgress>
+  phetVisited?: number[]
   checkpoints?: Record<string, CheckpointProgress>
   worksheet?: WorksheetRecord
   materials: number[]
@@ -46,13 +60,35 @@ const blank = (): ProfileLearning => ({
 
 function read(): Saved {
   try {
-    const value = JSON.parse(localStorage.getItem(KEY) ?? '')
+    const value = JSON.parse(
+      localStorage.getItem(KEY) ?? '{"version":1,"profiles":{}}',
+    )
     if (
       value?.version !== 1 ||
       !value.profiles ||
       typeof value.profiles !== 'object'
     )
       return { version: 1, profiles: {} }
+    // Import only verified legacy mission completion; never infer success from old drafts.
+    let legacy: { profiles?: Record<string, { completed?: number[] }> } = {}
+    try {
+      legacy = JSON.parse(localStorage.getItem('voltquest.v1') ?? '{}') ?? {}
+    } catch {
+      /* Retain readable learning progress even if legacy metadata is damaged. */
+    }
+    for (const [id, profile] of Object.entries(legacy.profiles ?? {})) {
+      const completed = (profile as { completed?: number[] }).completed
+      if (!Array.isArray(completed) || !completed.length) continue
+      const learning = value.profiles[id] ?? blank()
+      const questions = { ...learning.questions }
+      for (const missionId of completed)
+        if (
+          [1, 2, 3, 4, 5].includes(missionId) &&
+          !questions[`phet:${missionId}`]
+        )
+          questions[`phet:${missionId}`] = { wrong: 0, status: 'correct' }
+      value.profiles[id] = { ...learning, questions }
+    }
     return { version: 1, profiles: value.profiles }
   } catch {
     return { version: 1, profiles: {} }
@@ -92,8 +128,65 @@ export function useDynamicLearning(profileId: string | null) {
     learning,
     storageError,
     profileId,
-    answerEnergy: (id: number, values: string[]) =>
+    answerPhet: async (id: number, answer: number) => {
+      const grade = await gradeAnswer('phet', id, answer).catch(() => null)
+      if (!grade) return { saved: false, correct: false }
+      let duplicate = false
+      const saved = update((current) => {
+        const mission = missions.find((m) => m.id === id)
+        if (
+          !mission ||
+          !Number.isInteger(answer) ||
+          !mission.options[answer] ||
+          !learningAccess(current, profileId).missionReady(id)
+        )
+          return current
+        const key = questionKey('phet', id)
+        const record = recordAnswer(
+          current.questions?.[key],
+          String(answer),
+          grade.correct,
+        )
+        if (!record) duplicate = true
+        return record
+          ? { ...current, questions: { ...current.questions, [key]: record } }
+          : current
+      })
+      return { ...grade, saved: saved || duplicate }
+    },
+    visitPhet: (id: number) =>
+      update((current) =>
+        current.phetVisited?.includes(id)
+          ? current
+          : { ...current, phetVisited: [...(current.phetVisited ?? []), id] },
+      ),
+    continueWithSupport: (kind: 'phet' | 'piko' | 'energy', id: number) =>
       update((current) => {
+        const key = questionKey(kind, id),
+          old = current.questions?.[key]
+        const access = learningAccess(current, profileId)
+        if (
+          !old ||
+          old.wrong < 4 ||
+          old.status !== 'open' ||
+          !(kind === 'phet'
+            ? access.missionReady(id)
+            : access.quizReady(kind === 'piko' ? 1 : 2))
+        )
+          return current
+        return {
+          ...current,
+          questions: {
+            ...current.questions,
+            [key]: { ...old, status: 'reinforcement' },
+          },
+        }
+      }),
+    answerEnergy: async (id: number, values: string[]) => {
+      const grade = await gradeAnswer('energy', id, values).catch(() => null)
+      if (!grade) return { saved: false, correct: false }
+      let duplicate = false
+      const saved = update((current) => {
         if (!learningAccess(current, profileId).quizReady(2)) return current
         const old = current.checkpoints?.[2] ?? {
           solved: [],
@@ -101,13 +194,39 @@ export function useDynamicLearning(profileId: string | null) {
           attempts: 0,
           complete: false,
         }
-        if (id < 1 || id > 3 || (id > 1 && !old.solved.includes(id - 1)))
+        if (
+          id < 1 ||
+          id > 3 ||
+          (id > 1 &&
+            !old.solved.includes(id - 1) &&
+            !passedQuestion(current.questions?.[questionKey('energy', id - 1)]))
+        )
           return current
-        const solved = checkEnergyAnswer(id, values)
+        if (
+          values.length !==
+            (id === 2 ? 2 : energyMissions[id - 1].labels.length) ||
+          energyMissions[id - 1].labels.some(
+            (_, i) => !Number.isFinite(numericAnswer(values[i] ?? '')),
+          ) ||
+          (id === 2 && !['masuk', 'keluar'].includes(values[1]))
+        )
+          return current
+        const key = questionKey('energy', id),
+          record = recordAnswer(
+            current.questions?.[key],
+            JSON.stringify(values),
+            grade.correct,
+          )
+        if (!record) {
+          duplicate = true
+          return current
+        }
+        const solved = grade.correct
           ? [...new Set([...old.solved, id])]
           : old.solved
         return {
           ...current,
+          questions: { ...current.questions, [key]: record },
           checkpoints: {
             ...current.checkpoints,
             2: {
@@ -118,14 +237,20 @@ export function useDynamicLearning(profileId: string | null) {
             },
           },
         }
-      }),
+      })
+      return { ...grade, saved: saved || duplicate }
+    },
     completeEnergy: () =>
       update((current) => {
         const old = current.checkpoints?.[2]
         if (
           !old ||
           !learningAccess(current, profileId).quizReady(2) ||
-          ![1, 2, 3].every((id) => old.solved.includes(id))
+          ![1, 2, 3].every(
+            (id) =>
+              old.solved.includes(id) ||
+              passedQuestion(current.questions?.[questionKey('energy', id)]),
+          )
         )
           return current
         return {
@@ -136,8 +261,11 @@ export function useDynamicLearning(profileId: string | null) {
           },
         }
       }),
-    answerCurrentGame: (missionId: number, key: string) =>
-      update((current) => {
+    answerCurrentGame: async (missionId: number, key: string) => {
+      const grade = await gradeAnswer('piko', missionId, key).catch(() => null)
+      if (!grade) return { saved: false, correct: false }
+      let duplicate = false
+      const saved = update((current) => {
         if (!learningAccess(current, profileId).quizReady(1)) return current
         const mission = MISSIONS_DATA.find((m) => m.id === missionId)
         if (
@@ -151,14 +279,26 @@ export function useDynamicLearning(profileId: string | null) {
           attempts: 0,
           complete: false,
         }
-        if (missionId > 1 && !game.solved.includes(missionId - 1))
+        if (
+          missionId > 1 &&
+          !game.solved.includes(missionId - 1) &&
+          !passedQuestion(
+            current.questions?.[questionKey('piko', missionId - 1)],
+          )
+        )
           return current
-        const solved =
-          key === mission.question.correctKey
-            ? [...new Set([...game.solved, missionId])]
-            : game.solved
+        const keyId = questionKey('piko', missionId),
+          record = recordAnswer(current.questions?.[keyId], key, grade.correct)
+        if (!record) {
+          duplicate = true
+          return current
+        }
+        const solved = grade.correct
+          ? [...new Set([...game.solved, missionId])]
+          : game.solved
         return {
           ...current,
+          questions: { ...current.questions, [keyId]: record },
           checkpoints: {
             ...current.checkpoints,
             1: {
@@ -169,14 +309,20 @@ export function useDynamicLearning(profileId: string | null) {
             },
           },
         }
-      }),
+      })
+      return { ...grade, saved: saved || duplicate }
+    },
     completeCurrentGame: () =>
       update((current) => {
         const old = current.checkpoints?.[1]
         if (
           !old ||
           !learningAccess(current, profileId).quizReady(1) ||
-          !MISSIONS_DATA.every((m) => old.solved.includes(m.id))
+          !MISSIONS_DATA.every(
+            (m) =>
+              old.solved.includes(m.id) ||
+              passedQuestion(current.questions?.[questionKey('piko', m.id)]),
+          )
         )
           return current
         return {

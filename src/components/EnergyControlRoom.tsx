@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   Zap,
   CheckCircle2,
@@ -8,13 +8,9 @@ import {
   Refrigerator,
 } from 'lucide-react'
 import type { useDynamicLearning } from '../hooks/useDynamicLearning'
-import {
-  checkpointDone,
-  checkEnergyAnswer,
-  energyMissions,
-  numericAnswer,
-} from '../data/checkpoints'
+import { checkpointDone, energyMissions } from '../data/checkpoints'
 import './EnergyControlRoom.css'
+import { passedQuestion } from '../data/attempts'
 
 export function EnergyControlRoom({
   store,
@@ -31,19 +27,32 @@ export function EnergyControlRoom({
   const [index, setIndex] = useState(() =>
     Math.min(
       2,
-      [1, 2, 3].findIndex((id) => !saved?.solved.includes(id)) < 0
+      [1, 2, 3].findIndex(
+        (id) =>
+          !saved?.solved.includes(id) &&
+          !passedQuestion(store.learning.questions?.[`energy:${id}`]),
+      ) < 0
         ? 2
-        : [1, 2, 3].findIndex((id) => !saved?.solved.includes(id)),
+        : [1, 2, 3].findIndex(
+            (id) =>
+              !saved?.solved.includes(id) &&
+              !passedQuestion(store.learning.questions?.[`energy:${id}`]),
+          ),
     ),
   )
   const [values, setValues] = useState<string[]>(
     saved?.answers[index + 1] ?? [],
   )
   const [checked, setChecked] = useState(false)
+  const [reviewing, setReviewing] = useState(false)
   const mission = energyMissions[index]
-  const complete = checkpointDone(store.learning, 2)
+  const complete = checkpointDone(store.learning, 2) && !reviewing
+  const question = store.learning.questions?.[`energy:${index + 1}`]
+  const supported = question?.status === 'reinforcement'
   const solved = saved?.solved.includes(index + 1) ?? false
-  const correct = checkEnergyAnswer(index + 1, values)
+  const correct = solved
+  const pending = useRef(false)
+  const [checkError, setCheckError] = useState('')
   return (
     <section className="content-card learning-detail energy-room">
       <header className="energy-header">
@@ -76,14 +85,41 @@ export function EnergyControlRoom({
             <span>
               {i + 1}. {m.title}
             </span>
+            {(saved?.solved.includes(i + 1) ||
+              passedQuestion(
+                store.learning.questions?.[`energy:${i + 1}`],
+              )) && (
+              <button
+                className="energy-back"
+                onClick={() => {
+                  setIndex(i)
+                  setValues(saved?.answers[i + 1] ?? [])
+                  setChecked(false)
+                  setReviewing(true)
+                }}
+              >
+                Tinjau
+                {store.learning.questions?.[`energy:${i + 1}`]?.status ===
+                'reinforcement'
+                  ? ' · Perlu penguatan'
+                  : ''}
+              </button>
+            )}
           </li>
         ))}
       </ol>
       {complete ? (
         <div className="energy-panel">
-          <h2>Checkpoint complete. Your energy system is stable.</h2>
+          <h2>
+            {Object.entries(store.learning.questions ?? {}).some(
+              ([key, q]) =>
+                key.startsWith('energy:') && q.status === 'reinforcement',
+            )
+              ? 'Checkpoint dilalui · Perlu penguatan'
+              : 'Checkpoint complete. Your energy system is stable.'}
+          </h2>
           <button className="primary-button" onClick={onNext}>
-            Start PhET Challenge
+            Kerjakan Asesmen Sumatif
           </button>
         </div>
       ) : (
@@ -180,9 +216,18 @@ export function EnergyControlRoom({
           </div>
           <p>{mission.prompt}</p>
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
-              if (store.answerEnergy(index + 1, values)) setChecked(true)
+              if (pending.current) return
+              pending.current = true
+              setCheckError('')
+              const result = await store.answerEnergy(index + 1, values)
+              pending.current = false
+              if (result.saved) setChecked(true)
+              else
+                setCheckError(
+                  'Jawaban belum tersimpan. Periksa isian dan koneksi, lalu coba lagi.',
+                )
             }}
           >
             <div className="energy-inputs">
@@ -204,15 +249,6 @@ export function EnergyControlRoom({
                       setChecked(false)
                     }}
                   />
-                  {checked && (
-                    <small>
-                      {Math.abs(
-                        numericAnswer(values[i] ?? '') - mission.expected[i],
-                      ) < 0.001
-                        ? '✓ Tepat'
-                        : 'Periksa kembali'}
-                    </small>
-                  )}
                 </label>
               ))}
               {index === 1 && (
@@ -251,10 +287,11 @@ export function EnergyControlRoom({
               </div>
             )}
           </form>
+          {checkError && <p role="alert">{checkError}</p>}
           {checked && !correct && (
             <aside className="quiz-feedback" role="status">
-              <strong>Belum tepat. Periksa kembali sistemnya.</strong>
-              <p>{mission.help}</p>
+              <strong>Belum tepat. Coba periksa kembali konsepnya.</strong>
+              <p>{mission.reminder}</p>
               <button
                 className="secondary-button"
                 onClick={() => setChecked(false)}
@@ -269,11 +306,23 @@ export function EnergyControlRoom({
               </button>
             </aside>
           )}
-          {solved && (
+          {!solved && !supported && (question?.wrong ?? 0) >= 4 && (
+            <button
+              className="secondary-button"
+              onClick={() => store.continueWithSupport('energy', index + 1)}
+            >
+              Lanjut dengan penguatan
+            </button>
+          )}
+          {(solved || supported) && (
             <div role="status" className="energy-success">
               <CheckCircle2 />
-              <strong>System Stabilized</strong>
-              <p>{mission.help}</p>
+              <strong>
+                {solved
+                  ? 'Jawaban benar · System Stabilized'
+                  : 'Perlu penguatan'}
+              </strong>
+              <p>{solved ? mission.reminder : mission.reminder}</p>
               <button
                 className="primary-button"
                 onClick={() => {

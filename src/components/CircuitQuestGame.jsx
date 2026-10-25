@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { MISSIONS_DATA } from '../data/currentGame'
 import './CircuitQuestGame.css'
 
-/** @param {{onComplete:()=>void,onReview:(id?:number)=>void,onFinish:()=>boolean,onAnswer:(id:number,key:string)=>boolean,initialMission?:number,initialScore?:number}} props */
+/** @param {{onComplete:()=>void,onReview:(id?:number)=>void,onFinish:()=>boolean,onAnswer:(id:number,key:string)=>Promise<{saved:boolean,correct:boolean,explanation?:string}>,initialMission?:number,initialScore?:number,wrongCounts?:Record<number,number>,supportMissions?:number[],onSkip?:(id:number)=>boolean}} props */
 export function CircuitQuestGame({
   onComplete,
   onReview,
@@ -10,6 +10,9 @@ export function CircuitQuestGame({
   onAnswer,
   initialMission = 0,
   initialScore = 0,
+  wrongCounts = {},
+  supportMissions = [],
+  onSkip,
 }) {
   // State utama Reaktif untuk UI Panel & HUD
   const [missionIndex, setMissionIndex] = useState(Math.min(initialMission, 2))
@@ -32,6 +35,8 @@ export function CircuitQuestGame({
   )
   const [saveError, setSaveError] = useState('')
   const livesRef = useRef(3)
+  const answerPending = useRef(false)
+  const [selectedCorrect, setSelectedCorrect] = useState('')
   const rootRef = useRef(null)
   useEffect(() => {
     if (!window.matchMedia('(any-pointer: coarse)').matches) return
@@ -99,6 +104,7 @@ export function CircuitQuestGame({
     setWrongKeys([])
     setFeedback(null)
     setQuestionSolved(false)
+    setSelectedCorrect('')
     setUiStatus('PLAYING')
   }, [])
 
@@ -370,24 +376,31 @@ export function CircuitQuestGame({
   }, [missionIndex, uiStatus, accuPercent, reduceLife])
 
   // Handler saat menjawab pilihan ganda di Panel Soal
-  const handleSelectOption = (optionKey) => {
-    if (questionSolved || wrongKeys.includes(optionKey)) return
+  const handleSelectOption = async (optionKey) => {
+    if (questionSolved || answerPending.current)
+      return
+    answerPending.current = true
     const q = currentMission.question
-    if (!onAnswer(currentMission.id, optionKey)) {
+    const result = await onAnswer(currentMission.id, optionKey)
+    answerPending.current = false
+    if (!result.saved) {
       setSaveError('Jawaban belum dapat disimpan. Coba lagi.')
       return
     }
     setSaveError('')
 
-    if (optionKey === q.correctKey) {
+    if (result.correct) {
+      setSelectedCorrect(optionKey)
       setQuestionSolved(true)
       setScore((prev) => prev + 100)
       setAccuPercent(currentMission.accuTargetAfter)
-      setFeedback({ type: 'correct', text: q.correctFeedback })
+      setFeedback({
+        type: 'correct',
+        text: result.explanation ?? 'Jawaban benar.',
+      })
     } else {
       setWrongKeys((prev) => [...prev, optionKey])
       setFeedback({ type: 'wrong', text: q.wrongFeedback })
-      reduceLife()
     }
   }
 
@@ -515,14 +528,13 @@ export function CircuitQuestGame({
               <div className="cq-options-list">
                 {currentMission.question.options.map((opt) => {
                   const isCorrectSelected =
-                    questionSolved &&
-                    opt.key === currentMission.question.correctKey
+                    questionSolved && opt.key === selectedCorrect
                   const isWrongSelected = wrongKeys.includes(opt.key)
                   return (
                     <button
                       key={opt.key}
                       type="button"
-                      disabled={questionSolved || isWrongSelected}
+                      disabled={questionSolved}
                       onClick={() => handleSelectOption(opt.key)}
                       className={`cq-option-btn ${
                         isCorrectSelected
@@ -573,7 +585,24 @@ export function CircuitQuestGame({
                   </button>
                 </aside>
               )}
-              {questionSolved && (
+              {!questionSolved &&
+                (wrongCounts[currentMission.id] ?? 0) >= 4 &&
+                !supportMissions.includes(currentMission.id) && (
+                  <button
+                    className="cq-btn cq-btn-secondary"
+                    onClick={() => onSkip?.(currentMission.id)}
+                  >
+                    Lanjut dengan penguatan
+                  </button>
+                )}
+              {supportMissions.includes(currentMission.id) &&
+                !questionSolved && (
+                  <p role="status">
+                    Perlu penguatan. Kamu boleh melanjutkan atau mencoba lagi.
+                  </p>
+                )}
+              {(questionSolved ||
+                supportMissions.includes(currentMission.id)) && (
                 <div className="cq-btn-row">
                   <button
                     type="button"

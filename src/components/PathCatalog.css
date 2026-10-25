@@ -31,10 +31,10 @@
   line-height: 1.6;
   color: #496174;
 }
-.path-catalog-page .path-rows {
+.learning-page .path-catalog .path-rows {
   gap: 12px;
 }
-.app-shell .path-catalog-page .path-row {
+.app-shell .learning-page .path-catalog .path-row {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr) 18px;
   align-items: center;
@@ -47,7 +47,7 @@
   color: #163449;
   box-shadow: 0 3px 0 #dce8ec;
 }
-.app-shell .path-catalog-page .path-row-number {
+.app-shell .learning-page .path-catalog .path-row-number {
   display: grid;
   place-items: center;
   width: 42px;
@@ -73,7 +73,7 @@
   font-weight: 650;
   line-height: 1.45;
 }
-.app-shell .path-catalog-page .path-row small {
+.app-shell .learning-page .path-catalog .path-row small {
   grid-column: auto;
   display: flex;
   align-items: center;
@@ -85,30 +85,30 @@
 .path-row-arrow {
   color: #4a7487;
 }
-.app-shell .path-catalog-page .path-row.done {
+.app-shell .learning-page .path-catalog .path-row.done {
   border-color: #8db792;
   background: #f7fbf4;
 }
-.app-shell .path-catalog-page .path-row.locked {
+.app-shell .learning-page .path-catalog .path-row.locked {
   background: #f1f4f5;
   color: #566b77;
   box-shadow: none;
 }
-.app-shell .path-catalog-page .path-row.locked small {
+.app-shell .learning-page .path-catalog .path-row.locked small {
   color: #566b77;
 }
-.app-shell .path-catalog-page .path-row.locked .path-row-number {
+.app-shell .learning-page .path-catalog .path-row.locked .path-row-number {
   background: #e1e8eb;
   color: #566b77;
 }
-.app-shell .path-catalog-page .path-row.locked .path-row-arrow {
+.app-shell .learning-page .path-catalog .path-row.locked .path-row-arrow {
   visibility: hidden;
 }
-.app-shell .path-catalog-page .path-row:not(:disabled):hover {
+.app-shell .learning-page .path-catalog .path-row:not(:disabled):hover {
   background: #f0f8fc;
   border-color: #4285a1;
 }
-.app-shell .path-catalog-page .path-row:focus-visible {
+.app-shell .learning-page .path-catalog .path-row:focus-visible {
   outline: 3px solid #175f98;
   outline-offset: 3px;
 }
@@ -118,12 +118,12 @@
   }
 }
 @media (max-width: 420px) {
-  .app-shell .path-catalog-page .path-row {
+  .app-shell .learning-page .path-catalog .path-row {
     grid-template-columns: 34px minmax(0, 1fr) 16px;
     gap: 10px;
     padding: 14px 12px;
   }
-  .app-shell .path-catalog-page .path-row-number {
+  .app-shell .learning-page .path-catalog .path-row-number {
     width: 34px;
     height: 38px;
     border-radius: 9px;

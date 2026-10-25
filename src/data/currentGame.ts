@@ -43,9 +43,7 @@ export const MISSIONS_DATA = [
         },
         { key: 'E', text: '36.000 C' },
       ],
-      correctKey: 'B',
-      correctFeedback: 'Benar! Q = It = 2,5 × 7.200 = 18.000 C.',
-      wrongFeedback: 'Ubah 2 jam menjadi 7.200 sekon, kemudian gunakan Q = It.',
+      wrongFeedback: 'Gunakan Q = It. Ubah waktu dari jam menjadi sekon.',
     },
   },
   {
@@ -83,9 +81,6 @@ export const MISSIONS_DATA = [
         { key: 'D', text: 'Ohmik, 20 Ω' },
         { key: 'E', text: 'Ohmik, 40 Ω' },
       ],
-      correctKey: 'D',
-      correctFeedback:
-        'Benar! Semua pengukuran memiliki V/I = 20 Ω, sehingga komponen ohmik.',
       wrongFeedback:
         'Hitung V/I pada setiap pasangan. Nilai tetap berarti komponen ohmik.',
     },
@@ -121,9 +116,6 @@ export const MISSIONS_DATA = [
         { key: 'D', text: '80 Ω' },
         { key: 'E', text: '160 Ω' },
       ],
-      correctKey: 'D',
-      correctFeedback:
-        'Benar! Luas B seperempat A. R B = 2 ÷ (1/4) × 10 = 80 Ω.',
       wrongFeedback:
         'Gunakan R = ρL/A. Luas penampang mengikuti kuadrat diameter.',
     },

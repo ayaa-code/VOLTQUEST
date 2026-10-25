@@ -1,12 +1,11 @@
 import { test, expect } from '@playwright/test'
 import { finishCurrentGame, playToGate } from './game-helpers'
 import { learningAccess } from '../src/data/learningAccess'
-import {
-  checkpointDone,
-  numericAnswer,
-  checkEnergyAnswer,
-} from '../src/data/checkpoints'
+import { checkpointDone, numericAnswer } from '../src/data/checkpoints'
 import type { ProfileLearning } from '../src/hooks/useDynamicLearning'
+import { gradeAssessment } from '../server/assessment'
+const checkEnergyAnswer = (id: number, answer: string[]) =>
+  gradeAssessment({ kind: 'energy', id, answer }).correct
 test('prerequisites, legacy completion and numeric formats remain valid', () => {
   const base: ProfileLearning = {
     materials: [],
@@ -17,7 +16,7 @@ test('prerequisites, legacy completion and numeric formats remain valid', () => 
   }
   expect(learningAccess(base).quizReady(1)).toBe(false)
   const group = { ...base, materials: [1, 2, 3] }
-  expect(learningAccess(group).quizReady(1)).toBe(true)
+  expect(learningAccess(group).quizReady(1)).toBe(false)
   expect(learningAccess(group).materialReady(4)).toBe(false)
   const partial = {
     ...group,

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import type { useDynamicLearning } from '../hooks/useDynamicLearning'
 import { MISSIONS_DATA } from '../data/currentGame'
 import { checkpointDone } from '../data/checkpoints'
+import { passedQuestion } from '../data/attempts'
 const CircuitQuestGame = lazy(() => import('./CircuitQuestGame.jsx'))
 export function CurrentFormativeGame({
   store,
@@ -17,7 +18,11 @@ export function CurrentFormativeGame({
   const saved = store.learning.checkpoints?.[1]
   const solved = saved?.solved ?? []
   const complete = checkpointDone(store.learning, 1)
-  const next = MISSIONS_DATA.findIndex((m) => !solved.includes(m.id))
+  const next = MISSIONS_DATA.findIndex(
+    (m) =>
+      !solved.includes(m.id) &&
+      !passedQuestion(store.learning.questions?.[`piko:${m.id}`]),
+  )
   return (
     <section className="content-card learning-detail quiz-detail current-formative-game">
       <span className="section-kicker">FORMATIF 1 · TIGA SUBMATERI</span>
@@ -31,9 +36,21 @@ export function CurrentFormativeGame({
           onFinish={store.completeCurrentGame}
           onComplete={onNext}
           onReview={onReview}
+          wrongCounts={Object.fromEntries(
+            MISSIONS_DATA.map((m) => [
+              m.id,
+              store.learning.questions?.[`piko:${m.id}`]?.wrong ?? 0,
+            ]),
+          )}
+          supportMissions={MISSIONS_DATA.filter(
+            (m) =>
+              store.learning.questions?.[`piko:${m.id}`]?.status ===
+              'reinforcement',
+          ).map((m) => m.id)}
+          onSkip={(id) => store.continueWithSupport('piko', id)}
         />
       </Suspense>
-      {solved.length === 3 && !complete && (
+      {next === -1 && !complete && (
         <button className="primary-button" onClick={store.completeCurrentGame}>
           Simpan penyelesaian formatif
         </button>

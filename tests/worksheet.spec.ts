@@ -90,9 +90,9 @@ test('blank worksheet template preserves legacy notes without granting completio
   await page.goto('/')
   await expect(
     page.getByRole('progressbar', { name: 'Progres Listrik Dinamis' }),
-  ).toHaveAttribute('aria-valuemax', '10')
+  ).toHaveAttribute('aria-valuemax', '11')
   await page.getByRole('button', { name: 'Start Challenge' }).click()
-  await expect(page.locator('.path-catalog')).toHaveCount(0)
+  await expect(page.locator('.path-catalog-page')).toHaveCount(0)
   await expect(page.locator('.worksheet-template')).toHaveCount(5)
   await expect(
     page.locator('.worksheet-template :is(input,textarea,table,[role=table])'),

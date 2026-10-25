@@ -71,7 +71,7 @@ test('dashboard switch and object click do not modify learning data', async ({
     await page.evaluate(() => localStorage.getItem('voltquest.experiments.v1')),
   ).toBe(null)
   await expect(page.locator('.header-xp')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
+  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
   await expect(
     page.getByRole('heading', { name: 'Arus Listrik' }),
   ).toBeVisible()
@@ -144,7 +144,7 @@ test('dashboard keeps learning controls available when 3D visualisation is unava
     circuit.getByRole('status').filter({ hasText: /belum didukung/i }),
   ).toBeVisible()
   await expect(page.locator('.header-xp')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Buka tahap berikutnya' }).click()
+  await page.getByRole('button', { name: 'Lanjutkan belajar' }).click()
   await expect(
     page.getByRole('heading', { name: 'Arus Listrik' }),
   ).toBeVisible()

@@ -163,10 +163,10 @@ test('rails reflect saved profile progress and keep summative locked until all s
   await expect(lessons.locator('.mission-step.done')).toHaveCount(3)
   await expect(lessons.locator('.mission-step.locked')).toHaveCount(3)
   await expect(challenge.locator('.mission-step.done')).toHaveCount(0)
-  await expect(challenge.locator('.mission-step.active')).toHaveCount(0)
-  await expect(challenge.locator('.mission-step.locked')).toHaveCount(1)
+  await expect(challenge.locator('.mission-step.active')).toHaveCount(1)
+  await expect(challenge.locator('.mission-step.locked')).toHaveCount(4)
   await expect(quiz.locator('.mission-step.done')).toHaveCount(0)
-  await expect(quiz.locator('.mission-step.active')).toHaveCount(1)
+  await expect(quiz.locator('.mission-step.active')).toHaveCount(0)
   await expect(quiz.locator('.mission-step').last()).toHaveAttribute(
     'aria-label',
     /Sumatif.*Locked/,

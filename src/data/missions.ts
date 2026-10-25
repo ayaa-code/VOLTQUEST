@@ -21,10 +21,7 @@ export const missions = [
     ],
     question: 'Komponen yang menjadi sumber beda potensial adalah ...',
     options: ['Kabel', 'Baterai', 'Lampu', 'Sakelar'],
-    correct: 1,
     hint: 'Sumber beda potensial menyediakan energi untuk menggerakkan muatan. Kabel hanya menghubungkan komponen.',
-    explanation:
-      'Baterai menyediakan beda potensial. Saat rangkaian tertutup, arus mengalir dan lampu dapat menyala.',
   },
   {
     id: 2,
@@ -45,10 +42,7 @@ export const missions = [
     question:
       'Agar lampu lain tetap menyala saat satu lampu putus, gunakan rangkaian ...',
     options: ['Seri', 'Terbuka', 'Paralel', 'Tanpa sumber tegangan'],
-    correct: 2,
     hint: 'Coba pikirkan susunan dengan lebih dari satu jalur arus. Apa yang terjadi jika hanya satu cabang terputus?',
-    explanation:
-      'Rangkaian paralel memiliki cabang terpisah. Putusnya satu cabang tidak memutus arus pada cabang lain.',
   },
   {
     id: 3,
@@ -68,10 +62,7 @@ export const missions = [
     ],
     question: 'Jika V = 12 V dan I = 2 A, nilai hambatan adalah ...',
     options: ['24 Ω', '10 Ω', '14 Ω', '6 Ω'],
-    correct: 3,
     hint: 'Gunakan R = V ÷ I. Bagi nilai tegangan dengan kuat arus, lalu periksa satuannya.',
-    explanation:
-      'R = V ÷ I = 12 ÷ 2 = 6 Ω. Hambatan dinyatakan dalam satuan ohm.',
   },
   {
     id: 4,
@@ -97,10 +88,7 @@ export const missions = [
       'Perangkat berdaya lebih kecil',
       'Perangkat dengan kabel lebih panjang',
     ],
-    correct: 2,
     hint: 'Energi = daya × waktu. Ketika waktunya sama, bagaimana perubahan daya memengaruhi energi?',
-    explanation:
-      'Untuk waktu yang sama, daya lebih kecil memakai energi lebih sedikit. Saat memilih perangkat, pertimbangkan juga kebutuhan dan fungsinya.',
   },
   {
     id: 5,
@@ -126,10 +114,7 @@ export const missions = [
       'Rangkaian paralel tanpa sakelar',
       'Semua lampu dalam satu cabang seri',
     ],
-    correct: 1,
     hint: 'Setiap ruang memerlukan jalur arus sendiri dan alat pemutus arus yang mengendalikan ruang itu saja.',
-    explanation:
-      'Cabang paralel menjaga tiap ruang tetap mandiri. Sakelar pada tiap cabang memungkinkan lampu dimatikan ketika ruang tidak digunakan.',
   },
 ]
 export type Mission = (typeof missions)[number]

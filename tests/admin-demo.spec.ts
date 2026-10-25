@@ -67,7 +67,7 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
     page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
   ).toBeVisible()
   await expect(page.locator('.header-right')).toContainText('Demo')
-  await expect(page.locator('.learning-progress strong').last()).toHaveText(
+  await expect(page.locator('.learning-progress > strong')).toHaveText(
     '0%',
   )
   await page.waitForTimeout(500)
@@ -135,7 +135,8 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
   expect(saved.profiles['demo:admin'].summative.submitted).toBe(false)
   expect(saved.profiles['demo:admin'].checkpoints[2].complete).toBe(false)
   expect(saved.profiles['demo:admin'].worksheet).toBeTruthy()
-  expect(saved.profiles['student:admin']).toBeUndefined()
+  expect(saved.profiles['student:admin'].materials).toEqual([])
+  expect(saved.profiles['student:admin'].checkpoints).toBeUndefined()
   await page.getByRole('button', { name: 'Buka profil siswa' }).click()
   await page.getByRole('button', { name: 'Keluar dari profil' }).click()
   await login(page, 'siswa@voltquest.demo', 'VoltQuest123')

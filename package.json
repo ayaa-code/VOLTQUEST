@@ -12,7 +12,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test:e2e": "playwright test",
-    "test:server": "node --experimental-strip-types --test server/ai.test.ts",
+    "test:server": "node --experimental-strip-types --test server/ai.test.ts server/assessment.test.ts",
     "format": "prettier --write src tests playwright.config.ts index.html README.md"
   },
   "dependencies": {
