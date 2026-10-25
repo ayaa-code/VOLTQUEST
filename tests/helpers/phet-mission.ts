@@ -1,8 +1,9 @@
 import { expect, type Page } from '@playwright/test'
 import { fillObservations } from './observations'
 export async function prepareMission(page: Page) {
-  await page.getByRole('radio', { name: 'Belum yakin', exact: true }).check()
+  await page.getByRole('radio', { name: 'Prediksi lain', exact: true }).check()
   await expect(page.getByRole('button', { name: 'Lanjut ke eksperimen', exact: true })).toBeDisabled()
+  await page.locator('#prediction-text').fill('Saya menduga perubahan susunan rangkaian memengaruhi keadaan lampu.')
   await page.locator('#prediction-reason').fill('Saya ingin menguji hubungan komponen dan arus melalui pengamatan.')
   await page
     .getByRole('button', { name: 'Lanjut ke eksperimen', exact: true })

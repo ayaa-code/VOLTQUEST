@@ -94,9 +94,7 @@ export const lessons: Record<number, Lesson> = {
   },
   3: {
     title: 'Hambatan Jenis',
-    videoId: '2oV9ZwM4SRU',
-    videoNotice:
-      'Pada pemeriksaan 24 Oktober 2026, video dari tautan ini tidak tersedia di YouTube. Kamu tetap dapat mempelajari materi tertulis dan mendengarkan audionya. Tautan asli tetap tersedia jika pemilik mengaktifkan videonya kembali.',
+    videoId: 'dLDgOag5qcc',
     blocks: [
       p(
         'Hambatan sebuah kawat tidak hanya ditentukan oleh panjang kawat. Jenis bahan dan ukuran kawat juga berpengaruh. Besaran yang menggambarkan karakter kelistrikan suatu bahan disebut hambatan jenis atau resistivitas, dilambangkan dengan ρ dan bersatuan Ω·m.',

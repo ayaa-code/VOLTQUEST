@@ -114,12 +114,12 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
   await expect(page.getByRole('status')).toContainText('Belum tepat')
   await home(page)
   await page
-    .getByRole('button', { name: 'Start Challenge', exact: true })
+    .getByRole('button', { name: 'Start Exploring', exact: true })
     .click()
   await expect(
-    page.getByRole('heading', { name: 'Challenge', exact: true }),
+    page.getByRole('heading', { name: 'Discovery Lab', exact: true }),
   ).toBeVisible()
-  await page.getByRole('button', { name: 'Simpan draf', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Your Missions' })).toBeVisible()
   await home(page)
   await page
     .getByRole('button', { name: 'Test Your Knowledge', exact: true })
@@ -134,7 +134,7 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
   expect(saved.profiles['demo:admin'].materials).toEqual([6])
   expect(saved.profiles['demo:admin'].summative.submitted).toBe(false)
   expect(saved.profiles['demo:admin'].checkpoints[2].complete).toBe(false)
-  expect(saved.profiles['demo:admin'].worksheet).toBeTruthy()
+  expect(saved.profiles['demo:admin'].worksheet).toBeUndefined()
   expect(saved.profiles['student:admin'].materials).toEqual([])
   expect(saved.profiles['student:admin'].checkpoints).toBeUndefined()
   await page.getByRole('button', { name: 'Buka profil siswa' }).click()

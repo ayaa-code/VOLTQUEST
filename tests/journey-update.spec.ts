@@ -122,7 +122,8 @@ test('desktop and mobile progress show identical journey without mutating data',
   await expect(
     page.getByRole('button', { name: 'Seri dan Paralel', exact: true }),
   ).toBeDisabled()
-  await expect(page.locator('.worksheet-template')).toHaveCount(5)
+  await expect(page.locator('.worksheet-template')).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Your Missions' })).toBeVisible()
 })
 test('required PhET missions unlock Piko then six materials and second checkpoint lead to summative', async ({
   page,

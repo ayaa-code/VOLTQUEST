@@ -445,7 +445,7 @@ function App() {
           )}
           <footer className="app-footer">
             <span>
-              VoltQuest <span>·</span> Belajar. Jelajahi. Nyalakan perubahan.
+              VoltQuest • Belajar • Eksperimen • Nyalakan Ide
             </span>
             <button onClick={() => setModal('help')}>
               <CircleHelp size={15} /> Tentang VoltQuest

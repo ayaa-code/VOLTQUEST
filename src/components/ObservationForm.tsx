@@ -27,11 +27,17 @@ export function ObservationForm({
   function submit(event: FormEvent) {
     event.preventDefault()
     const next = observationErrors(missionId, draft.observations)
-    if (!draft.comparison.trim()) next.comparison = 'Isi perbandingan dengan prediksimu sebelum melanjutkan.'
+    if (!draft.comparison.trim())
+      next.comparison =
+        'Isi perbandingan dengan prediksimu sebelum melanjutkan.'
     setErrors(next)
     if (Object.keys(next).length) {
       form.current
-        ?.querySelector<HTMLElement>(Object.keys(next)[0] === 'comparison' ? '#comparison' : `#observation-${Object.keys(next)[0]}`)
+        ?.querySelector<HTMLElement>(
+          Object.keys(next)[0] === 'comparison'
+            ? '#comparison'
+            : `#observation-${Object.keys(next)[0]}`,
+        )
         ?.focus()
     } else onContinue()
   }
@@ -116,8 +122,7 @@ export function ObservationForm({
         boleh dicatat. Kolom kosong bukan angka nol.
       </p>
       <p className="guided-help">
-        Semua hasil pengamatan wajib diisi sebelum refleksi. Isian disimpan
-        sebagai draf saat kamu mengubahnya.
+        Isian disimpan sebagai draf saat kamu mengubahnya.
       </p>
       {layout.shared.map((id) => control(id, true))}
       {missionId === 4 && (
@@ -196,9 +201,7 @@ export function ObservationForm({
         </aside>
       )}
       <div className="guided-field">
-        <label htmlFor="comparison">
-          Apa yang berbeda dari prediksimu? <span>(wajib diisi)</span>
-        </label>
+        <label htmlFor="comparison">Apa yang berbeda dari prediksimu?</label>
         <textarea
           id="comparison"
           required
@@ -209,7 +212,11 @@ export function ObservationForm({
           value={draft.comparison}
           onChange={(event) => update({ comparison: event.target.value })}
         />
-        {errors.comparison && <p className="field-error" id="error-comparison">{errors.comparison}</p>}
+        {errors.comparison && (
+          <p className="field-error" id="error-comparison">
+            {errors.comparison}
+          </p>
+        )}
       </div>
       <p className="guided-help">
         Catatan dan alasan tidak dinilai otomatis. Menyimpan catatan tidak

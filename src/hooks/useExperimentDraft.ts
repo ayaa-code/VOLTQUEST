@@ -1,12 +1,15 @@
 import { useRef, useState } from 'react'
 import { experiments, parseMeasurement } from '../data/experiments'
+import type { ReflectionReview } from '../data/reflectionReview'
 
 export const DRAFT_KEY = 'voltquest.experiments.v1'
 export type Draft = {
   step: number
   prediction: string
+  predictionText: string
+  review?: ReflectionReview
   predictionReason: string
-  initialPrediction: { choice: string; reason: string } | null
+  initialPrediction: { choice: string; reason: string; text?: string } | null
   observations: Record<string, string>
   comparison: string
   observationStatus: 'draft' | 'recorded' | 'skipped'
@@ -17,6 +20,7 @@ type Store = { version: 1; profiles: Record<string, Record<string, Draft>> }
 const fresh = (): Draft => ({
   step: 0,
   prediction: '',
+  predictionText: '',
   predictionReason: '',
   initialPrediction: null,
   observations: {},
@@ -41,7 +45,10 @@ function sanitize(value: unknown, missionId: number): Draft {
       field.choices && !field.choices.includes(raw) ? '' : raw
   }
   const choice = (raw: unknown) =>
-    typeof raw === 'string' && config.choices.includes(raw) ? raw : ''
+    typeof raw === 'string' &&
+    (config.choices.includes(raw) || raw === 'Belum yakin')
+      ? raw
+      : ''
   const initial = object(value.initialPrediction)
     ? choice(value.initialPrediction.choice)
     : ''
@@ -53,10 +60,19 @@ function sanitize(value: unknown, missionId: number): Draft {
         ? Number(value.step)
         : 0,
     prediction: choice(value.prediction),
+    predictionText: text(value.predictionText),
+    review:
+      object(value.review) &&
+      value.review.source === 'local' &&
+      typeof value.review.at === 'number' &&
+      typeof value.review.reason === 'string'
+        ? (value.review as ReflectionReview)
+        : undefined,
     predictionReason: text(value.predictionReason),
     initialPrediction: initial
       ? {
           choice: initial,
+          text: text((value.initialPrediction as Record<string, unknown>).text),
           reason: text(
             (value.initialPrediction as Record<string, unknown>).reason,
           ),

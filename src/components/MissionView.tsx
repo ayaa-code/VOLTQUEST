@@ -20,6 +20,7 @@ import { ObservationForm } from './ObservationForm'
 import type { RecommendationRef } from '../data/feedbackRules'
 import type { QuestionProgress } from '../data/attempts'
 import { gradeAnswer } from '../data/assessmentClient'
+import { explanationNeedsRevision } from '../data/reflectionReview'
 export function MissionView({
   mission,
   profileId,
@@ -46,6 +47,7 @@ export function MissionView({
     progress?: QuestionProgress
     onSubmit: (
       answer: number,
+      needsSupport?: boolean,
     ) => Promise<{ saved: boolean; correct: boolean; explanation?: string }>
     onSkip: () => boolean
     onReview: () => void
@@ -57,13 +59,26 @@ export function MissionView({
   )
   const answer = draft.answer
   const config = experiments[mission.id]
-  const predictionReady = !!draft.prediction && !!draft.predictionReason.trim()
+  const predictionValue =
+    draft.prediction === 'Prediksi lain'
+      ? draft.predictionText.trim()
+      : draft.prediction
+  const predictionReady =
+    config.choices.includes(draft.prediction) &&
+    !!predictionValue &&
+    !!draft.predictionReason.trim()
   const observationReady =
     draft.observationStatus === 'recorded' &&
-    Object.keys(observationErrors(mission.id, draft.observations)).length === 0 &&
+    Object.keys(observationErrors(mission.id, draft.observations)).length ===
+      0 &&
     !!draft.comparison.trim()
   // Old skipped/incomplete drafts are retained, but the UI now returns to the table.
-  const step = draft.step > 0 && !predictionReady ? 0 : draft.step === 3 && !observationReady ? 2 : draft.step
+  const step =
+    draft.step > 0 && !predictionReady
+      ? 0
+      : draft.step === 3 && !observationReady
+        ? 2
+        : draft.step
   const panel = useRef<HTMLDivElement>(null)
   function go(step: number) {
     if (step > 0 && !predictionReady) return
@@ -75,6 +90,7 @@ export function MissionView({
             initialPrediction: {
               choice: draft.prediction,
               reason: draft.predictionReason,
+              text: draft.predictionText,
             },
           }
         : {}),
@@ -87,7 +103,8 @@ export function MissionView({
   const predictionChanged =
     draft.initialPrediction &&
     (draft.initialPrediction.choice !== draft.prediction ||
-      draft.initialPrediction.reason !== draft.predictionReason)
+      draft.initialPrediction.reason !== draft.predictionReason ||
+      (draft.initialPrediction.text ?? '') !== draft.predictionText)
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(
     assessment?.progress?.status === 'correct' ? 'correct' : null,
   )
@@ -100,13 +117,27 @@ export function MissionView({
   const success = feedback === 'correct'
   async function submit(e: FormEvent) {
     e.preventDefault()
-    if (answer === null || !predictionReady || !observationReady || !draft.reflectionReason.trim() || submitting.current) return
+    if (
+      answer === null ||
+      !predictionReady ||
+      !observationReady ||
+      !draft.reflectionReason.trim() ||
+      submitting.current
+    )
+      return
     submitting.current = true
     setPending(true)
     setAnswerError('')
     update({ answer })
     if (assessment) {
-      const result = await assessment.onSubmit(answer)
+      const needsRevision = explanationNeedsRevision(draft.reflectionReason)
+      const explanationOnlyRevision =
+        draft.review?.answer === answer &&
+        !draft.review.choiceCorrect &&
+        draft.review.reason !== draft.reflectionReason
+      const result = explanationOnlyRevision
+        ? { saved: true, correct: false }
+        : await assessment.onSubmit(answer, needsRevision)
       submitting.current = false
       setPending(false)
       if (!result.saved) {
@@ -115,7 +146,19 @@ export function MissionView({
         )
         return
       }
-      setAnswerExplanation(result.explanation ?? '')
+      update({
+        review: {
+          source: 'local',
+          at: Date.now(),
+          answer,
+          reason: draft.reflectionReason,
+          observations: JSON.stringify(draft.observations),
+          comparison: draft.comparison,
+          choiceCorrect: result.correct,
+          explanation: needsRevision ? 'needs-revision' : 'unassessed',
+        },
+      })
+      setAnswerExplanation('')
       setFeedback(result.correct ? 'correct' : 'incorrect')
       return
     }
@@ -146,7 +189,8 @@ export function MissionView({
         </span>
         <div>
           <span className="eyebrow">
-            MISI {String(mission.id).padStart(2, '0')}{' '}
+            MISSION{' '}
+            {String([1, 3, 2, 4, 5].indexOf(mission.id) + 1).padStart(2, '0')}{' '}
             {mission.id === 5 ? '· TANTANGAN FINAL' : '· LISTRIK DINAMIS'}
           </span>
           <h1>{mission.title}</h1>
@@ -216,10 +260,7 @@ export function MissionView({
             <h2 id="step-heading" tabIndex={-1}>
               Buat prediksimu
             </h2>
-            <p>
-              Ini perkiraan awal, bukan tes. Tidak ada penilaian benar/salah
-              atau XP. “Belum yakin” juga boleh.
-            </p>
+
             <fieldset>
               <legend>{config.prediction}</legend>
               <div className="answer-options">
@@ -241,9 +282,22 @@ export function MissionView({
                 ))}
               </div>
             </fieldset>
+            {draft.prediction === 'Prediksi lain' && (
+              <div className="guided-field">
+                <label htmlFor="prediction-text">Tuliskan prediksimu</label>
+                <textarea
+                  id="prediction-text"
+                  required
+                  maxLength={800}
+                  rows={3}
+                  value={draft.predictionText}
+                  onChange={(e) => update({ predictionText: e.target.value })}
+                />
+              </div>
+            )}
             <div className="guided-field">
               <label htmlFor="prediction-reason">
-                Mengapa kamu memperkirakan begitu? <span>(wajib diisi)</span>
+                Mengapa kamu memperkirakan begitu?
               </label>
               <textarea
                 id="prediction-reason"
@@ -259,7 +313,11 @@ export function MissionView({
             {draft.initialPrediction && (
               <aside className="draft-summary">
                 <strong>Prediksi awal saat pertama melanjutkan</strong>
-                <p>{draft.initialPrediction.choice}</p>
+                <p>
+                  {draft.initialPrediction.choice === 'Prediksi lain'
+                    ? draft.initialPrediction.text
+                    : draft.initialPrediction.choice}
+                </p>
                 <p>
                   {draft.initialPrediction.reason || 'Tanpa alasan tertulis.'}
                 </p>
@@ -361,8 +419,10 @@ export function MissionView({
             <aside className="draft-summary" aria-label="Ringkasan kegiatan">
               <strong>Prediksi awal</strong>
               <p>
-                {draft.initialPrediction?.choice ||
-                  draft.prediction ||
+                {(draft.initialPrediction?.choice === 'Prediksi lain'
+                  ? draft.initialPrediction.text
+                  : draft.initialPrediction?.choice) ||
+                  predictionValue ||
                   'Belum diisi'}
               </p>
               <p>
@@ -371,7 +431,7 @@ export function MissionView({
               {predictionChanged && (
                 <>
                   <strong>Prediksi yang diperbarui</strong>
-                  <p>{draft.prediction}</p>
+                  <p>{predictionValue}</p>
                   <p>{draft.predictionReason || 'Tanpa alasan tertulis.'}</p>
                 </>
               )}
@@ -440,7 +500,7 @@ export function MissionView({
               <div className="guided-field">
                 <label htmlFor="reflection-reason">
                   Berdasarkan pengamatanmu, bagaimana kamu menjelaskan jawaban
-                  ini? <span>(wajib diisi)</span>
+                  ini?
                 </label>
                 <textarea
                   id="reflection-reason"
@@ -459,12 +519,12 @@ export function MissionView({
               </div>
               {feedback && (
                 <div
-                  className={`feedback ${success ? 'success' : 'retry'}`}
+                  className={`feedback ${success && draft.review?.explanation !== 'needs-revision' ? 'success' : 'retry'}`}
                   role="status"
                 >
                   <strong>
                     {success && assessment
-                      ? 'Jawaban benar.'
+                      ? 'Pilihan jawabanmu tepat.'
                       : success
                         ? newReward
                           ? 'Kerja bagus, penjelajah! +100 XP'
@@ -499,7 +559,84 @@ export function MissionView({
                   )}
                 </div>
               )}
-              {success ? (
+              {draft.review && (
+                <section
+                  className="learning-summary"
+                  aria-label="Catatan Pemahaman"
+                >
+                  <h3>Catatan Pemahaman</h3>
+                  <p>
+                    Pilihan jawaban:{' '}
+                    {draft.review.choiceCorrect ? 'tepat' : 'perlu revisi'}.
+                  </p>
+                  {draft.review.answer !== answer ||
+                  draft.review.reason !== draft.reflectionReason ||
+                  draft.review.observations !==
+                    JSON.stringify(draft.observations) ||
+                  draft.review.comparison !== draft.comparison ? (
+                    <p>
+                      Catatan belum diperbarui. Periksa kembali setelah mengubah
+                      jawaban atau pengamatan.
+                    </p>
+                  ) : (
+                    <>
+                      <p>
+                        Penjelasan konsep:{' '}
+                        {draft.review.explanation === 'needs-revision'
+                          ? 'perlu penguatan. Penjelasanmu belum menunjukkan hubungan antara hasil pengamatan dan konsep.'
+                          : 'belum dinilai secara makna.'}
+                      </p>
+                      <p>
+                        Penggunaan bukti: belum dapat dipastikan melalui
+                        pemeriksaan lokal.
+                      </p>
+                      <p>
+                        Yang sudah ditunjukkan:{' '}
+                        {draft.review.choiceCorrect
+                          ? 'pilihan sesuai dengan konsep yang ditanyakan; penguasaan penjelasan belum dapat disimpulkan.'
+                          : 'catatan dan pilihan sudah dikirim, tetapi konsep masih perlu ditinjau.'}
+                      </p>
+                      <p>
+                        Yang perlu ditingkatkan:{' '}
+                        {
+                          [
+                            'tinjau fungsi sumber tegangan, penghantar, beban, dan sakelar.',
+                            'tinjau pembagian arus dan tegangan pada seri dan paralel.',
+                            'tinjau hubungan tegangan, arus, dan hambatan melalui V = IR.',
+                            'tinjau perbedaan daya dan energi serta hubungan E = Pt.',
+                            'tinjau fungsi cabang dan sakelar serta efisiensi dan keamanan rangkaian.',
+                          ][mission.id - 1]
+                        }{' '}
+                        Hubungkan dengan hasil pengamatanmu.
+                      </p>
+                    </>
+                  )}
+                  <p>
+                    Pemeriksaan lokal •{' '}
+                    {new Date(draft.review.at).toLocaleString('id-ID')}.
+                    Penilaian makna dengan AI belum tersedia. Sistem tidak
+                    membaca keadaan simulasi secara langsung.
+                  </p>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => {
+                      setFeedback(null)
+                      requestAnimationFrame(() =>
+                        document.getElementById('reflection-reason')?.focus(),
+                      )
+                    }}
+                  >
+                    Revisi penjelasan
+                  </button>
+                </section>
+              )}
+              {success && draft.review?.explanation === 'needs-revision' ? (
+                <p>
+                  Perbaiki penjelasanmu atau lanjutkan dengan status Perlu
+                  penguatan melalui tombol di bawah.
+                </p>
+              ) : success ? (
                 <button
                   type="button"
                   className="primary-button next-button"
@@ -513,7 +650,9 @@ export function MissionView({
               ) : (
                 <button
                   className="primary-button submit-button"
-                  disabled={answer === null || !draft.reflectionReason.trim() || pending}
+                  disabled={
+                    answer === null || !draft.reflectionReason.trim() || pending
+                  }
                   type="submit"
                 >
                   {feedback === 'incorrect'

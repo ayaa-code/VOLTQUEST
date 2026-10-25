@@ -27,9 +27,16 @@ export function learningAccess(
         passedQuestion(learning.questions?.[`phet:${id}`]) ||
         (id === 1
           ? [1, 2, 3].every((n) => learning.materials.includes(n))
-          : id === 3
-            ? passedQuestion(learning.questions?.['phet:1'])
-            : learning.materials.includes(id === 2 ? 4 : 6))),
+          : passedQuestion(
+              learning.questions?.[
+                `phet:${({ 3: 1, 2: 3, 4: 2, 5: 4 } as Record<number, number>)[id]}`
+              ],
+            ) &&
+            (id === 3
+              ? [1, 2, 3].every((n) => learning.materials.includes(n))
+              : id === 5
+                ? [4, 5, 6].every((n) => learning.materials.includes(n))
+                : learning.materials.includes(id === 2 ? 4 : 6)))),
     materialReady: (id: number) =>
       ids.includes(id) &&
       (demo ||
@@ -65,3 +72,13 @@ export const challengePrerequisite =
   'Pelajari Materi 1–3 untuk membuka misi Discovery Lab. Misi Komponen Rangkaian dan Hukum Ohm menjadi persiapan Formatif 1.'
 export const summativePrerequisite =
   'Jalani Formative Checkpoint 2 untuk membuka asesmen sumatif.'
+export const missionPrerequisite = (id: number) =>
+  (
+    ({
+      1: 'Pelajari Materi 1–3 terlebih dahulu.',
+      3: 'Selesaikan Komponen Rangkaian dan pelajari Materi 1–3 terlebih dahulu.',
+      2: 'Selesaikan Hukum Ohm dan pelajari Rangkaian Seri–Paralel terlebih dahulu.',
+      4: 'Selesaikan Seri dan Paralel dan pelajari Daya Listrik terlebih dahulu.',
+      5: 'Selesaikan misi Energi Listrik dan pelajari seluruh materi rangkaian serta Daya Listrik terlebih dahulu.',
+    }) as Record<number, string>
+  )[id]

@@ -26,7 +26,7 @@ export const experiments: Record<number, Experiment> = {
     choices: [
       'Keadaan lampu berubah',
       'Keadaan lampu tetap sama',
-      'Belum yakin',
+      'Prediksi lain',
     ],
     components: 'Baterai, kabel, satu lampu, dan satu sakelar.',
     changed: 'Posisi sakelar: terbuka dan tertutup.',
@@ -54,7 +54,7 @@ export const experiments: Record<number, Experiment> = {
       'Hanya pada seri',
       'Hanya pada paralel',
       'Pada keduanya padam',
-      'Belum yakin',
+      'Prediksi lain',
     ],
     components: 'Baterai, kabel, dan dua lampu sejenis.',
     changed:
@@ -85,7 +85,7 @@ export const experiments: Record<number, Experiment> = {
   3: {
     prediction:
       'Saat tegangan dinaikkan dengan resistor ohmik yang sama, bagaimana arus berubah?',
-    choices: ['Arus bertambah', 'Arus berkurang', 'Arus tetap', 'Belum yakin'],
+    choices: ['Arus bertambah', 'Arus berkurang', 'Arus tetap', 'Prediksi lain'],
     components: 'Baterai, kabel, resistor ohmik, voltmeter, dan amperemeter.',
     changed: 'Tegangan sumber: pilih dua nilai berbeda yang tersedia.',
     controlled:
@@ -118,7 +118,7 @@ export const experiments: Record<number, Experiment> = {
       'Beban berdaya lebih besar memakai energi lebih besar',
       'Beban berdaya lebih kecil memakai energi lebih besar',
       'Energinya selalu sama',
-      'Belum yakin',
+      'Prediksi lain',
     ],
     components:
       'Baterai, kabel, dua beban resistif untuk diuji bergantian, voltmeter, dan amperemeter.',
@@ -153,7 +153,7 @@ export const experiments: Record<number, Experiment> = {
       'Hanya ruang pada cabang itu',
       'Semua ruang',
       'Tidak ada ruang',
-      'Belum yakin',
+      'Prediksi lain',
     ],
     components: 'Baterai, kabel, tiga lampu, dan tiga sakelar.',
     changed: 'Buka satu sakelar cabang pada setiap uji.',

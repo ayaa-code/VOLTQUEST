@@ -75,7 +75,7 @@ test('mission cards fit five viewport widths and support full-card clicks and ke
       })
     }
   }
-  const titles = ['Learning Path', 'PhET Challenge', 'Quizzes & Assessment']
+  const titles = ['Learning Path', 'Discovery Lab', 'Quizzes & Assessment']
   await expect(page.locator('.mission-card-emoji')).toHaveText([
     '📚',
     '🔬',
@@ -103,7 +103,7 @@ test('mission cards fit five viewport widths and support full-card clicks and ke
   ).toBeVisible()
   await page.getByRole('button', { name: 'Kembali ke Listrik Dinamis' }).click()
   const challenge = page.getByRole('button', {
-    name: 'Start Challenge',
+    name: 'Start Exploring',
     exact: true,
   })
   await challenge.focus()

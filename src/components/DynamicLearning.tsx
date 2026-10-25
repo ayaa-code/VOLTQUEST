@@ -8,7 +8,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { CircuitAnimation } from './CircuitAnimation'
-import { ChallengeWorksheet } from './ChallengeWorksheet'
+import { lessonSummaries } from '../data/lessonSummaries'
 import { AssistantChat } from './AssistantChat'
 import { CurrentFormativeGame } from './CurrentFormativeGame'
 import { EnergyControlRoom } from './EnergyControlRoom'
@@ -21,6 +21,7 @@ import {
 import { useDynamicLearning } from '../hooks/useDynamicLearning'
 import {
   learningAccess,
+  missionPrerequisite,
   challengePrerequisite,
   summativePrerequisite,
 } from '../data/learningAccess'
@@ -104,7 +105,7 @@ export function DynamicLearning({
           </button>
           <section className="content-card">
             <h1>Misi terkunci</h1>
-            <p>Pelajari materi terkait terlebih dahulu.</p>
+            <p>{missionPrerequisite(mission.id)}</p>
           </section>
         </main>
       )
@@ -132,9 +133,14 @@ export function DynamicLearning({
         }
         assessment={{
           progress: record,
-          onSubmit: async (answer) => {
-            const result = await store.answerPhet(mission.id, answer)
-            if (result.saved && result.correct) onReward(mission.id)
+          onSubmit: async (answer, needsSupport) => {
+            const result = await store.answerPhet(
+              mission.id,
+              answer,
+              needsSupport,
+            )
+            if (result.saved && result.correct && !needsSupport)
+              onReward(mission.id)
             return result
           },
           onSkip: () => store.continueWithSupport('phet', mission.id),
@@ -465,11 +471,13 @@ function PathRow({
   state,
   onOpen,
   number,
+  hint,
 }: {
   label: string
   state: string
   onOpen?: () => void
   number?: number
+  hint?: string
 }) {
   const done = state === 'Selesai'
   return (
@@ -503,6 +511,7 @@ function PathRow({
           )}{' '}
           {state}
         </small>
+        {state === 'Terkunci' && hint && <small>{hint}</small>}
       </span>
       <ArrowRight className="path-row-arrow" size={18} aria-hidden="true" />
     </button>
@@ -680,20 +689,23 @@ function LearningPanel({
       ) : view.type === 'challenge' ? (
         <>
           <section className="content-card path-catalog">
-            <span className="section-kicker">MISI PHET CHALLENGE</span>
-            <h1>Eksplorasi listrik sekolah</h1>
+            <span className="section-kicker">EKSPLORASI LISTRIK DINAMIS</span>
+            <h1>Discovery Lab</h1>
             <p>
-              Komponen Rangkaian dan Hukum Ohm wajib sebelum Formatif 1. Misi
-              lain adalah penguatan setelah materi terkait.
+              Bagaimana satu perubahan kecil bisa membuat lampu padam atau
+              menyala lebih terang? Susun rangkaian, uji dugaanmu, dan temukan
+              jawabannya melalui setiap misi.
             </p>
+            <h2>Your Missions</h2>
             <div className="path-rows">
-              {[1, 3, 2, 4, 5].map((id) => {
+              {[1, 3, 2, 4, 5].map((id, index) => {
                 const mission = missions.find((m) => m.id === id)!,
                   q = store.learning.questions?.[`phet:${id}`]
                 return (
                   <PathRow
                     key={id}
-                    number={id}
+                    number={index + 1}
+                    hint={missionPrerequisite(id)}
                     label={mission.title}
                     state={
                       q?.status === 'reinforcement'
@@ -712,12 +724,6 @@ function LearningPanel({
               })}
             </div>
           </section>
-          <ChallengeWorksheet
-            store={store}
-            onBack={onBack}
-            onSum={() => onOpen({ type: 'summative' })}
-            onMaterial={(id) => onOpen({ type: 'material', id })}
-          />
         </>
       ) : view.type === 'quiz' ? (
         topic!.id === 1 ? (
@@ -795,7 +801,11 @@ function Material({
       <LessonContent topicId={topic.id} />
       <div className="learning-summary">
         <strong>Ringkasan</strong>
-        <p>{topic.summary}</p>
+        <ul>
+          {lessonSummaries[topic.id].map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
       </div>
       {done ? (
         <div className="learning-completion">
