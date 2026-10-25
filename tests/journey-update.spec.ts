@@ -117,7 +117,7 @@ test('desktop and mobile progress show identical journey without mutating data',
     .click()
   await expect(page.locator('.hero-copy')).toBeVisible()
   await page
-    .getByRole('button', { name: 'Start Challenge', exact: true })
+    .getByRole('button', { name: 'Start Exploring', exact: true })
     .click()
   await expect(
     page.getByRole('button', { name: 'Seri dan Paralel', exact: true }),
@@ -135,7 +135,7 @@ test('required PhET missions unlock Piko then six materials and second checkpoin
   for (const next of [
     'Lanjut ke materi berikutnya',
     'Lanjut ke materi berikutnya',
-    'Mulai Misi PhET',
+    'Mulai Misi Discovery Lab',
   ]) {
     await page
       .getByRole('button', { name: 'Tandai sudah dipelajari', exact: true })
@@ -325,7 +325,7 @@ test('PhET mistakes persist across reload and supported completion grants no XP'
   await seed(page, blank, true)
   await page.goto('/')
   await page
-    .getByRole('button', { name: 'Start Challenge', exact: true })
+    .getByRole('button', { name: 'Start Exploring', exact: true })
     .click()
   await page.getByRole('button', { name: 'Hukum Ohm', exact: true }).click()
   await prepareMission(page)
@@ -348,7 +348,7 @@ test('PhET mistakes persist across reload and supported completion grants no XP'
   }
   await page.reload()
   await page
-    .getByRole('button', { name: 'Start Challenge', exact: true })
+    .getByRole('button', { name: 'Start Exploring', exact: true })
     .click()
   await page.getByRole('button', { name: 'Hukum Ohm', exact: true }).click()
   await page

@@ -14,6 +14,7 @@ export async function fillObservations(page: Page) {
     await select.selectOption({ index: 1 })
   for (const input of await page.locator('.observation-form input').all())
     await input.fill('6')
+  await page.locator('#comparison').fill('Hasil pengamatan saya bandingkan dengan prediksi awal untuk melihat perbedaannya.')
   await page
     .getByRole('button', { name: 'Simpan pengamatan dan lanjut' })
     .click()

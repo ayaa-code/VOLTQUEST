@@ -41,8 +41,8 @@ export function LearningGuide() {
       <p className="guide-route">
         <strong>Alur belajar</strong>
         <br />
-        Materi 1–3 → Misi PhET (Komponen dan Ohm) → Formatif 1 → Materi 4–6 →
-        Formatif 2 → Sumatif. Misi PhET lainnya tersedia sebagai penguatan
+        Materi 1–3 → Discovery Lab (Komponen dan Ohm) → Formatif 1 → Materi 4–6 →
+        Formatif 2 → Sumatif. Misi Discovery Lab lainnya tersedia sebagai penguatan
         setelah materi terkait.
       </p>
     </div>

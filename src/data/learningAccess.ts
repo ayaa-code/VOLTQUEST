@@ -62,6 +62,6 @@ export function learningAccess(
 }
 
 export const challengePrerequisite =
-  'Pelajari Materi 1–3 untuk membuka misi PhET. Misi Komponen Rangkaian dan Hukum Ohm menjadi persiapan Formatif 1.'
+  'Pelajari Materi 1–3 untuk membuka misi Discovery Lab. Misi Komponen Rangkaian dan Hukum Ohm menjadi persiapan Formatif 1.'
 export const summativePrerequisite =
   'Jalani Formative Checkpoint 2 untuk membuka asesmen sumatif.'

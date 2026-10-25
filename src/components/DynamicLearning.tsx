@@ -206,7 +206,7 @@ export function DynamicLearning({
     next.type === 'material'
       ? `pelajari ${dynamicTopics[next.id - 1].title}`
       : next.type === 'challenge'
-        ? 'jalani misi PhET'
+        ? 'jalani misi Discovery Lab'
         : next.type === 'quiz'
           ? `kerjakan Kuis Formatif ${next.id}`
           : 'kerjakan asesmen sumatif'
@@ -315,7 +315,7 @@ export function DynamicLearning({
             Materi <small>{materialCount}/6</small>
           </li>
           <li className={challengeCount === 5 ? 'done' : ''}>
-            Misi PhET <small>{challengeCount}/5</small>
+            Misi Discovery Lab <small>{challengeCount}/5</small>
           </li>
           <li className={quizCount === 2 ? 'done' : ''}>
             Formatif <small>{quizCount}/2</small>
@@ -802,7 +802,7 @@ function Material({
           <p className="success-note" role="status">
             <CheckCircle2 size={20} aria-hidden="true" /> Materi selesai.
             {topic.id === 3
-              ? 'Lanjutkan eksplorasi melalui misi PhET.'
+              ? 'Lanjutkan eksplorasi melalui misi Discovery Lab.'
               : topic.id % 3 === 0
                 ? 'Sekarang cek pemahamanmu melalui Formative Checkpoint.'
                 : 'Lanjutkan ke submateri berikutnya.'}
@@ -817,7 +817,7 @@ function Material({
               onClick={onQuiz}
             >
               {topic.id === 3
-                ? 'Mulai Misi PhET'
+                ? 'Mulai Misi Discovery Lab'
                 : topic.id % 3 === 0
                   ? `Kerjakan Formative Checkpoint ${topic.id / 3}`
                   : 'Lanjut ke materi berikutnya'}{' '}

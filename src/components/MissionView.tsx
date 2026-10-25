@@ -57,13 +57,16 @@ export function MissionView({
   )
   const answer = draft.answer
   const config = experiments[mission.id]
+  const predictionReady = !!draft.prediction && !!draft.predictionReason.trim()
   const observationReady =
     draft.observationStatus === 'recorded' &&
-    Object.keys(observationErrors(mission.id, draft.observations)).length === 0
+    Object.keys(observationErrors(mission.id, draft.observations)).length === 0 &&
+    !!draft.comparison.trim()
   // Old skipped/incomplete drafts are retained, but the UI now returns to the table.
-  const step = draft.step === 3 && !observationReady ? 2 : draft.step
+  const step = draft.step > 0 && !predictionReady ? 0 : draft.step === 3 && !observationReady ? 2 : draft.step
   const panel = useRef<HTMLDivElement>(null)
   function go(step: number) {
+    if (step > 0 && !predictionReady) return
     if (step === 3 && !observationReady) return
     update({
       step,
@@ -97,7 +100,7 @@ export function MissionView({
   const success = feedback === 'correct'
   async function submit(e: FormEvent) {
     e.preventDefault()
-    if (answer === null || !observationReady || submitting.current) return
+    if (answer === null || !predictionReady || !observationReady || !draft.reflectionReason.trim() || submitting.current) return
     submitting.current = true
     setPending(true)
     setAnswerError('')
@@ -178,7 +181,7 @@ export function MissionView({
             className={step === index ? 'active' : ''}
             aria-current={step === index ? 'step' : undefined}
             disabled={
-              (index > 0 && !draft.prediction) ||
+              (index > 0 && !predictionReady) ||
               (index === 3 && !observationReady)
             }
             onClick={() => go(index)}
@@ -240,10 +243,11 @@ export function MissionView({
             </fieldset>
             <div className="guided-field">
               <label htmlFor="prediction-reason">
-                Mengapa kamu memperkirakan begitu? <span>(opsional)</span>
+                Mengapa kamu memperkirakan begitu? <span>(wajib diisi)</span>
               </label>
               <textarea
                 id="prediction-reason"
+                required
                 rows={3}
                 maxLength={800}
                 value={draft.predictionReason}
@@ -269,7 +273,7 @@ export function MissionView({
             <div className="step-actions">
               <button
                 className="primary-button"
-                disabled={!draft.prediction}
+                disabled={!predictionReady}
                 onClick={() => go(1)}
               >
                 Lanjut ke eksperimen <ArrowRight size={17} />
@@ -436,10 +440,11 @@ export function MissionView({
               <div className="guided-field">
                 <label htmlFor="reflection-reason">
                   Berdasarkan pengamatanmu, bagaimana kamu menjelaskan jawaban
-                  ini? <span>(opsional)</span>
+                  ini? <span>(wajib diisi)</span>
                 </label>
                 <textarea
                   id="reflection-reason"
+                  required
                   rows={3}
                   maxLength={800}
                   value={draft.reflectionReason}
@@ -508,7 +513,7 @@ export function MissionView({
               ) : (
                 <button
                   className="primary-button submit-button"
-                  disabled={answer === null || pending}
+                  disabled={answer === null || !draft.reflectionReason.trim() || pending}
                   type="submit"
                 >
                   {feedback === 'incorrect'

@@ -147,7 +147,7 @@ export const worksheetSections: WorksheetSection[] = [
     analysis: [
       t('conclusion', 'Kesimpulan utama'),
       t('evidence', 'Bukti pengamatan pendukung'),
-      { ...t('curiosity', 'Hal yang masih ingin dipelajari'), optional: true },
+      t('curiosity', 'Hal yang masih ingin dipelajari'),
     ],
   },
 ]
