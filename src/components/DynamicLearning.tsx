@@ -487,12 +487,14 @@ function PathCard({
 }
 function PathRow({
   label,
+  description,
   state,
   onOpen,
   number,
   hint,
 }: {
   label: string
+  description?: string
   state: string
   onOpen?: () => void
   number?: number
@@ -520,6 +522,7 @@ function PathRow({
       </span>
       <span className="path-row-copy">
         <strong>{label}</strong>
+        {description && <span className="path-row-description">{description}</span>}
         <small>
           {done ? (
             <CheckCircle2 size={13} />
@@ -609,6 +612,13 @@ function PathCatalog({
                 key={topic.id}
                 number={topic.id}
                 label={label}
+                description={
+                  path === 'quiz'
+                    ? topic.id === 1
+                      ? 'Circuit Quest — Petualangan Piko'
+                      : 'Energy Control Room'
+                    : undefined
+                }
                 state={stateText(done, ready)}
                 onOpen={() => onOpen({ type: path, id: topic.id })}
               />

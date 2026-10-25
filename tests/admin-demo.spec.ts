@@ -91,6 +91,10 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
     .getByRole('button', { name: 'Test Your Knowledge', exact: true })
     .click()
   await expect(page.locator('.path-row:disabled')).toHaveCount(0)
+  await expect(page.locator('.path-row-description')).toHaveText([
+    'Circuit Quest — Petualangan Piko',
+    'Energy Control Room',
+  ])
   await page
     .getByRole('button', { name: 'Formative Checkpoint 1', exact: true })
     .click()
