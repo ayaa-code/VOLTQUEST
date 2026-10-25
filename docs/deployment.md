@@ -1,35 +1,31 @@
-# Deployment GitHub dan Vercel
+# Deployment VoltQuest
 
-Repository: [ayaa-code/VOLTQUEST](https://github.com/ayaa-code/VOLTQUEST).
+## Tujuan tetap
 
-## Deployment production
+- Repository: [ayaa-code/VOLTQUEST](https://github.com/ayaa-code/VOLTQUEST)
+- Workspace: ayaas-projects-028704c4
+- Proyek: voltquest
+- Domain: [voltquest-jet.vercel.app](https://voltquest-jet.vercel.app/)
+- [Dashboard proyek yang benar](https://vercel.com/ayaas-projects-028704c4/voltquest)
 
-Deployment melalui CLI Vercel selesai pada 23 Oktober 2026 dengan status **READY**. URL production: **https://voltquest.vercel.app**. Project berada pada `aliyaas-projects-6360b9bd/voltquest`; [dashboard deployment](https://vercel.com/aliyaas-projects-6360b9bd/voltquest/5M486YqBXtxFtmw6iN7pVQ6EageM).
+Petunjuk ini menggantikan dokumentasi lama yang menunjuk workspace/domain berbeda. Jangan membuat proyek baru atau menautkan ulang ke workspace lain untuk mengatasi timeout.
 
-Build cloud menjalankan `npm ci`, TypeScript, dan Vite dengan sukses. Verifikasi HTTP dari jaringan agen mengalami timeout sehingga pengujian interaksi langsung pada domain production belum terkonfirmasi. Deployment dilakukan dari source lokal melalui CLI. Status deployment ini tidak membuktikan bahwa push GitHub atau sambungan deploy otomatis telah selesai; keduanya diperiksa terpisah.
+## Publikasi
 
-Sambungan Git otomatis dicoba melalui `vercel git connect https://github.com/ayaa-code/VOLTQUEST.git --yes`, tetapi Vercel menolak akses integrasinya ke repository. Karena itu deployment berikutnya dapat dilakukan lewat `npx.cmd vercel --prod` dari folder yang sudah ditautkan. Untuk mengaktifkan deploy otomatis, buka Settings → Git pada project Vercel, lalu hubungkan akun/integrasi GitHub yang memiliki akses ke `ayaa-code/VOLTQUEST`.
+1. Lint, build, server tests dan browser tests yang relevan.
+2. Tinjau diff, tanpa rahasia/data siswa.
+3. Commit dan push ke main.
+4. Periksa integrasi Vercel untuk SHA yang sama.
+5. Verifikasi domain, asset versi terbaru, login dan alur utama.
 
-VoltQuest adalah aplikasi React/Vite statis. Konfigurasi `vercel.json` menetapkan framework Vite, instalasi `npm ci`, build `npm run build`, output `dist`, dan fallback SPA ke `index.html`. Node.js 24 ditetapkan melalui `.nvmrc` serta `package.json`. Tidak memerlukan environment variable, database, atau server backend.
+Vite menghasilkan dist; Vercel juga menjalankan /api/assessment dan /api/ai. Detail di vercel.json; Node 24 diperlukan.
 
-Untuk menghubungkan repository pada akun Vercel:
+## AI
 
-1. Buka [Import VoltQuest ke Vercel](https://vercel.com/new/import?s=https%3A%2F%2Fgithub.com%2Fayaa-code%2FVOLTQUEST).
-2. Pilih akun/team tujuan dan repository tersebut. Root Directory tetap `./`.
-3. Gunakan framework **Vite**, Build Command **npm run build**, Output Directory **dist**. Konfigurasi proyek sudah menyediakannya.
-4. Deploy, lalu gunakan URL yang dikembalikan Vercel. Sambungan Git Vercel dapat membuat deployment baru setiap push ke `main`.
+Nama variabel tersedia dalam .env.example. Kredensial model, Redis, Turnstile, origin dan rate salt hanya melalui pengaturan server. Jangan memasukkan rahasia ke frontend/Git/percakapan. Flag aktif belum membuktikan permintaan AI berhasil; uji dengan persetujuan dan perlindungan yang berlaku. Admin demo tidak melewati perlindungan tersebut.
 
-Alternatif setelah login Vercel CLI:
+## Akses
 
-```powershell
-npx.cmd vercel login
-npx.cmd vercel --prod
-```
+Ready tidak membuktikan semua jaringan dapat mengakses domain. Catat HTTP jaringan pengujian terpisah. Jangan mengubah DNS pengguna diam-diam. Data localhost dan produksi terpisah; deployment tidak menyinkronkan progres. Jangan menghapus data situs saat troubleshooting.
 
-Jangan menaruh token di repository. `.gitignore` mengecualikan `.env*`, `.vercel`, `tmp`, hasil build, dan cache. `.vercelignore` juga mengecualikan bukti pengujian/video dari unggahan deployment. Bukti tersebut tetap dapat disimpan di GitHub bersama dokumentasi.
-
-Progres dan draf berada di localStorage browser masing-masing. Data pada `localhost` tidak otomatis berpindah ke domain Vercel, dan nama yang sama pada perangkat lain tidak menyinkronkan progres. Laboratorium PhET tetap membuka layanan eksternal. Kode kelas masih merupakan fitur demo.
-
-GitHub Actions menjalankan instalasi bersih, lint, dan build setiap push ke `main` atau pull request. Pengujian browser lokal dapat dijalankan dengan instruksi README.
-
-Dokumentasi konfigurasi: [Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite).
+Hasil publikasi terbaru: [status audit](competition-readiness/README.md).

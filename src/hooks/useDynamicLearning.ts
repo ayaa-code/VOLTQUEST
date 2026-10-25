@@ -1,4 +1,10 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
+import {
+  blankLearning,
+  LEARNING_KEY,
+  readLearningStorage,
+  type LearningStore,
+} from '../data/learningStorage'
 import { learningAccess } from '../data/learningAccess'
 import {
   passedQuestion,
@@ -47,28 +53,14 @@ export type ProfileLearning = {
     submitted: boolean
   }
 }
-type Saved = { version: 1; profiles: Record<string, ProfileLearning> }
-
-const KEY = 'voltquest.dynamic-electricity.v1'
-const blank = (): ProfileLearning => ({
-  materials: [],
-  challenges: [],
-  challengeDrafts: {},
-  quizzes: {},
-  summative: { answers: {}, essays: ['', ''], submitted: false },
-})
+type Saved = LearningStore
+const KEY = LEARNING_KEY
+const blank = blankLearning
 
 function read(): Saved {
   try {
-    const value = JSON.parse(
-      localStorage.getItem(KEY) ?? '{"version":1,"profiles":{}}',
-    )
-    if (
-      value?.version !== 1 ||
-      !value.profiles ||
-      typeof value.profiles !== 'object'
-    )
-      return { version: 1, profiles: {} }
+    const { store: value, blocked } = readLearningStorage(localStorage)
+    if (blocked) return value
     // Import only verified legacy mission completion; never infer success from old drafts.
     let legacy: { profiles?: Record<string, { completed?: number[] }> } = {}
     try {
@@ -89,7 +81,7 @@ function read(): Saved {
           questions[`phet:${missionId}`] = { wrong: 0, status: 'correct' }
       value.profiles[id] = { ...learning, questions }
     }
-    return { version: 1, profiles: value.profiles }
+    return { ...value, version: 1, profiles: value.profiles }
   } catch {
     return { version: 1, profiles: {} }
   }
@@ -97,12 +89,28 @@ function read(): Saved {
 
 export function useDynamicLearning(profileId: string | null) {
   const [saved, setSaved] = useState<Saved>(read)
-  const [storageError, setStorageError] = useState(false)
-  const latest = useRef(saved)
+  const [storageError, setStorageError] = useState(() => {
+    try {
+      return readLearningStorage(localStorage).blocked
+    } catch {
+      return true
+    }
+  })
   const learning = profileId ? (saved.profiles[profileId] ?? blank()) : blank()
   function update(change: (current: ProfileLearning) => ProfileLearning) {
     if (!profileId) return false
-    const state = latest.current
+    // Re-read immediately before writing so a different tab's saved profile is
+    // retained. Unsupported/corrupt data must never be overwritten with blank data.
+    let state: Saved
+    try {
+      if (readLearningStorage(localStorage).blocked)
+        throw new Error('Preserve saved data')
+      // Include legacy migration in the same read used for this update.
+      state = read()
+    } catch {
+      setStorageError(true)
+      return false
+    }
     const current = state.profiles[profileId] ?? blank()
     const changed = change(current)
     if (changed === current) return false
@@ -115,7 +123,6 @@ export function useDynamicLearning(profileId: string | null) {
     }
     try {
       localStorage.setItem(KEY, JSON.stringify(next))
-      latest.current = next
       setSaved(next)
       setStorageError(false)
       return true

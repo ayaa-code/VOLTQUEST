@@ -11,7 +11,7 @@ export const missions = [
     subtitle: 'Kenali awal sebuah energi',
     badge: 'Perintis Rangkaian',
     story:
-      'Lampu pojok baca di perpustakaan belum menyala. Tim sekolah membutuhkan bantuanmu untuk mengenali komponen dan menyusun rangkaian tertutup pertamanya.',
+      'Lampu pojok baca belum menyala, padahal baterai sudah terpasang. Apakah sumber listrik saja cukup? Selidiki dua posisi sakelar, lalu bantu tim perpustakaan menjelaskan hasilnya dengan bukti pengamatan.',
     target:
       'Mengenali sumber tegangan, penghantar, beban, dan sakelar pada rangkaian listrik.',
     steps: [
@@ -52,13 +52,13 @@ export const missions = [
     subtitle: 'Temukan hubungan V, I, dan R',
     badge: 'Penjelajah Ohm',
     story:
-      'Tim robotika membutuhkan hambatan yang tepat untuk rangkaian proyek sekolah. Gunakan tegangan dan arus yang terukur untuk menentukan nilainya.',
+      'Tim robotika melihat arus berubah ketika tegangan sumber diubah. Apakah resistornya ikut berubah? Bandingkan dua pengukuran dengan resistor yang sama, lalu gunakan hubungan V, I, dan R untuk menjelaskan hasilnya.',
     target:
       'Menggunakan Hukum Ohm, V = I × R, untuk menghitung hambatan listrik.',
     steps: [
       'Susun baterai dan resistor dalam rangkaian tertutup.',
       'Gunakan amperemeter untuk mengamati arus.',
-      'Ubah tegangan atau hambatan dan amati hubungan V = I × R.',
+      'Ubah hanya tegangan, pertahankan resistor, lalu bandingkan kedua pengukuran dengan V = I × R.',
     ],
     question: 'Jika V = 12 V dan I = 2 A, nilai hambatan adalah ...',
     options: ['24 Ω', '10 Ω', '14 Ω', '6 Ω'],

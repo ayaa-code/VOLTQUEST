@@ -65,6 +65,7 @@ export function useMissionReport(
         /* Name is optional. */
       }
       const now = Date.now()
+      const findings = inspectMission(mission.id, missionInput(draft))
       const report: MissionReport = {
         id,
         missionId: mission.id,
@@ -78,8 +79,11 @@ export function useMissionReport(
         input: missionInput(draft),
         inputKey: missionInputKey(draft),
         choiceCorrect,
-        status: support ? 'Perlu penguatan' : 'selesai',
-        findings: inspectMission(mission.id, missionInput(draft)),
+        status:
+          support || findings.some((finding) => finding.kind === 'periksa')
+            ? 'Perlu penguatan'
+            : 'selesai',
+        findings,
         evidenceKey: image ? key : '',
         evidenceSignature: hash,
       }
@@ -91,6 +95,7 @@ export function useMissionReport(
             'Periksa izin penyimpanan perangkat dan kirim ulang laporan jika ingin menyertakan screenshot.',
         })
       if (!update({ report })) {
+        if (image) await evidenceStorage(key, 'delete').catch(() => {})
         setError(
           'Laporan belum tersimpan. Periksa penyimpanan perangkat lalu coba lagi.',
         )

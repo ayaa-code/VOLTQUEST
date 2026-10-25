@@ -17,7 +17,9 @@ export function explanationNeedsRevision(value: string) {
     .replace(/\s+/g, ' ')
   return (
     !text ||
-    /^(ga|gak|nggak|tidak|g)\s*(tau|tahu|paham|mengerti)(\s.*)?$/.test(text) ||
+    /^(?:(?:saya|aku)\s+)?(?:masih\s+)?(?:ga|gak|nggak|tidak|g|belum)\s*(?:tau|tahu|paham|mengerti)(?:\s+(?:jawabannya|jawaban|ini|materinya|sama sekali|juga))?$/.test(
+      text,
+    ) ||
     /^(gatau|gaktau|idk|tidaktahu|asdf\w*|qwerty\w*|bla\s*bla\w*|entahlah|ok|ya|tidak|test|tes)$/.test(
       text,
     ) ||

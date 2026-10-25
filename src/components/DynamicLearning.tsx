@@ -223,7 +223,9 @@ export function DynamicLearning({
     <main className="dashboard page-enter dynamic-dashboard">
       {store.storageError && (
         <p className="learning-alert" role="alert">
-          Progres Listrik Dinamis belum dapat disimpan di browser ini.
+          Progres Listrik Dinamis belum dapat disimpan di browser ini. Data lama
+          tetap dipertahankan. Jangan hapus data situs; periksa ruang
+          penyimpanan atau gunakan versi aplikasi terbaru.
         </p>
       )}
       {!progressOnly && (

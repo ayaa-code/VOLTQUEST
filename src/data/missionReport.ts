@@ -88,6 +88,12 @@ export function inspectMission(
   const n = (k: string) => parseMeasurement(input.observations[k] ?? '')
   if (id === 3) {
     const r = n('r')
+    if (n('vA') !== null && n('vA') === n('vB'))
+      add(
+        'periksa',
+        'Tegangan pada kondisi A dan B sama, sehingga perubahan arus akibat perubahan tegangan belum dapat dibandingkan.',
+        'Gunakan dua tegangan berbeda dengan resistor yang tetap, lalu catat kembali arusnya.',
+      )
     for (const condition of ['A', 'B']) {
       const v = n(`v${condition}`),
         i = n(`i${condition}`)

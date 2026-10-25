@@ -107,6 +107,8 @@ test('mobile upload fallback, report snapshot, feedback order and downloadable U
     .click()
   const report = page.getByRole('region', { name: 'Laporan Eksperimen' })
   await expect(report).toBeVisible()
+  // A correct choice does not certify contradictory observation data.
+  await expect(report).toContainText('Perlu penguatan')
   await expect(report).toContainText(original)
   await expect(report.locator('img')).toBeVisible()
   await expect(report).toContainText('Pembahasan AI belum tersedia')

@@ -12,6 +12,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test:e2e": "playwright test",
+    "test:current": "playwright test tests/storage-safety.spec.ts tests/admin-demo.spec.ts tests/journey-update.spec.ts tests/discovery-refresh.spec.ts tests/experiment-recovery.spec.ts tests/mission-report.spec.ts tests/lesson-media.spec.ts",
     "test:server": "node --experimental-strip-types --test server/ai.test.ts server/assessment.test.ts",
     "format": "prettier --write src tests playwright.config.ts index.html README.md"
   },

@@ -50,12 +50,39 @@ function readState(): SavedState {
     return emptyState
   }
 }
+function readableStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw === null) return true
+    const value = JSON.parse(raw)
+    return (
+      !!value &&
+      typeof value === 'object' &&
+      (value.version === undefined || value.version === 1) &&
+      !!value.profiles &&
+      typeof value.profiles === 'object' &&
+      !Array.isArray(value.profiles) &&
+      Object.values(value.profiles).every(
+        (p) =>
+          !!p &&
+          typeof p === 'object' &&
+          typeof (p as Profile).name === 'string' &&
+          Array.isArray((p as Profile).completed) &&
+          Array.isArray((p as Profile).visited),
+      )
+    )
+  } catch {
+    return false
+  }
+}
 export function useProgress() {
   const [state, setState] = useState<SavedState>(readState)
   const [storageError, setStorageError] = useState(false)
   useEffect(() => {
     // Storage is an external system; failures need to be reflected in the UI.
     try {
+      if (!readableStorage())
+        throw new Error('Preserve unreadable profile data')
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
       // oxlint-disable-next-line react/set-state-in-effect
       setStorageError(false)

@@ -64,12 +64,10 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
   await expect(page.getByRole('alert')).toContainText('belum cocok')
   await login(page)
   await expect(
-    page.getByRole('heading', { name: 'Welcome, Young Scientist! ⚡' }),
+    page.getByRole('heading', { name: /^Welcome, Young Scientist!/ }),
   ).toBeVisible()
   await expect(page.locator('.header-right')).toContainText('Demo')
-  await expect(page.locator('.learning-progress > strong')).toHaveText(
-    '0%',
-  )
+  await expect(page.locator('.learning-progress > strong')).toHaveText('0%')
   await page.waitForTimeout(500)
   await page.screenshot({
     path: `tmp/admin-dashboard-${info.project.name}.png`,
@@ -119,7 +117,9 @@ test('admin login opens all stages, keeps progress honest, saves separately, and
   await expect(
     page.getByRole('heading', { name: 'Discovery Lab', exact: true }),
   ).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Your Missions' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Your Missions' }),
+  ).toBeVisible()
   await home(page)
   await page
     .getByRole('button', { name: 'Test Your Knowledge', exact: true })
