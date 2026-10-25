@@ -251,10 +251,10 @@ export function DynamicLearning({
             />
             <PathCard
               icon="🔬"
-              title="PhET Challenge"
+              title="Discovery Lab"
               variant="challenge"
               number="02"
-              action="Start Challenge"
+              action="Start Exploring"
               steps={missions.map((m) => ({
                 title: m.title,
                 done: passedQuestion(learning.questions?.[`phet:${m.id}`]),
@@ -532,7 +532,7 @@ function PathCatalog({
     path === 'material'
       ? 'Materi Listrik Dinamis'
       : path === 'challenge'
-        ? 'Challenge Analisis PhET'
+        ? 'Discovery Lab'
         : 'Kuis dan Asesmen'
   return (
     <main className="mission-page page-enter learning-page path-catalog-page">
