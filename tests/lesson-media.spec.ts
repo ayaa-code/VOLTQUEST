@@ -84,8 +84,10 @@ test.beforeEach(async ({ page }) => {
       configurable: true,
       value: {
         getVoices: () => probe.voices,
-        speak: (utterance: SpeechSynthesisUtterance) =>
-          probe.spoken.push(utterance),
+        speak: (utterance: SpeechSynthesisUtterance) => {
+          probe.spoken.push(utterance)
+          utterance.onstart?.(new Event('start') as SpeechSynthesisEvent)
+        },
         cancel: () => probe.cancels++,
         pause: () => probe.pauses++,
         resume: () => probe.resumes++,
@@ -228,7 +230,7 @@ test('speech is opt-in, handles late Indonesian voices, pause/resume, formulas, 
     ]
     window.lessonSpeechProbe.events.dispatchEvent(new Event('voiceschanged'))
   })
-  await page.getByLabel('Kecepatan baca').selectOption('1.2')
+  await page.getByLabel('Kecepatan baca').selectOption('1.5')
   await page
     .getByRole('button', { name: 'Dengarkan materi', exact: true })
     .click()
@@ -239,7 +241,7 @@ test('speech is opt-in, handles late Indonesian voices, pause/resume, formulas, 
       rate: window.lessonSpeechProbe.spoken[0].rate,
       voice: window.lessonSpeechProbe.spoken[0].voice?.lang,
     })),
-  ).toEqual({ text: 'Arus Listrik', lang: 'id-ID', rate: 1.2, voice: 'id-ID' })
+  ).toEqual({ text: 'Arus Listrik', lang: 'id-ID', rate: 1.5, voice: 'id-ID' })
   await page.getByRole('button', { name: 'Jeda', exact: true }).click()
   expect(await page.evaluate(() => window.lessonSpeechProbe.pauses)).toBe(1)
   await page.getByRole('button', { name: 'Lanjutkan', exact: true }).click()
@@ -328,13 +330,13 @@ test('speed changes while reading and paused preserve position and ignore cancel
   const text = await page.evaluate(
     () => window.lessonSpeechProbe.spoken.at(-1)!.text,
   )
-  await page.getByLabel('Kecepatan baca').selectOption('1.2')
+  await page.getByLabel('Kecepatan baca').selectOption('1.5')
   expect(
     await page.evaluate(() => ({
       text: window.lessonSpeechProbe.spoken.at(-1)!.text,
       rate: window.lessonSpeechProbe.spoken.at(-1)!.rate,
     })),
-  ).toEqual({ text, rate: 1.2 })
+  ).toEqual({ text, rate: 1.5 })
   await expect(page.locator('.lesson-audio-status')).toHaveCount(0)
   await page.getByRole('button', { name: 'Jeda', exact: true }).click()
   const count = await page.evaluate(
@@ -401,4 +403,66 @@ test('unsupported speech does not block text, video, or formative access', async
       exact: true,
     }),
   ).toBeVisible()
+})
+
+test('speech queues immediately without waiting for voices and reports actual start', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page
+    .getByRole('button', { name: 'Explore Lessons', exact: true })
+    .click()
+  await page.getByRole('button', { name: 'Arus Listrik', exact: true }).click()
+  await expect(page.getByLabel('Kecepatan baca').locator('option')).toHaveText([
+    '0,8×',
+    '1×',
+    '1,5×',
+    '2×',
+  ])
+  const before = await page.evaluate(() => {
+    window.lessonSpeechProbe.voices = []
+    let clickedAt = 0
+    document.addEventListener(
+      'click',
+      () => {
+        clickedAt = performance.now()
+      },
+      { once: true, capture: true },
+    )
+    window.speechSynthesis.speak = (u: SpeechSynthesisUtterance) => {
+      window.lessonSpeechProbe.spoken.push(u)
+      ;(window as unknown as { audioQueueMs: number }).audioQueueMs =
+        performance.now() - clickedAt
+    }
+    return window.lessonSpeechProbe.cancels
+  })
+  await page
+    .getByRole('button', { name: 'Dengarkan materi', exact: true })
+    .click()
+  expect(
+    await page.evaluate(() => window.lessonSpeechProbe.spoken.length),
+  ).toBe(1)
+  expect(await page.evaluate(() => window.lessonSpeechProbe.cancels)).toBe(
+    before,
+  )
+  const queueMs = await page.evaluate(
+    () => (window as unknown as { audioQueueMs: number }).audioQueueMs,
+  )
+  expect(queueMs).toBeLessThan(100)
+  console.log(`Audio click-to-queue (mock engine): ${queueMs.toFixed(1)} ms`)
+  await expect(page.locator('.lesson-audio-status')).toContainText(
+    'Menyiapkan audio',
+  )
+  await page.evaluate(() =>
+    window.lessonSpeechProbe.spoken[0].onstart?.(
+      new Event('start') as SpeechSynthesisEvent,
+    ),
+  )
+  await expect(
+    page.getByRole('button', { name: 'Jeda', exact: true }),
+  ).toBeVisible()
+  await page.getByLabel('Kecepatan baca').selectOption('2')
+  expect(
+    await page.evaluate(() => window.lessonSpeechProbe.spoken.at(-1)?.rate),
+  ).toBe(2)
 })

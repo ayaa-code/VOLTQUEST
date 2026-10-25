@@ -1,48 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
-const DB = 'voltquest.circuit-evidence.v1'
-function evidence(
-  key: string,
-  mode: 'read' | 'write' | 'delete',
-  blob?: Blob,
-): Promise<Blob | undefined> {
-  return new Promise((resolve, reject) => {
-    const open = indexedDB.open(DB, 1)
-    open.onupgradeneeded = () => open.result.createObjectStore('images')
-    open.onerror = () => reject(open.error)
-    open.onblocked = () =>
-      reject(new Error('Penyimpanan gambar sedang digunakan tab lain.'))
-    open.onsuccess = () => {
-      const db = open.result
-      try {
-        const tx = db.transaction(
-          'images',
-          mode === 'read' ? 'readonly' : 'readwrite',
-        )
-        const store = tx.objectStore('images')
-        const request =
-          mode === 'read'
-            ? store.get(key)
-            : mode === 'write'
-              ? store.put(blob, key)
-              : store.delete(key)
-        tx.oncomplete = () => {
-          db.close()
-          resolve(
-            mode === 'read' ? (request.result as Blob | undefined) : undefined,
-          )
-        }
-        tx.onerror = tx.onabort = () => {
-          db.close()
-          reject(tx.error ?? new Error('Penyimpanan gagal.'))
-        }
-      } catch (error) {
-        db.close()
-        reject(error)
-      }
-    }
-  })
-}
+import { evidenceStorage as evidence } from '../data/evidenceStorage'
+import { verifiedImage } from '../data/imageFiles'
 
 export function CircuitEvidence({
   profileId,
@@ -94,6 +53,7 @@ export function CircuitEvidence({
     setSaved(false)
     try {
       await evidence(key, 'write', file)
+      window.dispatchEvent(new Event('voltquest:evidence-changed'))
       setSaved(true)
     } catch {
       setError(
@@ -106,30 +66,20 @@ export function CircuitEvidence({
   }
   async function select(file?: File) {
     if (!file) return
-    if (
-      !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) ||
-      file.size > 6 * 1024 * 1024 ||
-      !file.size
-    ) {
-      setError('Pilih PNG, JPEG, atau WebP dengan ukuran maksimal 6 MB.')
-      return
-    }
     setBusy(true)
     setError('')
     try {
-      const bitmap = await createImageBitmap(file)
-      const valid = bitmap.width * bitmap.height <= 24_000_000
-      bitmap.close()
-      if (!valid) throw new Error('Image too large')
-    } catch {
-      setBusy(false)
+      const valid = await verifiedImage(file)
+      setBlob(valid)
+      await save(valid)
+    } catch (error) {
       setError(
-        'Gambar tidak dapat dibaca atau resolusinya terlalu besar. Gunakan screenshot hingga 24 megapiksel.',
+        error instanceof Error
+          ? error.message
+          : 'Gambar belum dapat dibaca. Coba lagi.',
       )
-      return
+      setBusy(false)
     }
-    setBlob(file)
-    await save(file)
   }
   async function remove() {
     if (pending.current) return
@@ -138,6 +88,7 @@ export function CircuitEvidence({
     setError('')
     try {
       await evidence(key, 'delete')
+      window.dispatchEvent(new Event('voltquest:evidence-changed'))
       setBlob(undefined)
       setSaved(false)
     } catch {

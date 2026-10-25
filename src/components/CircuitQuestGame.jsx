@@ -377,8 +377,7 @@ export function CircuitQuestGame({
 
   // Handler saat menjawab pilihan ganda di Panel Soal
   const handleSelectOption = async (optionKey) => {
-    if (questionSolved || answerPending.current)
-      return
+    if (questionSolved || answerPending.current) return
     answerPending.current = true
     const q = currentMission.question
     const result = await onAnswer(currentMission.id, optionKey)
@@ -561,30 +560,18 @@ export function CircuitQuestGame({
                   {feedback.type === 'wrong' && (
                     <strong>Belum tepat, mari revisi. </strong>
                   )}
-                  {feedback.text}
+                  <p>{feedback.text}</p>
+                  {feedback.type === 'wrong' && (
+                    <button
+                      className="cq-btn cq-btn-secondary"
+                      onClick={() => onReview(currentMission.id)}
+                    >
+                      Pelajari kembali materi
+                    </button>
+                  )}
                 </div>
               )}
 
-              {feedback?.type === 'wrong' && (
-                <aside className="cq-feedback-box">
-                  <strong>Ingat kembali materinya</strong>
-                  <p>
-                    {
-                      [
-                        'Q = It. Ubah waktu dari jam menjadi sekon sebelum menghitung.',
-                        'R = V/I. Komponen ohmik memiliki perbandingan V/I tetap.',
-                        'R = ρL/A. Diameter setengah membuat luas penampang seperempat.',
-                      ][missionIndex]
-                    }
-                  </p>
-                  <button
-                    className="cq-btn cq-btn-secondary"
-                    onClick={() => onReview(currentMission.id)}
-                  >
-                    Pelajari kembali materi
-                  </button>
-                </aside>
-              )}
               {!questionSolved &&
                 (wrongCounts[currentMission.id] ?? 0) >= 4 &&
                 !supportMissions.includes(currentMission.id) && (

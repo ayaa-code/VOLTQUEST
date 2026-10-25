@@ -2,6 +2,38 @@ import { z } from 'zod'
 import { worksheetFields } from './challengeWorksheet.ts'
 const text = z.string().min(1).max(1800)
 const topic = z.number().int().min(1).max(6)
+export const missionReviewSchema = z
+  .object({
+    strengths: z.array(text).max(6),
+    findings: z
+      .array(
+        z
+          .object({ explanation: text, suggestion: text, topicId: topic })
+          .strict(),
+      )
+      .max(6),
+    limitations: text,
+  })
+  .strict()
+const missionSnapshotSchema = z
+  .object({
+    prediction: z.string().min(1).max(800),
+    predictionText: z.string().max(800),
+    predictionReason: z.string().trim().min(1).max(800),
+    initialPrediction: z
+      .object({
+        choice: z.string().max(800),
+        reason: z.string().max(800),
+        text: z.string().max(800).optional(),
+      })
+      .strict()
+      .nullable(),
+    observations: z.record(z.string().max(40), z.string().max(80)),
+    comparison: z.string().trim().min(1).max(800),
+    answer: z.number().int().min(0).max(3),
+    reflectionReason: z.string().trim().min(1).max(800),
+  })
+  .strict()
 export const reviewSchema = z
   .object({
     summary: text,
@@ -49,6 +81,14 @@ export const worksheetDataSchema = z
   .strict()
 const common = { consent: z.literal(true), token: z.string().min(1).max(2048) }
 export const aiInputSchema = z.discriminatedUnion('task', [
+  z
+    .object({
+      ...common,
+      task: z.literal('mission-review'),
+      missionId: z.number().int().min(1).max(5),
+      snapshot: missionSnapshotSchema,
+    })
+    .strict(),
   z
     .object({ ...common, task: z.literal('review'), data: worksheetDataSchema })
     .strict(),

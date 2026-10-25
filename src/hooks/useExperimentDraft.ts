@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { experiments, parseMeasurement } from '../data/experiments'
 import type { ReflectionReview } from '../data/reflectionReview'
+import type { MissionReport } from '../data/missionReport'
 
 export const DRAFT_KEY = 'voltquest.experiments.v1'
 export type Draft = {
@@ -9,6 +10,7 @@ export type Draft = {
   prediction: string
   predictionText: string
   review?: ReflectionReview
+  report?: MissionReport
   predictionReason: string
   initialPrediction: { choice: string; reason: string; text?: string } | null
   observations: Record<string, string>
@@ -65,6 +67,14 @@ function sanitize(value: unknown, missionId: number): Draft {
         ? Number(value.step)
         : 0,
     prediction: choice(value.prediction),
+    report:
+      object(value.report) &&
+      typeof value.report.id === 'string' &&
+      value.report.missionId === missionId &&
+      object(value.report.input) &&
+      Array.isArray(value.report.findings)
+        ? (value.report as MissionReport)
+        : undefined,
     predictionText: text(value.predictionText),
     review:
       object(value.review) &&
@@ -166,7 +176,7 @@ export function useExperimentDraft(profileId: string, missionId: number) {
     const latest = read()
     if (latest.blocked) {
       setError(latest.notice || loaded.notice)
-      return
+      return false
     }
     try {
       // Merge the newest store so edits in another mission/profile are not overwritten by a stale snapshot.
@@ -178,10 +188,12 @@ export function useExperimentDraft(profileId: string, missionId: number) {
       window.dispatchEvent(new Event('voltquest:draft-saved'))
       setSaved(true)
       setError('')
+      return true
     } catch {
       setError(
         'Draf belum tersimpan di browser. Perubahan hanya ada selama halaman misi ini terbuka; kembali ke dashboard atau memuat ulang dapat menghilangkannya.',
       )
+      return false
     }
   }
   return {

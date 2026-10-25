@@ -14,6 +14,6 @@ export async function prepareMission(page: Page) {
   await fillObservations(page)
   await page.locator('#reflection-reason').fill('Saya membandingkan hasil pengamatan dengan konsep dan rumus pada materi.')
   await expect(
-    page.getByRole('button', { name: 'Kirim jawaban', exact: true }),
+    page.getByRole('button', { name: 'Periksa pilihan', exact: true }),
   ).toBeVisible()
 }

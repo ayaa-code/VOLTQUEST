@@ -145,17 +145,19 @@ export function LessonContent({ topicId }: { topicId: number }) {
         ) : (
           <>
             <div className="lesson-audio-controls">
-              {speech.status !== 'reading' && speech.status !== 'paused' && (
-                <button
-                  className="secondary-button"
-                  onClick={() => {
-                    setVideoActive(false)
-                    speech.start()
-                  }}
-                >
-                  <Play size={16} /> Dengarkan materi
-                </button>
-              )}
+              {speech.status !== 'reading' &&
+                speech.status !== 'paused' &&
+                speech.status !== 'preparing' && (
+                  <button
+                    className="secondary-button"
+                    onClick={() => {
+                      setVideoActive(false)
+                      speech.start()
+                    }}
+                  >
+                    <Play size={16} /> Dengarkan materi
+                  </button>
+                )}
               {speech.status === 'reading' && (
                 <button className="secondary-button" onClick={speech.pause}>
                   <Pause size={16} /> Jeda
@@ -170,7 +172,9 @@ export function LessonContent({ topicId }: { topicId: number }) {
                 className="secondary-button"
                 onClick={speech.stop}
                 disabled={
-                  speech.status !== 'reading' && speech.status !== 'paused'
+                  speech.status !== 'reading' &&
+                  speech.status !== 'paused' &&
+                  speech.status !== 'preparing'
                 }
               >
                 <Square size={15} /> Hentikan
@@ -185,17 +189,22 @@ export function LessonContent({ topicId }: { topicId: number }) {
                 >
                   <option value={0.8}>0,8×</option>
                   <option value={1}>1×</option>
-                  <option value={1.2}>1,2×</option>
+                  <option value={1.5}>1,5×</option>
+                  <option value={2}>2×</option>
                 </select>
               </label>
             </div>
-            {(speech.status === 'finished' || speech.status === 'error') && (
+            {(speech.status === 'preparing' ||
+              speech.status === 'finished' ||
+              speech.status === 'error') && (
               <p className="lesson-audio-status" role="status">
-                {speech.status === 'finished'
-                  ? 'Pembacaan materi selesai.'
-                  : speech.status === 'error'
-                    ? 'Pembacaan terhenti. Coba mulai kembali atau baca teks di bawah.'
-                    : ''}
+                {speech.status === 'preparing'
+                  ? 'Menyiapkan audio…'
+                  : speech.status === 'finished'
+                    ? 'Pembacaan materi selesai.'
+                    : speech.status === 'error'
+                      ? 'Pembacaan terhenti. Coba mulai kembali atau baca teks di bawah.'
+                      : ''}
               </p>
             )}
           </>

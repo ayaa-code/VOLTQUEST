@@ -53,10 +53,14 @@ export function useAIService() {
     if (!response.ok)
       throw new Error(body.error ?? 'Permintaan gagal. Coba lagi nanti.')
     // The same strict contracts used by the server are also checked on the client.
-    const { reviewSchema, chatOutputSchema } =
+    const { reviewSchema, chatOutputSchema, missionReviewSchema } =
       await import('../data/aiContracts')
     const parsed = (
-      payload.task === 'review' ? reviewSchema : chatOutputSchema
+      payload.task === 'mission-review'
+        ? missionReviewSchema
+        : payload.task === 'review'
+          ? reviewSchema
+          : chatOutputSchema
     ).safeParse(body.result)
     if (!parsed.success)
       throw new Error(
@@ -121,7 +125,7 @@ export function AIConsent({
   if (!service.config.enabled)
     return (
       <p className="ai-status" role="status">
-        Asisten AI belum diaktifkan.
+        Layanan tanya jawab belum tersedia saat ini.
       </p>
     )
   return (
@@ -132,8 +136,8 @@ export function AIConsent({
           checked={consent}
           onChange={(e) => onConsent(e.target.checked)}
         />
-        Saya setuju pertanyaan atau snapshot LKPD yang saya pilih dikirim ke
-        layanan AI. Jangan sertakan nama, email, atau kata sandi. AI dapat
+        Saya setuju pertanyaan atau catatan pembelajaran yang saya pilih dikirim
+        ke layanan AI. Jangan sertakan nama, email, atau kata sandi. AI dapat
         keliru.
       </label>
       {consent && <div ref={container} />}

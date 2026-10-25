@@ -1,0 +1,99 @@
+.scientist-emoji {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 0.7em;
+  vertical-align: middle;
+}
+.app-shell
+  :is(h1, h2, h3, h4, h5, h6)[tabindex='-1']:not([role='button']):not(
+    [aria-expanded]
+  ):focus {
+  outline: none;
+  box-shadow: none;
+}
+.mission-report dl {
+  display: grid;
+  gap: 12px;
+}
+.mission-report dt {
+  font-weight: 700;
+}
+.mission-report dd {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.mission-report img {
+  display: block;
+  max-width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  margin: 20px auto;
+}
+.mission-report p,
+.mission-report li {
+  overflow-wrap: anywhere;
+}
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+@media (max-width: 700px) {
+  .observation-form .observation-table-scroll {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+  }
+  .observation-form .observation-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .observation-form .observation-table caption {
+    display: block;
+    text-align: left;
+    margin-bottom: 14px;
+  }
+  .observation-form .observation-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .observation-form .observation-table tbody {
+    display: block;
+  }
+  .observation-form .observation-table tr {
+    display: grid;
+    gap: 12px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .observation-form .observation-table :is(th, td) {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .observation-form .observation-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 7px;
+  }
+  .observation-form .observation-table :is(input, select) {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .observation-form .observation-table .guided-field {
+    min-width: 0;
+  }
+}

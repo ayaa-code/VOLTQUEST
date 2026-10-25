@@ -79,12 +79,14 @@ test('free prediction and review persist; weak explanation never claims full und
     if (width === 1440 || width === 390)
       await page.screenshot({
         path: `tmp/discovery-${info.project.name}-${width}.png`,
-        fullPage: true, animations: 'disabled',
+        fullPage: true,
+        animations: 'disabled',
       })
   }
   await page.screenshot({
     path: `tmp/discovery-${info.project.name}.png`,
-    fullPage: true, animations: 'disabled',
+    fullPage: true,
+    animations: 'disabled',
   })
   await page
     .getByRole('button', { name: 'Komponen Rangkaian', exact: true })
@@ -106,13 +108,18 @@ test('free prediction and review persist; weak explanation never claims full und
   await prepareMission(page)
   await page.locator('#reflection-reason').fill('ga tau')
   await page.getByRole('radio', { name: /^B / }).check()
-  await page.getByRole('button', { name: 'Kirim jawaban', exact: true }).click()
-  const note = page.getByRole('region', { name: 'Catatan Pemahaman' })
-  await expect(note).toContainText('perlu penguatan')
+  await page
+    .getByRole('button', { name: 'Periksa pilihan', exact: true })
+    .click()
+  const note = page.getByRole('region', { name: 'Laporan Eksperimen' })
   await expect(page.locator('.feedback')).toContainText(
     'Pilihan jawabanmu tepat.',
   )
   await expect(page.locator('.feedback')).not.toContainText('Jawaban benar.')
+  await page
+    .getByRole('button', { name: 'Kirim dan Lihat Laporan', exact: true })
+    .click()
+  await expect(note).toContainText('Perlu penguatan')
   const before = await page.evaluate(
     () =>
       JSON.parse(localStorage.getItem('voltquest.dynamic-electricity.v1')!)
@@ -127,25 +134,36 @@ test('free prediction and review persist; weak explanation never claims full und
   await page
     .getByRole('button', { name: 'Komponen Rangkaian', exact: true })
     .click()
-  await expect(note).toContainText('perlu penguatan')
   await expect(page.locator('.draft-summary').first()).toContainText(
     'Saya menduga perubahan susunan rangkaian',
   )
   await page
-    .getByRole('button', { name: 'Revisi penjelasan', exact: true })
+    .getByRole('button', { name: 'Lihat laporan tersimpan', exact: true })
+    .click()
+  await page
+    .getByRole('button', { name: 'Perbaiki Jawaban', exact: true })
     .click()
   await page
     .locator('#reflection-reason')
     .fill(
       'Saya membandingkan hasil saat sakelar dibuka dan ditutup dengan perubahan keadaan lampu.',
     )
+  await page
+    .getByRole('button', { name: 'Lihat laporan tersimpan', exact: true })
+    .click()
   await expect(note).toContainText('belum diperbarui')
-  await page.getByRole('button', { name: 'Kirim jawaban', exact: true }).click()
-  await expect(note).toContainText('belum dinilai secara makna')
+  await page
+    .getByRole('button', { name: 'Perbaiki Jawaban', exact: true })
+    .click()
+  await page
+    .getByRole('button', { name: 'Kirim dan Lihat Laporan', exact: true })
+    .click()
+  await expect(note).toContainText('ketepatan maknanya belum dipastikan')
   await expect(note).not.toContainText('belum diperbarui')
   await page.screenshot({
     path: `tmp/reflection-${info.project.name}.png`,
-    fullPage: true, animations: 'disabled',
+    fullPage: true,
+    animations: 'disabled',
   })
   const after = await page.evaluate(
     () =>
@@ -167,17 +185,18 @@ test('revising only explanation does not count another wrong choice', async ({
     .click()
   await prepareMission(page)
   await page.getByRole('radio', { name: /^A / }).check()
-  await page.getByRole('button', { name: 'Kirim jawaban', exact: true }).click()
-  await expect(page.locator('.feedback.retry')).toBeVisible()
   await page
-    .getByRole('button', { name: 'Revisi penjelasan', exact: true })
+    .getByRole('button', { name: 'Periksa pilihan', exact: true })
     .click()
+  await expect(page.locator('.feedback.retry')).toBeVisible()
   await page
     .locator('#reflection-reason')
     .fill(
       'Saya perlu meninjau data dan menjelaskan kembali hubungan komponen dengan hasil pengamatan.',
     )
-  await page.getByRole('button', { name: 'Kirim jawaban', exact: true }).click()
+  await expect(
+    page.getByRole('button', { name: 'Kirim dan Lihat Laporan', exact: true }),
+  ).toBeDisabled()
   await expect(page.locator('.feedback.retry')).toBeVisible()
   expect(
     await page.evaluate(

@@ -123,7 +123,9 @@ test('desktop and mobile progress show identical journey without mutating data',
     page.getByRole('button', { name: 'Seri dan Paralel', exact: true }),
   ).toBeDisabled()
   await expect(page.locator('.worksheet-template')).toHaveCount(0)
-  await expect(page.getByRole('heading', { name: 'Your Missions' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Your Missions' }),
+  ).toBeVisible()
 })
 test('required PhET missions unlock Piko then six materials and second checkpoint lead to summative', async ({
   page,
@@ -148,15 +150,25 @@ test('required PhET missions unlock Piko then six materials and second checkpoin
     .click()
   await prepareMission(page)
   await page.getByRole('radio', { name: 'B Baterai', exact: true }).check()
-  await page.getByRole('button', { name: 'Kirim jawaban', exact: true }).click()
   await page
-    .getByRole('button', { name: 'Lanjut ke misi berikutnya', exact: true })
+    .getByRole('button', { name: 'Periksa pilihan', exact: true })
+    .click()
+  await page
+    .getByRole('button', { name: 'Kirim dan Lihat Laporan', exact: true })
+    .click()
+  await page
+    .getByRole('button', { name: 'Lanjut ke tahap berikutnya', exact: true })
     .click()
   await prepareMission(page)
   await page.getByRole('radio', { name: 'D 6 Ω', exact: true }).check()
-  await page.getByRole('button', { name: 'Kirim jawaban', exact: true }).click()
   await page
-    .getByRole('button', { name: 'Lanjut ke misi berikutnya', exact: true })
+    .getByRole('button', { name: 'Periksa pilihan', exact: true })
+    .click()
+  await page
+    .getByRole('button', { name: 'Kirim dan Lihat Laporan', exact: true })
+    .click()
+  await page
+    .getByRole('button', { name: 'Lanjut ke tahap berikutnya', exact: true })
     .click()
   await finishCurrentGame(page)
   await page
@@ -335,7 +347,7 @@ test('PhET mistakes persist across reload and supported completion grants no XP'
     if (i > 1) await page.waitForTimeout(950)
     await page
       .getByRole('button', {
-        name: i === 1 ? 'Kirim jawaban' : 'Coba jawaban lagi',
+        name: 'Periksa pilihan',
         exact: true,
       })
       .click()
@@ -369,6 +381,9 @@ test('PhET mistakes persist across reload and supported completion grants no XP'
     status: 'reinforcement',
   })
   expect(state.progress.completed).toEqual([])
+  await page
+    .getByRole('button', { name: 'Kirim dan Lihat Laporan', exact: true })
+    .click()
   await page
     .getByRole('button', { name: 'Lanjut ke tahap berikutnya', exact: true })
     .click()

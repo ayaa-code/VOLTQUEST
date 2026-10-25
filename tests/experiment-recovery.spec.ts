@@ -219,7 +219,7 @@ test('screenshot evidence survives reload, rejects invalid files and stays profi
   })
   await expect(
     page.getByRole('region', { name: 'Bukti rangkaian' }),
-  ).toContainText('Pilih PNG')
+  ).toContainText('Pilih gambar PNG')
   const buffer = await page.screenshot()
   await file.setInputFiles({
     name: 'circuit.png',
@@ -320,7 +320,9 @@ test('quota failure keeps current input and retry persists it; failed grading ad
     .fill('Saya membandingkan perubahan sakelar dengan pengamatan lampu.')
   await page.getByRole('radio', { name: /^A / }).check()
   await page.route('**/api/assessment', (r) => r.abort())
-  await page.getByRole('button', { name: 'Kirim jawaban', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Periksa pilihan', exact: true })
+    .click()
   await expect(page.getByRole('alert')).toContainText('belum tersimpan')
   expect(
     await page.evaluate(

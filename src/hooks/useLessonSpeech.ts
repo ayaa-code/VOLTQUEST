@@ -25,7 +25,7 @@ export function useLessonSpeech(lesson: Lesson) {
     typeof window.speechSynthesis !== 'undefined' &&
     typeof window.SpeechSynthesisUtterance !== 'undefined'
   const [status, setStatus] = useState<
-    'idle' | 'reading' | 'paused' | 'finished' | 'error'
+    'idle' | 'preparing' | 'reading' | 'paused' | 'finished' | 'error'
   >('idle')
   const [part, setPart] = useState(0)
   const [rate, setRateState] = useState(1)
@@ -36,6 +36,9 @@ export function useLessonSpeech(lesson: Lesson) {
   const voices = useRef<SpeechSynthesisVoice[]>([])
   const generation = useRef(0)
   const utterance = useRef<SpeechSynthesisUtterance | null>(null)
+  const startTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  )
   const parts = narrationParts(lesson)
   useEffect(() => {
     if (!supported) return
@@ -50,6 +53,7 @@ export function useLessonSpeech(lesson: Lesson) {
     synth.addEventListener('voiceschanged', loadVoices)
     const cancel = () => {
       generation.current++
+      clearTimeout(startTimer.current)
       synth.cancel()
     }
     window.addEventListener('pagehide', cancel)
@@ -62,6 +66,7 @@ export function useLessonSpeech(lesson: Lesson) {
   }, [supported, lesson])
   const stop = useCallback(() => {
     generation.current++
+    clearTimeout(startTimer.current)
     window.speechSynthesis?.cancel()
     utterance.current = null
     restartOnResume.current = false
@@ -70,7 +75,16 @@ export function useLessonSpeech(lesson: Lesson) {
   }, [])
   function startFrom(index = 0) {
     if (!supported) return
-    stop()
+    generation.current++
+    clearTimeout(startTimer.current)
+    if (
+      utterance.current ||
+      window.speechSynthesis.speaking ||
+      window.speechSynthesis.pending
+    )
+      window.speechSynthesis.cancel()
+    restartOnResume.current = false
+    setStatus('preparing')
     const token = generation.current
     const synth = window.speechSynthesis
     const speak = (index: number) => {
@@ -82,17 +96,38 @@ export function useLessonSpeech(lesson: Lesson) {
       }
       const next = new SpeechSynthesisUtterance(parts[index])
       next.lang = 'id-ID'
-      const voice = voices.current.find((item) => /^id(?:-|$)/i.test(item.lang))
+      const currentVoices = synth.getVoices()
+      if (currentVoices.length) voices.current = currentVoices
+      const voice =
+        voices.current.find(
+          (item) => /^id(?:-|$)/i.test(item.lang) && item.localService,
+        ) ?? voices.current.find((item) => /^id(?:-|$)/i.test(item.lang))
       if (voice) next.voice = voice
       next.rate = rateRef.current
+      next.onstart = () => {
+        if (token === generation.current) {
+          clearTimeout(startTimer.current)
+          setStatus('reading')
+        }
+      }
       next.onend = () => speak(index + 1)
       next.onerror = () => {
-        if (token === generation.current) setStatus('error')
+        if (token === generation.current) {
+          clearTimeout(startTimer.current)
+          setStatus('error')
+        }
       }
       utterance.current = next
       position.current = index
       setPart(index + 1)
-      setStatus('reading')
+      clearTimeout(startTimer.current)
+      startTimer.current = setTimeout(() => {
+        if (token === generation.current) {
+          generation.current++
+          synth.cancel()
+          setStatus('error')
+        }
+      }, 15000)
       synth.speak(next)
     }
     // Some engines retain a paused state after cancel().
@@ -103,10 +138,11 @@ export function useLessonSpeech(lesson: Lesson) {
     startFrom(0)
   }
   function setRate(value: number) {
-    if (![0.8, 1, 1.2].includes(value)) return
+    if (![0.8, 1, 1.5, 2].includes(value)) return
     rateRef.current = value
     setRateState(value)
-    if (status === 'reading') startFrom(position.current)
+    if (status === 'reading' || status === 'preparing')
+      startFrom(position.current)
     else if (status === 'paused') {
       // Apply on explicit resume; changing speed must not unpause audio.
       generation.current++

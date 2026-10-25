@@ -131,14 +131,10 @@ export function ObservationForm({
           dari PhET.
         </p>
       )}
-      <p className="table-scroll-help">
-        Pada layar kecil, geser tabel ke samping untuk melihat semua kolom.
-      </p>
       <div
         className="observation-table-scroll"
         role="region"
-        aria-label="Tabel pengamatan, dapat digeser"
-        tabIndex={0}
+        aria-label="Data pengamatan"
       >
         <table className="observation-table">
           <caption>{layout.caption}</caption>
@@ -155,8 +151,10 @@ export function ObservationForm({
             {layout.rows.map((row) => (
               <tr key={row.label}>
                 <th scope="row">{row.label}</th>
-                {row.fields.map((id) => (
-                  <td key={id}>{control(id)}</td>
+                {row.fields.map((id, columnIndex) => (
+                  <td key={id} data-label={layout.columns[columnIndex + 1]}>
+                    {control(id)}
+                  </td>
                 ))}
               </tr>
             ))}

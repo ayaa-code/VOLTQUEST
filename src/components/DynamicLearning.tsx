@@ -135,13 +135,14 @@ export function DynamicLearning({
         }
         assessment={{
           progress: record,
-          onSubmit: async (answer, needsSupport) => {
+          onSubmit: async (answer, needsSupport, finalize = true) => {
             const result = await store.answerPhet(
               mission.id,
               answer,
               needsSupport,
+              finalize,
             )
-            if (result.saved && result.correct && !needsSupport)
+            if (result.saved && result.correct && !needsSupport && finalize)
               onReward(mission.id)
             return result
           },
@@ -232,7 +233,10 @@ export function DynamicLearning({
               <span className="hero-tag">
                 <span /> DYNAMIC ELECTRICITY
               </span>
-              <h1>Welcome, Young Scientist! ⚡</h1>
+              <h1>
+                Welcome, Young Scientist!{' '}
+                <span className="scientist-emoji">👩🏻‍🔬👨🏻‍🔬</span>
+              </h1>
               <p>Every great discovery begins with curiosity.</p>
             </div>
             <div className="hero-art hero-interactive">

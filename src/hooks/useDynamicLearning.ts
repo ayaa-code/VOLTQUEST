@@ -128,7 +128,12 @@ export function useDynamicLearning(profileId: string | null) {
     learning,
     storageError,
     profileId,
-    answerPhet: async (id: number, answer: number, needsSupport = false) => {
+    answerPhet: async (
+      id: number,
+      answer: number,
+      needsSupport = false,
+      finalize = true,
+    ) => {
       const grade = await gradeAnswer('phet', id, answer).catch(() => null)
       if (!grade) return { saved: false, correct: false }
       let duplicate = false
@@ -142,12 +147,16 @@ export function useDynamicLearning(profileId: string | null) {
         )
           return current
         const key = questionKey('phet', id)
-        const record = recordAnswer(
+        let record = recordAnswer(
           current.questions?.[key],
           String(answer),
           grade.correct,
         )
-        if (record && grade.correct && needsSupport)
+        if (!record && finalize && grade.correct)
+          record = { ...current.questions![key], status: 'correct' }
+        if (record && grade.correct && !finalize)
+          record.status = current.questions?.[key]?.status ?? 'open'
+        if (record && grade.correct && finalize && needsSupport)
           record.status = 'reinforcement'
         if (!record) duplicate = true
         return record

@@ -4,6 +4,8 @@ import { gradeAssessment } from './server/assessment.ts'
 
 // https://vite.dev/config/
 export default defineConfig({
+  optimizeDeps: { include: ['pdf-lib', '@pdf-lib/fontkit'] },
+  server: { watch: { ignored: ['**/tmp/**', '**/test-results/**'] } },
   plugins: [
     react(),
     {
