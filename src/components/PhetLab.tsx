@@ -16,6 +16,8 @@ export function PhetLab({
   const [slow, setSlow] = useState(false)
   const [fullscreen, setFullscreen] = useState(false)
   const [message, setMessage] = useState('')
+  const [reloadPrompt, setReloadPrompt] = useState(false)
+  const [attempt, setAttempt] = useState(0)
   const stage = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!loading) return
@@ -48,20 +50,12 @@ export function PhetLab({
   return (
     <section className="content-card phet-lab" aria-labelledby="phet-heading">
       <span className="section-kicker">LABORATORIUM PHET</span>
-      <h2 id="phet-heading">Coba rangkaianmu</h2>
-      <p>
-        Jalankan simulasi, baca alat ukurnya, lalu catat hasilmu sendiri pada
-        tabel.
-      </p>
+      <h2 id="phet-heading">Coba Rangkaianmu</h2>
       <div ref={stage} className="phet-stage">
         {opened ? (
           <>
             <div className="phet-toolbar">
-              <span>
-                {loading
-                  ? 'Memuat bingkai simulasi…'
-                  : 'Simulasi di halaman ini'}
-              </span>
+              {loading && <span role="status">Memuat bingkai simulasi…</span>}
               <button
                 className="secondary-button"
                 type="button"
@@ -72,6 +66,7 @@ export function PhetLab({
               </button>
             </div>
             <iframe
+              key={attempt}
               title="Laboratorium PhET: Circuit Construction Kit DC"
               src={PHET_URL}
               allow="fullscreen"
@@ -114,6 +109,42 @@ export function PhetLab({
           tabel tetap tersimpan sebagai draf.
         </p>
       )}
+      {opened && (
+        <button
+          className="text-button"
+          type="button"
+          onClick={() => setReloadPrompt(true)}
+        >
+          Coba muat simulasi
+        </button>
+      )}
+      {reloadPrompt && (
+        <div className="phet-notice" role="alert">
+          <p>
+            Memuat ulang akan mengulang susunan PhET yang sedang aktif. Isian
+            VoltQuest tetap tersimpan.
+          </p>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => {
+              setAttempt((n) => n + 1)
+              setLoading(true)
+              setSlow(false)
+              setReloadPrompt(false)
+            }}
+          >
+            Muat ulang simulasi
+          </button>{' '}
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => setReloadPrompt(false)}
+          >
+            Batal
+          </button>
+        </div>
+      )}
       {message && (
         <p className="phet-notice" role="status">
           {message}
@@ -141,9 +172,8 @@ export function PhetLab({
         </a>
       </p>
       <p className="guided-help">
-        VoltQuest tidak membaca angka atau aktivitas PhET otomatis. Susunan
-        rangkaian PhET belum disimpan bersama draf; memuat ulang halaman atau
-        keluar dari laboratorium dapat mengulang simulasi.
+        Susunan PhET belum dapat dipulihkan setelah refresh. Simpan screenshot
+        sebagai acuan.
       </p>
       {visited && (
         <p className="lab-visited">

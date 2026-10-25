@@ -14,12 +14,18 @@ import {
 } from 'lucide-react'
 import type { Mission } from '../data/missions'
 import { PhetLab } from './PhetLab'
-import { experiments, observationErrors } from '../data/experiments'
+import {
+  experiments,
+  experimentScreens,
+  observationErrors,
+} from '../data/experiments'
 import { useExperimentDraft } from '../hooks/useExperimentDraft'
 import { ObservationForm } from './ObservationForm'
 import type { RecommendationRef } from '../data/feedbackRules'
 import type { QuestionProgress } from '../data/attempts'
 import { gradeAnswer } from '../data/assessmentClient'
+import { CircuitEvidence } from './CircuitEvidence'
+import './ExperimentRecovery.css'
 import { explanationNeedsRevision } from '../data/reflectionReview'
 export function MissionView({
   mission,
@@ -53,7 +59,7 @@ export function MissionView({
     onReview: () => void
   }
 }) {
-  const { draft, update, saved, notice, error } = useExperimentDraft(
+  const { draft, update, saved, notice, error, retrySave } = useExperimentDraft(
     profileId,
     mission.id,
   )
@@ -96,7 +102,11 @@ export function MissionView({
         : {}),
     })
     requestAnimationFrame(() =>
-      panel.current?.querySelector<HTMLElement>('#step-heading')?.focus(),
+      Array.from(
+        panel.current?.querySelectorAll<HTMLElement>('[tabindex="-1"]') ?? [],
+      )
+        .find((el) => el.getClientRects().length)
+        ?.focus(),
     )
   }
   const steps = ['Prediksi', 'Eksperimen', 'Pengamatan', 'Refleksi']
@@ -235,12 +245,19 @@ export function MissionView({
           </button>
         ))}
       </nav>
-      <p className="draft-status">
+      <div className="draft-status" role="status">
         Langkah {step + 1} dari 4 ·{' '}
-        {saved
-          ? 'Draf tersimpan di browser ini.'
-          : 'Draf disimpan saat kamu mengubah isian atau langkah.'}
-      </p>
+        {error
+          ? 'Belum tersimpan. Coba lagi.'
+          : saved
+            ? 'Tersimpan di perangkat ini'
+            : 'Isianmu tersimpan otomatis di perangkat ini.'}
+        {error && (
+          <button type="button" className="text-button" onClick={retrySave}>
+            Coba simpan draf lagi
+          </button>
+        )}
+      </div>
       {notice && !saved && !error && (
         <p className="storage-warning" role="alert">
           {notice}
@@ -339,75 +356,80 @@ export function MissionView({
             </div>
           </section>
         )}
-        {(step === 1 || step === 2) && (
-          <div className="experiment-workbench">
+        <div className="experiment-workbench" hidden={step !== 1 && step !== 2}>
+          <section className="content-card lab-card" hidden={step !== 1}>
+            <span className="section-kicker">
+              <FlaskConical size={16} /> PANDUAN PERCOBAAN
+            </span>
+            <h2 id="experiment-heading" tabIndex={-1}>
+              Siapkan Eksperimenmu
+            </h2>
+            <p>
+              <strong>
+                Mulai di PhET: pilih {experimentScreens[mission.id].tab}.
+              </strong>{' '}
+              {experimentScreens[mission.id].hint}
+            </p>
+            <p>
+              <strong>Pertanyaan uji:</strong> {config.prediction}
+            </p>
+            <dl className="experiment-guide">
+              <div>
+                <dt>Komponen</dt>
+                <dd>{config.components}</dd>
+              </div>
+              <div>
+                <dt>Yang diubah</dt>
+                <dd>{config.changed}</dd>
+              </div>
+              <div>
+                <dt>Yang dipertahankan</dt>
+                <dd>{config.controlled}</dd>
+              </div>
+            </dl>
+            <ol className="lab-steps">
+              {config.actions.map((action) => (
+                <li key={action}>{action}</li>
+              ))}
+            </ol>
+            <p>
+              <strong>Catat nanti:</strong> {config.observe}
+            </p>
+            <p>Gunakan simulasi di bawah untuk mencoba langkah percobaan.</p>
+          </section>
+          <div className="mission-lab-area">
             <PhetLab onVisit={onVisit} visited={visited} />
-            {step === 1 ? (
-              <section className="content-card lab-card">
-                <span className="section-kicker">
-                  <FlaskConical size={16} /> PANDUAN PERCOBAAN
-                </span>
-                <h2 id="step-heading" tabIndex={-1}>
-                  Uji prediksimu di PhET
-                </h2>
-                <p>
-                  <strong>Pertanyaan uji:</strong> {config.prediction}
-                </p>
-                <dl className="experiment-guide">
-                  <div>
-                    <dt>Komponen</dt>
-                    <dd>{config.components}</dd>
-                  </div>
-                  <div>
-                    <dt>Yang diubah</dt>
-                    <dd>{config.changed}</dd>
-                  </div>
-                  <div>
-                    <dt>Yang dipertahankan</dt>
-                    <dd>{config.controlled}</dd>
-                  </div>
-                </dl>
-                <ol className="lab-steps">
-                  {config.actions.map((action) => (
-                    <li key={action}>{action}</li>
-                  ))}
-                </ol>
-                <p>
-                  <strong>Catat nanti:</strong> {config.observe}
-                </p>
-                <p>
-                  Gunakan simulasi di sebelah panduan ini. Klik lanjut untuk
-                  membuka tabel tanpa memuat ulang simulasi.
-                </p>
-                <div className="step-actions">
-                  <button className="secondary-button" onClick={() => go(0)}>
-                    Kembali ke prediksi
-                  </button>
-                  <button className="primary-button" onClick={() => go(2)}>
-                    Lanjut ke pengamatan
-                  </button>
-                </div>
-              </section>
-            ) : (
-              <section className="content-card">
-                <ObservationForm
-                  missionId={mission.id}
-                  draft={draft}
-                  update={update}
-                  onBack={() => go(1)}
-                  onContinue={() => {
-                    update({ observationStatus: 'recorded', step: 3 })
-                    requestAnimationFrame(() =>
-                      panel.current
-                        ?.querySelector<HTMLElement>('#step-heading')
-                        ?.focus(),
-                    )
-                  }}
-                />
-              </section>
-            )}
+            <CircuitEvidence
+              key={`${profileId}:${mission.id}`}
+              profileId={profileId}
+              missionId={mission.id}
+            />
           </div>
-        )}
+          <div className="step-actions" hidden={step !== 1}>
+            <button className="secondary-button" onClick={() => go(0)}>
+              Kembali ke prediksi
+            </button>
+            <button className="primary-button" onClick={() => go(2)}>
+              Lanjut ke pengamatan
+            </button>
+          </div>
+          <section className="content-card" hidden={step !== 2}>
+            <ObservationForm
+              missionId={mission.id}
+              draft={draft}
+              update={update}
+              onBack={() => go(1)}
+              onContinue={() => {
+                update({ observationStatus: 'recorded', step: 3 })
+                requestAnimationFrame(() =>
+                  panel.current
+                    ?.querySelector<HTMLElement>('#step-heading')
+                    ?.focus(),
+                )
+              }}
+            />
+          </section>
+        </div>
         {step === 3 && (
           <section className="content-card reflection">
             <button className="back-link" onClick={() => go(2)}>

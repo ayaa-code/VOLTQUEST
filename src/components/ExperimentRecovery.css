@@ -1,0 +1,54 @@
+.mission-page [hidden] {
+  display: none !important;
+}
+.mission-page .experiment-workbench {
+  grid-template-columns: minmax(0, 1fr);
+}
+.mission-page .phet-lab {
+  position: static;
+}
+.mission-lab-area {
+  min-width: 0;
+}
+.circuit-evidence {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface, #fff);
+}
+.circuit-evidence p {
+  font-size: 0.9rem;
+}
+.evidence-upload {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  font-weight: 600;
+}
+.evidence-upload input {
+  max-width: 100%;
+  min-height: 44px;
+}
+.evidence-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 320px;
+  margin: 16px auto;
+  object-fit: contain;
+}
+.resume-experiment {
+  margin: 20px 0;
+}
+.draft-status button {
+  margin-left: 12px;
+}
+@media (max-width: 480px) {
+  .circuit-evidence {
+    padding: 14px;
+  }
+  .evidence-upload {
+    display: grid;
+  }
+}

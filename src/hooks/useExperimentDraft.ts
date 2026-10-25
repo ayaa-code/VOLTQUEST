@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { experiments, parseMeasurement } from '../data/experiments'
 import type { ReflectionReview } from '../data/reflectionReview'
 
 export const DRAFT_KEY = 'voltquest.experiments.v1'
 export type Draft = {
+  updatedAt?: number
   step: number
   prediction: string
   predictionText: string
@@ -53,6 +54,10 @@ function sanitize(value: unknown, missionId: number): Draft {
     ? choice(value.initialPrediction.choice)
     : ''
   return {
+    updatedAt:
+      typeof value.updatedAt === 'number' && Number.isFinite(value.updatedAt)
+        ? value.updatedAt
+        : undefined,
     step:
       Number.isInteger(value.step) &&
       Number(value.step) >= 0 &&
@@ -139,7 +144,7 @@ function read(): { store: Store; notice: string; blocked: boolean } {
       store,
       notice:
         'Draf tidak dapat dibaca. Mulai draf baru; progres XP dan badge tetap terpisah. Jika penyimpanan tetap gagal, perubahan hanya ada selama halaman misi ini terbuka.',
-      blocked: false,
+      blocked: true,
     }
   }
 }
@@ -149,15 +154,17 @@ export function useExperimentDraft(profileId: string, missionId: number) {
     () => loaded.store.profiles[profileId]?.[missionId] ?? fresh(),
   )
   const current = useRef(draft)
-  const [saved, setSaved] = useState(false)
+  const [saved, setSaved] = useState(
+    !!loaded.store.profiles[profileId]?.[missionId] && !loaded.blocked,
+  )
   const [error, setError] = useState('')
   function update(patch: Partial<Draft>) {
-    const next = { ...current.current, ...patch }
+    const next = { ...current.current, ...patch, updatedAt: Date.now() }
     current.current = next
     setDraft(next)
     setSaved(false)
     const latest = read()
-    if (loaded.blocked || latest.blocked) {
+    if (latest.blocked) {
       setError(latest.notice || loaded.notice)
       return
     }
@@ -168,6 +175,7 @@ export function useExperimentDraft(profileId: string, missionId: number) {
         [missionId]: next,
       }
       localStorage.setItem(DRAFT_KEY, JSON.stringify(latest.store))
+      window.dispatchEvent(new Event('voltquest:draft-saved'))
       setSaved(true)
       setError('')
     } catch {
@@ -176,5 +184,32 @@ export function useExperimentDraft(profileId: string, missionId: number) {
       )
     }
   }
-  return { draft, update, saved, notice: loaded.notice, error }
+  return {
+    draft,
+    update,
+    saved,
+    notice: loaded.notice,
+    error,
+    retrySave: () => update({}),
+  }
+}
+
+export function useLastExperiment(profileId: string) {
+  const find = useCallback(() => {
+    const drafts = read().store.profiles[profileId] ?? {}
+    return Object.entries(drafts).sort(
+      (a, b) => (b[1].updatedAt ?? 0) - (a[1].updatedAt ?? 0),
+    )[0]?.[0]
+  }, [profileId])
+  const [last, setLast] = useState(find)
+  useEffect(() => {
+    const refresh = () => setLast(find())
+    window.addEventListener('storage', refresh)
+    window.addEventListener('voltquest:draft-saved', refresh)
+    return () => {
+      window.removeEventListener('storage', refresh)
+      window.removeEventListener('voltquest:draft-saved', refresh)
+    }
+  }, [find])
+  return last ? Number(last) : undefined
 }

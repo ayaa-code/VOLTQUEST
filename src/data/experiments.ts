@@ -85,7 +85,12 @@ export const experiments: Record<number, Experiment> = {
   3: {
     prediction:
       'Saat tegangan dinaikkan dengan resistor ohmik yang sama, bagaimana arus berubah?',
-    choices: ['Arus bertambah', 'Arus berkurang', 'Arus tetap', 'Prediksi lain'],
+    choices: [
+      'Arus bertambah',
+      'Arus berkurang',
+      'Arus tetap',
+      'Prediksi lain',
+    ],
     components: 'Baterai, kabel, resistor ohmik, voltmeter, dan amperemeter.',
     changed: 'Tegangan sumber: pilih dua nilai berbeda yang tersedia.',
     controlled:
@@ -186,6 +191,32 @@ export const experiments: Record<number, Experiment> = {
         },
       ],
     })),
+  },
+}
+
+export const experimentScreens: Record<
+  number,
+  { tab: 'Intro' | 'Lab'; hint: string }
+> = {
+  1: {
+    tab: 'Intro',
+    hint: 'Susun rangkaian sederhana dengan baterai, lampu, dan sakelar.',
+  },
+  2: {
+    tab: 'Intro',
+    hint: 'Bandingkan satu jalur seri dengan dua cabang paralel.',
+  },
+  3: {
+    tab: 'Lab',
+    hint: 'Gunakan resistor dan alat ukur untuk membandingkan tegangan serta arus.',
+  },
+  4: {
+    tab: 'Lab',
+    hint: 'Ukur tegangan serta arus pada beban untuk menghitung daya dan energi.',
+  },
+  5: {
+    tab: 'Lab',
+    hint: 'Bangun beberapa cabang lampu dengan sakelar masing-masing.',
   },
 }
 

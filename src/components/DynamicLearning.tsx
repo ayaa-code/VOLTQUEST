@@ -32,6 +32,7 @@ import './JourneyProgress.css'
 import { missions } from '../data/missions'
 import { MissionView } from './MissionView'
 import { passedQuestion } from '../data/attempts'
+import { useLastExperiment } from '../hooks/useExperimentDraft'
 
 type View =
   | { type: 'home' }
@@ -61,6 +62,7 @@ export function DynamicLearning({
   onReward?: (id: number) => void
 }) {
   const store = useDynamicLearning(profileId)
+  const lastMission = useLastExperiment(profileId)
   const [view, setView] = useState<View>(
     initialMissionId
       ? { type: 'mission', id: initialMissionId }
@@ -238,6 +240,17 @@ export function DynamicLearning({
             </div>
           </section>
 
+          {lastMission &&
+            learningAccess(learning, profileId).missionReady(lastMission) && (
+              <div className="resume-experiment">
+                <button
+                  className="secondary-button"
+                  onClick={() => open({ type: 'mission', id: lastMission })}
+                >
+                  Lanjutkan kegiatan terakhir <ArrowRight size={17} />
+                </button>
+              </div>
+            )}
           <section
             className="learning-path-grid"
             aria-label="Jalur belajar Listrik Dinamis"

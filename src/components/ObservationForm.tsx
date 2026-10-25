@@ -114,7 +114,7 @@ export function ObservationForm({
   }
   return (
     <form className="observation-form" ref={form} onSubmit={submit} noValidate>
-      <h2 tabIndex={-1} id="step-heading">
+      <h2 tabIndex={-1} id="observation-heading">
         Catat yang kamu amati
       </h2>
       <p>
