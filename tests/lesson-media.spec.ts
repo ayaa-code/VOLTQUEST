@@ -101,6 +101,8 @@ test.beforeEach(async ({ page }) => {
 test('all six complete manuscripts have the mapped lazy video, accessible controls, and responsive formulas', async ({
   page,
 }, info) => {
+  // This scenario checks six lessons at five widths and downloads the full textbook.
+  test.setTimeout(90_000)
   await page.goto('/')
   for (const [id, lesson] of Object.entries(lessons)) {
     await page.getByRole('button', { name: 'Explore Lessons' }).click()
@@ -195,11 +197,16 @@ test('all six complete manuscripts have the mapped lazy video, accessible contro
     await expect(page.locator('.lesson-video-frame iframe')).toHaveCount(0)
   }
   await page.getByRole('button', { name: 'Explore Lessons' }).click()
-  await expect(
-    page.getByRole('button', { name: 'Download E-book' }),
-  ).toBeDisabled()
-  await expect(page.getByText('E-book belum tersedia.')).toBeVisible()
-  await expect(page.locator('.lesson-resources a')).toHaveCount(10)
+  const ebook = page.getByRole('link', { name: 'Download PDF', exact: true })
+  await expect(ebook).toHaveAttribute('href', '/books/Fisika_BS_KLS_XII.pdf')
+  await expect(ebook).toHaveAttribute('download', 'Fisika_BS_KLS_XII.pdf')
+  const downloadPromise = page.waitForEvent('download')
+  await ebook.click()
+  const download = await downloadPromise
+  expect(download.suggestedFilename()).toBe('Fisika_BS_KLS_XII.pdf')
+  expect(await download.failure()).toBeNull()
+  await expect(page.getByText('Buku Fisika Kelas XII · PDF')).toBeVisible()
+  await expect(page.locator('.lesson-resources a')).toHaveCount(11)
   await page
     .getByRole('button', { name: 'Arus Listrik', exact: false })
     .first()

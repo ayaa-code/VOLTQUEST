@@ -20,7 +20,7 @@ export default defineConfig({
           let body = ''
           req.on('data', (chunk) => {
             body += chunk
-            if (body.length > 4096) req.destroy()
+            if (Buffer.byteLength(body) > 65000) req.destroy()
           })
           req.on('end', () => {
             try {

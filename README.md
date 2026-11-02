@@ -2,6 +2,8 @@
 
 [Buka aplikasi](https://voltquest-jet.vercel.app/) · [Deployment](docs/deployment.md) · [Paket kesiapan lomba](docs/competition-readiness/README.md)
 
+[Audit sumatif terbaru — 2 November 2026](docs/summative-audit-2026-11-02.md): pengiriman dua uraian, autosave, catatan berbasis rubrik, riwayat revisi, dan integrasi tinjauan AI.
+
 Pendamping pembelajaran Listrik Dinamis untuk Fisika Fase F. Fokus: mengubah prediksi menjadi penjelasan yang didukung bukti eksperimen. React, TypeScript, Vite dan Three.js; endpoint server menangani pemeriksaan asesmen dan layanan AI opsional.
 
 ## Alur sekarang
@@ -12,6 +14,7 @@ Misi Seri–Paralel, Daya, dan Listrik Sekolah adalah penguatan setelah materi t
 
 - Enam materi: bacaan, ringkasan, suara perangkat, video YouTube dan referensi.
 - Dua game formatif, masing-masing tiga soal. Skor game terpisah dari XP.
+- Sumatif: tiga pilihan ganda dan dua uraian. Draf otomatis tersimpan; hasil pilihan ganda dan catatan uraian dipisahkan dari nilai akhir guru. Revisi menyimpan snapshot pengiriman sebelumnya.
 - Discovery Lab: prediksi dan alasan, pengamatan, perbandingan, refleksi, screenshot dan laporan PDF.
 - Empat kesalahan memungkinkan lanjut dengan status perlu penguatan; bukan jawaban benar.
 - Progres tersedia pada desktop dan ponsel.

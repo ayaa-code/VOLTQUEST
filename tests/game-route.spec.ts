@@ -19,6 +19,10 @@ test('physical route', async ({ page }, testInfo) => {
         profiles: {
           'student:nara': {
             materials: [1, 2, 3],
+            questions: {
+              'phet:1': { wrong: 0, status: 'correct' },
+              'phet:3': { wrong: 0, status: 'correct' },
+            },
             challenges: [],
             challengeDrafts: {},
             quizzes: {},

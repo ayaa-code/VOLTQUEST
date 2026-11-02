@@ -271,7 +271,7 @@ export function LessonContent({ topicId }: { topicId: number }) {
           pemiliknya.
         </p>
       </section>
-      {topicId === 6 && <LessonResources />}
+      <LessonResources />
     </div>
   )
 }
@@ -284,14 +284,15 @@ export function LessonResources() {
     >
       <h2>E-book dan Referensi</h2>
       <div className="lesson-ebook">
-        <button
+        <a
           className="secondary-button"
-          disabled
+          href="/books/Fisika_BS_KLS_XII.pdf"
+          download="Fisika_BS_KLS_XII.pdf"
           aria-describedby="ebook-availability"
         >
-          <Download size={17} /> Download E-book
-        </button>
-        <p id="ebook-availability">E-book belum tersedia.</p>
+          <Download size={17} aria-hidden="true" /> Download PDF
+        </a>
+        <p id="ebook-availability">Buku Fisika Kelas XII · PDF</p>
       </div>
       <h3>Sumber referensi</h3>
       <p>

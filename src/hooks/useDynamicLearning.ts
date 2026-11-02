@@ -14,6 +14,16 @@ import {
 } from '../data/attempts'
 import { gradeAnswer } from '../data/assessmentClient'
 import { missions } from '../data/missions'
+import {
+  summativeEssays,
+  summativeKey,
+  summativeInputSchema,
+  submissionSchema,
+  type SummativeInput,
+  type SummativeProgress,
+  type SummativeSubmission,
+  type SummativeAIReview,
+} from '../data/summative'
 import { MISSIONS_DATA } from '../data/currentGame'
 import {
   energyMissions,
@@ -47,11 +57,7 @@ export type ProfileLearning = {
   challenges: number[]
   challengeDrafts: Record<string, ChallengeDraft>
   quizzes: Record<string, QuizAttempt>
-  summative: {
-    answers: Record<string, number>
-    essays: string[]
-    submitted: boolean
-  }
+  summative: SummativeProgress
 }
 type Saved = LearningStore
 const KEY = LEARNING_KEY
@@ -424,18 +430,59 @@ export function useDynamicLearning(profileId: string | null) {
               },
             },
       ),
-    saveSummative: (
-      answers: Record<string, number>,
-      essays: string[],
-      submitted: boolean,
-    ) =>
-      update((current) =>
-        !learningAccess(current, profileId).summativeReady
-          ? current
-          : {
-              ...current,
-              summative: { answers, essays, submitted },
-            },
-      ),
+    saveSummativeDraft: (input: SummativeInput) =>
+      update((current) => {
+        if (!learningAccess(current, profileId).summativeReady) return current
+        return {
+          ...current,
+          summative: {
+            ...current.summative,
+            answers: input.answers,
+            essayAnswers: input.essays,
+            essays: summativeEssays.map((q) => input.essays[q.id]),
+          },
+        }
+      }),
+    submitSummative: (submission: SummativeSubmission) =>
+      update((current) => {
+        if (
+          !learningAccess(current, profileId).summativeReady ||
+          !submissionSchema.safeParse(submission).success ||
+          !summativeInputSchema.safeParse(submission.input).success
+        )
+          return current
+        // A response for an earlier draft must never replace a newer submission.
+        const draft = current.summative
+        const essays =
+          draft.essayAnswers ??
+          (Object.fromEntries(
+            summativeEssays.map((q, i) => [q.id, draft.essays[i] ?? '']),
+          ) as SummativeInput['essays'])
+        if (
+          summativeKey({ answers: draft.answers, essays }) !==
+          summativeKey(submission.input)
+        )
+          return current
+        const previous = draft.submission
+        const history =
+          previous && previous.id !== submission.id
+            ? [...(draft.history ?? []), previous].slice(-5)
+            : draft.history
+        return {
+          ...current,
+          summative: { ...draft, submitted: true, submission, history },
+        }
+      }),
+    saveSummativeAI: (id: string, ai: SummativeAIReview) =>
+      update((current) => {
+        const old = current.summative.submission
+        if (!old || old.id !== id) return current
+        const next = { ...old, ai, aiAt: Date.now() }
+        if (!submissionSchema.safeParse(next).success) return current
+        return {
+          ...current,
+          summative: { ...current.summative, submission: next },
+        }
+      }),
   }
 }

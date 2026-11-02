@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { worksheetFields } from './challengeWorksheet.ts'
+import { MAX_ESSAY_LENGTH, summativeAIReviewSchema } from './summative.ts'
+export { summativeAIReviewSchema }
 const text = z.string().min(1).max(1800)
 const topic = z.number().int().min(1).max(6)
 export const missionReviewSchema = z
@@ -81,6 +83,18 @@ export const worksheetDataSchema = z
   .strict()
 const common = { consent: z.literal(true), token: z.string().min(1).max(2048) }
 export const aiInputSchema = z.discriminatedUnion('task', [
+  z
+    .object({
+      ...common,
+      task: z.literal('summative-review'),
+      essays: z
+        .object({
+          lamps: z.string().trim().min(1).max(MAX_ESSAY_LENGTH),
+          batteries: z.string().trim().min(1).max(MAX_ESSAY_LENGTH),
+        })
+        .strict(),
+    })
+    .strict(),
   z
     .object({
       ...common,

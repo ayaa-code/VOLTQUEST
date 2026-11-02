@@ -53,14 +53,20 @@ export function useAIService() {
     if (!response.ok)
       throw new Error(body.error ?? 'Permintaan gagal. Coba lagi nanti.')
     // The same strict contracts used by the server are also checked on the client.
-    const { reviewSchema, chatOutputSchema, missionReviewSchema } =
-      await import('../data/aiContracts')
+    const {
+      reviewSchema,
+      chatOutputSchema,
+      missionReviewSchema,
+      summativeAIReviewSchema,
+    } = await import('../data/aiContracts')
     const parsed = (
-      payload.task === 'mission-review'
-        ? missionReviewSchema
-        : payload.task === 'review'
-          ? reviewSchema
-          : chatOutputSchema
+      payload.task === 'summative-review'
+        ? summativeAIReviewSchema
+        : payload.task === 'mission-review'
+          ? missionReviewSchema
+          : payload.task === 'review'
+            ? reviewSchema
+            : chatOutputSchema
     ).safeParse(body.result)
     if (!parsed.success)
       throw new Error(

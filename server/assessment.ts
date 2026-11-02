@@ -1,3 +1,4 @@
+import { gradeSummative } from './summative.ts'
 // Server-only answer keys. Return an explanation only after a correct submission.
 function number(raw: unknown) {
   if (typeof raw !== 'string') return NaN
@@ -11,6 +12,11 @@ function number(raw: unknown) {
 }
 export function gradeAssessment(body: unknown) {
   if (!body || typeof body !== 'object') return { valid: false, correct: false }
+  if ('kind' in body && body.kind === 'summative')
+    return {
+      ...gradeSummative('input' in body ? body.input : undefined),
+      correct: undefined,
+    }
   const { kind, id, answer } = body as {
     kind: string
     id: number

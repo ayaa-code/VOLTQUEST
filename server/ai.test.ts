@@ -26,6 +26,98 @@ const dependencies: Dependencies = {
   }),
 }
 
+test('summative review preserves provider guards and validates both essay results', async () => {
+  const input = {
+    task: 'summative-review',
+    consent: true,
+    token: 'verified',
+    essays: { lamps: 'Tidak tahu', batteries: 'Belum paham' },
+  }
+  const output = {
+    essays: ['lamps', 'batteries'].map((id) => ({
+      id,
+      status: 'perlu-revisi',
+      strengths: [],
+      findings: [
+        {
+          explanation: 'Jawaban belum menjelaskan hubungan sumber dan beban.',
+          suggestion: 'Jelaskan susunan yang kamu pilih dan alasannya.',
+        },
+      ],
+      topicIds: [4],
+    })),
+    limitations: 'Tinjauan tulisan, memerlukan telaah guru.',
+  }
+  const deps: Dependencies = { ...dependencies, generate: async () => output }
+  assert.equal(
+    (await processAI(input, env.VOLTQUEST_ALLOWED_ORIGIN, 'ip', env, deps))
+      .status,
+    200,
+  )
+  assert.equal(
+    (
+      await processAI(
+        { ...input, consent: false },
+        env.VOLTQUEST_ALLOWED_ORIGIN,
+        'ip',
+        env,
+        deps,
+      )
+    ).status,
+    400,
+  )
+  assert.equal(
+    (
+      await processAI(input, env.VOLTQUEST_ALLOWED_ORIGIN, 'ip', env, {
+        ...deps,
+        verify: async () => false,
+      })
+    ).status,
+    403,
+  )
+  assert.equal(
+    (
+      await processAI(input, env.VOLTQUEST_ALLOWED_ORIGIN, 'ip', env, {
+        ...deps,
+        reserve: async () => false,
+      })
+    ).status,
+    429,
+  )
+  assert.equal(
+    (
+      await processAI(input, env.VOLTQUEST_ALLOWED_ORIGIN, 'ip', env, {
+        ...deps,
+        generate: async () => ({
+          ...output,
+          essays: [output.essays[0], output.essays[0]],
+        }),
+      })
+    ).status,
+    502,
+  )
+  assert.equal(
+    (
+      await processAI(input, env.VOLTQUEST_ALLOWED_ORIGIN, 'ip', env, {
+        ...deps,
+        generate: async () => ({ ...output, limitations: 'Jawaban 120 watt.' }),
+      })
+    ).status,
+    502,
+  )
+  assert.equal(
+    (
+      await processAI(input, env.VOLTQUEST_ALLOWED_ORIGIN, 'ip', env, {
+        ...deps,
+        generate: async () => {
+          throw Error('provider error')
+        },
+      })
+    ).status,
+    503,
+  )
+})
+
 test('mission review keeps consent, proof, schema and numerical-feedback gates', async () => {
   const input = {
     task: 'mission-review',

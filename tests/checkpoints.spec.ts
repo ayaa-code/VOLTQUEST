@@ -67,9 +67,30 @@ test.beforeEach(async ({ page }) => {
     profile,
   )
 })
-test('three materials unlock Piko; all three topic missions unlock material four', async ({
+test('three materials and verified Discovery missions unlock Piko; three game missions unlock material four', async ({
   page,
 }, info) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'voltquest.dynamic-electricity.v1',
+      JSON.stringify({
+        version: 1,
+        profiles: {
+          'student:nara': {
+            materials: [],
+            quizzes: {},
+            challenges: [],
+            challengeDrafts: {},
+            questions: {
+              'phet:1': { wrong: 0, status: 'correct' },
+              'phet:3': { wrong: 0, status: 'correct' },
+            },
+            summative: { answers: {}, essays: ['', ''], submitted: false },
+          },
+        },
+      }),
+    )
+  })
   await page.goto('/')
   for (const title of [
     'Arus Listrik',
@@ -99,7 +120,7 @@ test('three materials unlock Piko; all three topic missions unlock material four
   await playToGate(page)
   await page.locator('.cq-option-btn').first().click()
   await expect(page.locator('.cq-feedback-box[role=status]')).toContainText(
-    '7.200',
+    'Belum tepat',
   )
   await finishCurrentGame(page)
   await page
@@ -115,7 +136,7 @@ test('three materials unlock Piko; all three topic missions unlock material four
     }),
   ).toBeVisible()
 })
-test('energy control room validates all fields, persists, unlocks challenge and fits five widths', async ({
+test('energy control room validates all fields, persists, unlocks summative and fits five widths', async ({
   page,
 }, info) => {
   await page.addInitScript(() => {
@@ -195,9 +216,7 @@ test('energy control room validates all fields, persists, unlocks challenge and 
     .getByRole('button', { name: 'Complete Checkpoint', exact: true })
     .click()
   await page
-    .getByRole('button', { name: 'Start PhET Challenge', exact: true })
+    .getByRole('button', { name: 'Kerjakan Asesmen Sumatif', exact: true })
     .click()
-  await expect(
-    page.getByRole('heading', { name: /Challenge/ }).first(),
-  ).toBeVisible()
+  await expect(page.locator('.summative-detail')).toBeVisible()
 })

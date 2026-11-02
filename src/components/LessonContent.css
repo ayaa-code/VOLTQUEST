@@ -148,6 +148,9 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.lesson-ebook a {
+  text-decoration: none;
+}
 .lesson-resources ul {
   padding-left: 22px;
 }

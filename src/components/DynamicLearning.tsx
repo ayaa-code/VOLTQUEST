@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -13,11 +13,7 @@ import { AssistantChat } from './AssistantChat'
 import { CurrentFormativeGame } from './CurrentFormativeGame'
 import { EnergyControlRoom } from './EnergyControlRoom'
 import { checkpointDone } from '../data/checkpoints'
-import {
-  dynamicTopics,
-  summativeEssays,
-  summativeQuestions,
-} from '../data/dynamicElectricity'
+import { dynamicTopics } from '../data/dynamicElectricity'
 import { useDynamicLearning } from '../hooks/useDynamicLearning'
 import {
   learningAccess,
@@ -33,6 +29,12 @@ import { missions } from '../data/missions'
 import { MissionView } from './MissionView'
 import { passedQuestion } from '../data/attempts'
 import { useLastExperiment } from '../hooks/useExperimentDraft'
+
+const SummativeAssessment = lazy(() =>
+  import('./SummativeAssessment').then((module) => ({
+    default: module.SummativeAssessment,
+  })),
+)
 
 type View =
   | { type: 'home' }
@@ -522,7 +524,9 @@ function PathRow({
       </span>
       <span className="path-row-copy">
         <strong>{label}</strong>
-        {description && <span className="path-row-description">{description}</span>}
+        {description && (
+          <span className="path-row-description">{description}</span>
+        )}
         <small>
           {done ? (
             <CheckCircle2 size={13} />
@@ -771,7 +775,19 @@ function LearningPanel({
           />
         )
       ) : summativeReady ? (
-        <Summative store={store} onBack={onBack} />
+        <Suspense
+          fallback={
+            <section className="content-card" role="status">
+              Memuat asesmen sumatif…
+            </section>
+          }
+        >
+          <SummativeAssessment
+            store={store}
+            onBack={onBack}
+            onReview={(id) => onOpen({ type: 'material', id })}
+          />
+        </Suspense>
       ) : (
         <section className="content-card">
           <LockKeyhole />
@@ -871,110 +887,6 @@ function Material({
       )}
       <button className="text-button" onClick={onBack}>
         Kembali ke daftar materi <ArrowRight size={16} />
-      </button>
-    </section>
-  )
-}
-function Summative({
-  store,
-  onBack,
-}: {
-  store: ReturnType<typeof useDynamicLearning>
-  onBack: () => void
-}) {
-  const initial = store.learning.summative
-  const [answers, setAnswers] = useState(initial.answers)
-  const [essays, setEssays] = useState(initial.essays)
-  const [submitted, setSubmitted] = useState(initial.submitted)
-  const wrong = summativeQuestions.filter(
-    (question) => answers[question.id] !== question.answer,
-  )
-  const ready =
-    summativeQuestions.every((question) =>
-      Number.isInteger(answers[question.id]),
-    ) && essays.every((essay) => essay.trim().length >= 20)
-  function submit(e: React.FormEvent) {
-    e.preventDefault()
-    if (wrong.length) {
-      setSubmitted(false)
-      store.saveSummative(answers, essays, false)
-    } else {
-      setSubmitted(true)
-      store.saveSummative(answers, essays, true)
-    }
-  }
-  return (
-    <section className="content-card learning-detail summative-detail">
-      <span className="section-kicker">ASESMEN SUMATIF</span>
-      <h1>Listrik Dinamis</h1>
-      <p>
-        Selesaikan pilihan ganda dan uraian. Uraian disimpan untuk dibaca dengan
-        rubrik; VoltQuest tidak mengklaim menilai uraian secara otomatis.
-      </p>
-      <form onSubmit={submit}>
-        {summativeQuestions.map((q, index) => (
-          <fieldset key={q.id}>
-            <legend>
-              {index + 1}. {q.question}
-            </legend>
-            {q.options.map((option, optionIndex) => (
-              <label className="answer-option" key={option}>
-                <input
-                  type="radio"
-                  name={q.id}
-                  checked={answers[q.id] === optionIndex}
-                  onChange={() =>
-                    setAnswers({ ...answers, [q.id]: optionIndex })
-                  }
-                />
-                <span>{option}</span>
-              </label>
-            ))}
-            {submitted || Object.hasOwn(answers, q.id) ? (
-              answers[q.id] === q.answer ? (
-                <p className="answer-correct">Benar. {q.explanation}</p>
-              ) : (
-                <p className="answer-wrong">
-                  Ingat kembali materinya: {q.reminder}
-                </p>
-              )
-            ) : null}
-          </fieldset>
-        ))}
-        {summativeEssays.map((question, index) => (
-          <label className="guided-field" key={question}>
-            Uraian {index + 4}. {question}
-            <textarea
-              value={essays[index] ?? ''}
-              onChange={(e) => {
-                const next = [...essays]
-                next[index] = e.target.value
-                setEssays(next)
-              }}
-              placeholder="Tulis langkah, alasan, dan satuan yang relevan."
-            />
-          </label>
-        ))}
-        <button className="primary-button" disabled={!ready}>
-          Kirim asesmen sumatif <ArrowRight size={17} />
-        </button>
-      </form>
-      {!submitted && wrong.length > 0 && (
-        <div className="quiz-feedback">
-          <strong>Masih ada jawaban pilihan ganda yang perlu direvisi.</strong>
-          <p>
-            Gunakan pengingat di bawah soal, lalu periksa kembali jawabanmu.
-          </p>
-        </div>
-      )}
-      {submitted && (
-        <p className="success-note">
-          <CheckCircle2 size={18} /> Asesmen tersimpan. Gunakan rubrik dokumen
-          untuk meninjau dua jawaban uraian bersama guru atau secara mandiri.
-        </p>
-      )}
-      <button className="text-button" onClick={onBack}>
-        Kembali ke progres
       </button>
     </section>
   )

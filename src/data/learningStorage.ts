@@ -1,4 +1,5 @@
 import type { ProfileLearning } from '../hooks/useDynamicLearning'
+import { submissionSchema } from './summative'
 
 export const LEARNING_KEY = 'voltquest.dynamic-electricity.v1'
 export type LearningStore = {
@@ -44,6 +45,17 @@ export function readLearningStorage(storage: Pick<Storage, 'getItem'>): {
             !object(p.summative.answers) ||
             !Array.isArray(p.summative.essays) ||
             !p.summative.essays.every((s) => typeof s === 'string') ||
+            (p.summative.essayAnswers !== undefined &&
+              (!object(p.summative.essayAnswers) ||
+                typeof p.summative.essayAnswers.lamps !== 'string' ||
+                typeof p.summative.essayAnswers.batteries !== 'string')) ||
+            (p.summative.submission !== undefined &&
+              !submissionSchema.safeParse(p.summative.submission).success) ||
+            (p.summative.history !== undefined &&
+              (!Array.isArray(p.summative.history) ||
+                !p.summative.history.every(
+                  (s) => submissionSchema.safeParse(s).success,
+                ))) ||
             typeof p.summative.submitted !== 'boolean'))
       )
         return { store: empty, blocked: true }

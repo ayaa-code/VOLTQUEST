@@ -18,7 +18,7 @@ export default function handler(
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'POST required' })
   try {
-    if (JSON.stringify(req.body).length > 4096)
+    if (Buffer.byteLength(JSON.stringify(req.body)) > 65000)
       return res.status(413).json({ error: 'Too large' })
     const result = gradeAssessment(
       typeof req.body === 'string' ? JSON.parse(req.body) : req.body,
